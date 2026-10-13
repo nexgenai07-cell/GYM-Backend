@@ -9,8 +9,5 @@
   ],
   "routes": [
     { "src": "/(.*)", "dest": "config/wsgi.py" }
-  ],
-  "build": {
-    "env": { "DJANGO_SETTINGS_MODULE": "config.settings" }
-  }
+  ]
 }

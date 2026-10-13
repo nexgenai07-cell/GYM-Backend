@@ -5,6 +5,8 @@ Django settings for Smart Gym Backend.
 from pathlib import Path
 from datetime import timedelta
 from decouple import config, Csv
+import dj_database_url
+
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -14,6 +16,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = config('SECRET_KEY', default='django-insecure-change-me')
 DEBUG = config('DEBUG', default=True, cast=bool)
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1', cast=Csv())
+ALLOWED_HOSTS=gym-backend-xi-seven.vercel.app,.vercel.app
 
 # ============================================
 # APPLICATIONS
@@ -87,13 +90,12 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # ============================================
 # DATABASE
 # ============================================
-# Using SQLite for local development.
-# Switch to Neon/PostgreSQL for production later.
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    'default': dj_database_url.config(
+        default=config('DATABASE_URL', default=f'sqlite:///{BASE_DIR / "db.sqlite3"}'),
+        conn_max_age=600,
+        ssl_require=not DEBUG,
+    )
 }
 
 # ============================================
@@ -154,6 +156,12 @@ SIMPLE_JWT = {
     'BLACKLIST_AFTER_ROTATION': True,  
     'AUTH_HEADER_TYPES': ('Bearer',),
 }
+
+CSRF_TRUSTED_ORIGINS = config(
+    'CSRF_TRUSTED_ORIGINS',
+    default='https://gym-member-and-admin.vercel.app,https://gym-backend-xi-seven.vercel.app',
+    cast=Csv(),
+)
 
 # ============================================
 # CORS
@@ -223,3 +231,12 @@ LOGGING = {
         },
     },
 }
+
+if not DEBUG:
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    SECURE_SSL_REDIRECT = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_HSTS_SECONDS = 31536000
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True

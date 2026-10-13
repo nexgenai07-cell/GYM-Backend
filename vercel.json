@@ -1,6 +1,5 @@
 {
-  "version": 2,
-  "buildCommand": "bash build.sh",
+  "buildCommand": "python manage.py collectstatic --noinput",
   "builds": [
     {
       "src": "config/wsgi.py",
@@ -8,7 +7,7 @@
     }
   ],
   "routes": [
-    { "src": "/static/(.*)", "dest": "/staticfiles_build/static/$1" },
+    { "src": "/static/(.*)", "dest": "/static/$1" },
     { "src": "/(.*)", "dest": "config/wsgi.py" }
   ]
 }

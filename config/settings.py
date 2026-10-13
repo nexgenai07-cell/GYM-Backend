@@ -139,6 +139,9 @@ STORAGES = {
     },
 }
 
+# Whitenoise config — makes collectstatic run at every boot on Vercel
+WHITENOISE_MANIFEST_STRICT = False
+WHITENOISE_ALLOW_ALL_ORIGINS = True
 import os
 
 MEDIA_URL = '/media/'

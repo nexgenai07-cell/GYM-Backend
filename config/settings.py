@@ -139,8 +139,18 @@ STORAGES = {
     },
 }
 
+import os
+
 MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+
+# On Vercel, the deployment filesystem is read-only outside /tmp.
+# Files under /tmp survive until the next cold start — fine for testing.
+if os.environ.get('VERCEL'):
+    MEDIA_ROOT = '/tmp/media'
+else:
+    MEDIA_ROOT = BASE_DIR / 'media'
+
+os.makedirs(MEDIA_ROOT, exist_ok=True)
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 

@@ -1,18 +1,8 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "config/wsgi.py",
-      "use": "@vercel/python",
-      "config": { "maxLambdaSize": "15mb" }
-    },
-    {
-      "src": "staticfiles/**",
-      "use": "@vercel/static"
-    }
-  ],
-  "routes": [
-    { "src": "/static/(.*)", "dest": "/staticfiles/$1" },
-    { "src": "/(.*)", "dest": "config/wsgi.py" }
+  "buildCommand": "bash build.sh",
+  "outputDirectory": "staticfiles_build",
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/api/index" }
   ]
 }

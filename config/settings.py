@@ -57,9 +57,9 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',           # Must be first
+    'corsheaders.middleware.CorsMiddleware',           # first
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',      # Serve static files on Vercel
+    'whitenoise.middleware.WhiteNoiseMiddleware',      # <-- must be here
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',

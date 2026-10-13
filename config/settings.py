@@ -121,11 +121,19 @@ USE_TZ = True
 # ============================================
 # STATIC & MEDIA
 # ============================================
-# Static files (CSS, JavaScript, Images)
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles_build' / 'static'
 
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+
+# Django 5.1+ / 6.x unified storage config.
+# BOTH keys are required — "default" handles FileField/ImageField
+# uploads, "staticfiles" handles collectstatic.
 STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
     "staticfiles": {
         "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
     },

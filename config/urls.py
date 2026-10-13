@@ -24,9 +24,16 @@ urlpatterns = [
     path('api/attendance/', include('apps.attendance.urls')),
     path('api/dashboard/', include('apps.dashboard.urls')),
 
-    # ⬇️ NEW
+        # Existing admin dashboard API (members, machines, finance, analytics…)
+    path('api/admin/', include('apps.admin_api.urls')),
+
+    # Public site registration pipeline
     path('api/public/', include('apps.public_api.urls')),
-    path('api/admin/',  include('apps.public_api.admin_urls')),
+
+    # Admin approvals + gym-entry lookup (kept under a distinct prefix
+    # so it doesn't collide with apps.admin_api.urls)
+    path('api/admin/registrations-api/', include('apps.public_api.admin_urls')),
+]
 ]
 
 if settings.DEBUG:

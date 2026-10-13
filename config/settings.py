@@ -29,7 +29,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-
     # Third party
     'rest_framework',
     'rest_framework_simplejwt',
@@ -39,14 +38,14 @@ INSTALLED_APPS = [
     # Local apps
     'apps.core',
     'apps.accounts',
-    'apps.members',  
+    'apps.members',
     'apps.workouts',
     'apps.catalog',
     'apps.payments',
     'apps.nutrition',
     'apps.shop',
-    'apps.notifications',   
-    'apps.admin_api', 
+    'apps.notifications',
+    'apps.admin_api',
     'apps.facilities',
     'apps.classes',
     'apps.staff',
@@ -58,8 +57,9 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',  # Must be first
+    'corsheaders.middleware.CorsMiddleware',           # Must be first
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',      # Serve static files on Vercel
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -121,10 +121,13 @@ USE_TZ = True
 # ============================================
 # STATIC & MEDIA
 # ============================================
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-MEDIA_URL = 'media/'
+# WhiteNoise compression + caching for production
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
@@ -153,10 +156,13 @@ SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
     'ROTATE_REFRESH_TOKENS': True,
-    'BLACKLIST_AFTER_ROTATION': True,  
+    'BLACKLIST_AFTER_ROTATION': True,
     'AUTH_HEADER_TYPES': ('Bearer',),
 }
 
+# ============================================
+# CSRF
+# ============================================
 CSRF_TRUSTED_ORIGINS = config(
     'CSRF_TRUSTED_ORIGINS',
     default='https://gym-member-and-admin.vercel.app,https://gym-backend-xi-seven.vercel.app',
@@ -232,11 +238,20 @@ LOGGING = {
     },
 }
 
+# ============================================
+# PRODUCTION SECURITY
+# ============================================
 if not DEBUG:
+    # Required behind Vercel's proxy so Django knows the request is HTTPS
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-    SECURE_SSL_REDIRECT = True
+
+    # Cookies only sent over HTTPS
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
+
+    # HSTS — tells browsers to always use HTTPS
     SECURE_HSTS_SECONDS = 31536000
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_HSTS_PRELOAD = True
+
+ 

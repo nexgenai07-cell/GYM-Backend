@@ -1,0 +1,382 @@
+# apps/workouts/views.py
+from rest_framework import status
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.response import Response
+from django.utils import timezone
+from django.db.models import Sum, Count, Max, Avg, Q
+from datetime import timedelta
+
+from .models import (
+    Exercise, Workout, WorkoutExercise, WorkoutSet,
+    PersonalRecord, WorkoutTemplate,
+)
+from .serializers import (
+    ExerciseSerializer,
+    WorkoutSerializer,
+    WorkoutListSerializer,
+    WorkoutExerciseSerializer,
+    WorkoutSetSerializer,
+    PersonalRecordSerializer,
+    WorkoutTemplateSerializer,
+)
+
+
+# ============================================
+# EXERCISES (public catalog)
+# ============================================
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def exercises_list(request):
+    """
+    GET /api/workouts/exercises/
+    Query params: ?category=strength&muscle=chest&search=press
+    """
+    qs = Exercise.objects.filter(is_active=True)
+
+    category = request.query_params.get('category')
+    if category:
+        qs = qs.filter(category=category)
+
+    muscle = request.query_params.get('muscle')
+    if muscle:
+        qs = qs.filter(primary_muscle=muscle)
+
+    search = request.query_params.get('search')
+    if search:
+        qs = qs.filter(name__icontains=search)
+
+    return Response(ExerciseSerializer(qs, many=True).data)
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def exercise_by_qr(request, qr_tag_id):
+    """
+    GET /api/workouts/exercises/qr/<qr_tag_id>/
+    Find exercise by QR tag.
+    """
+    try:
+        exercise = Exercise.objects.get(qr_tag_id=qr_tag_id, is_active=True)
+        return Response(ExerciseSerializer(exercise).data)
+    except Exercise.DoesNotExist:
+        return Response(
+            {'detail': 'No exercise found for this QR tag.'},
+            status=status.HTTP_404_NOT_FOUND,
+        )
+
+
+# ============================================
+# WORKOUTS
+# ============================================
+@api_view(['GET', 'POST'])
+@permission_classes([IsAuthenticated])
+def workouts_list(request):
+    """
+    GET  /api/workouts/        → list user's workouts
+    POST /api/workouts/        → start a new workout
+    """
+    if request.method == 'GET':
+        qs = Workout.objects.filter(member=request.user)[:50]
+        return Response(WorkoutListSerializer(qs, many=True).data)
+
+    serializer = WorkoutSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save(member=request.user)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['GET', 'PATCH', 'DELETE'])
+@permission_classes([IsAuthenticated])
+def workout_detail(request, workout_id):
+    """
+    GET    /api/workouts/<id>/
+    PATCH  /api/workouts/<id>/
+    DELETE /api/workouts/<id>/
+    """
+    try:
+        workout = Workout.objects.get(id=workout_id, member=request.user)
+    except Workout.DoesNotExist:
+        return Response(
+            {'detail': 'Workout not found.'},
+            status=status.HTTP_404_NOT_FOUND,
+        )
+
+    if request.method == 'GET':
+        return Response(WorkoutSerializer(workout).data)
+
+    if request.method == 'PATCH':
+        serializer = WorkoutSerializer(workout, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    workout.delete()
+    return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def workout_complete(request, workout_id):
+    """
+    POST /api/workouts/<id>/complete/
+    """
+    try:
+        workout = Workout.objects.get(id=workout_id, member=request.user)
+    except Workout.DoesNotExist:
+        return Response({'detail': 'Workout not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+    workout.status = 'completed'
+    workout.completed_at = timezone.now()
+
+    if workout.started_at:
+        duration = (workout.completed_at - workout.started_at).total_seconds() / 60
+        workout.duration_minutes = int(duration)
+
+    sets = WorkoutSet.objects.filter(workout_exercise__workout=workout)
+    workout.total_sets = sets.count()
+    workout.total_reps = sets.aggregate(total=Sum('reps'))['total'] or 0
+    tonnage = sum((s.reps * s.weight_kg) for s in sets)
+    workout.total_tonnage_kg = tonnage
+    workout.total_exercises = workout.exercises.count()
+
+    vels = [s.mean_velocity for s in sets if s.mean_velocity]
+    if vels:
+        workout.avg_velocity = sum(vels) / len(vels)
+
+    workout.save()
+    return Response(WorkoutSerializer(workout).data)
+
+
+# ============================================
+# WORKOUT EXERCISES
+# ============================================
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def add_exercise_to_workout(request, workout_id):
+    """
+    POST /api/workouts/<id>/exercises/
+    Body: { "exercise_id": 5, "order": 0, "rest_seconds": 90 }
+    """
+    try:
+        workout = Workout.objects.get(id=workout_id, member=request.user)
+    except Workout.DoesNotExist:
+        return Response({'detail': 'Workout not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+    serializer = WorkoutExerciseSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save(workout=workout)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+# ============================================
+# WORKOUT SETS
+# ============================================
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def log_set(request, workout_exercise_id):
+    """
+    POST /api/workouts/exercises/<workout_exercise_id>/sets/
+    Body: { "set_number": 1, "reps": 8, "weight_kg": 80, "mean_velocity": 0.82, "rpe": 8 }
+    """
+    try:
+        we = WorkoutExercise.objects.get(
+            id=workout_exercise_id,
+            workout__member=request.user,
+        )
+    except WorkoutExercise.DoesNotExist:
+        return Response({'detail': 'Workout exercise not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+    serializer = WorkoutSetSerializer(data=request.data)
+    if serializer.is_valid():
+        workout_set = serializer.save(workout_exercise=we)
+
+        estimated_1rm = float(workout_set.weight_kg) * (1 + workout_set.reps / 30)
+        pr, created = PersonalRecord.objects.get_or_create(
+            member=request.user,
+            exercise=we.exercise,
+            defaults={
+                'best_weight_kg': workout_set.weight_kg,
+                'best_reps': workout_set.reps,
+                'best_estimated_1rm': estimated_1rm,
+            },
+        )
+        if not created:
+            if estimated_1rm > float(pr.best_estimated_1rm):
+                pr.best_weight_kg = workout_set.weight_kg
+                pr.best_reps = workout_set.reps
+                pr.best_estimated_1rm = estimated_1rm
+                pr.save()
+                workout_set.is_pr = True
+                workout_set.save()
+
+        return Response(WorkoutSetSerializer(workout_set).data, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+# ============================================
+# PERSONAL RECORDS
+# ============================================
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def my_prs(request):
+    """
+    GET /api/workouts/prs/
+    """
+    prs = PersonalRecord.objects.filter(member=request.user)
+    return Response(PersonalRecordSerializer(prs, many=True).data)
+
+
+# ============================================
+# ANALYTICS / STATS
+# ============================================
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def workout_stats(request):
+    """
+    GET /api/workouts/stats/
+    """
+    user = request.user
+    now = timezone.now()
+    thirty_days_ago = now - timedelta(days=30)
+
+    workouts = Workout.objects.filter(member=user, status='completed')
+    recent = workouts.filter(completed_at__gte=thirty_days_ago)
+
+    streak = 0
+    today = timezone.localdate()
+    check_date = today
+    while Workout.objects.filter(
+        member=user, status='completed', completed_at__date=check_date
+    ).exists():
+        streak += 1
+        check_date -= timedelta(days=1)
+
+    recent_sets = WorkoutSet.objects.filter(
+        workout_exercise__workout__in=recent,
+    )
+
+    return Response({
+        'total_workouts': workouts.count(),
+        'total_tonnage_all_time': float(
+            workouts.aggregate(t=Sum('total_tonnage_kg'))['t'] or 0
+        ),
+        'recent_30d': {
+            'workouts': recent.count(),
+            'total_sets': recent_sets.count(),
+            'total_reps': recent_sets.aggregate(t=Sum('reps'))['t'] or 0,
+            'total_tonnage_kg': float(recent.aggregate(t=Sum('total_tonnage_kg'))['t'] or 0),
+        },
+        'current_streak_days': streak,
+        'total_prs': PersonalRecord.objects.filter(member=user).count(),
+        'avg_duration_minutes': recent.aggregate(a=Avg('duration_minutes'))['a'] or 0,
+    })
+
+
+# ============================================
+# WORKOUT TEMPLATES
+# ============================================
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def templates_list(request):
+    """
+    GET /api/workouts/templates/
+    """
+    qs = WorkoutTemplate.objects.filter(is_active=True, is_public=True)
+
+    category = request.query_params.get('category')
+    if category:
+        qs = qs.filter(category=category)
+
+    difficulty = request.query_params.get('difficulty')
+    if difficulty:
+        qs = qs.filter(difficulty=difficulty)
+
+    return Response(WorkoutTemplateSerializer(qs, many=True).data)
+
+
+# ============================================
+# QUICK LOG SET FROM MACHINE GUIDE
+# ============================================
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def quick_log_set(request, exercise_id):
+    """
+    POST /api/workouts/exercises/<exercise_id>/quick-log/
+    Body: { "weight_kg": 75, "reps": 10, "mean_velocity": 0.82, "rpe": 8 }
+
+    Auto-creates a workout if none in progress, adds the exercise, logs the set.
+    Returns the log entry + any new PR.
+    """
+    try:
+        exercise = Exercise.objects.get(id=exercise_id)
+    except Exercise.DoesNotExist:
+        return Response({'detail': 'Exercise not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+    workout = Workout.objects.filter(
+        member=request.user,
+        status='in_progress',
+    ).order_by('-started_at').first()
+
+    if not workout:
+        workout = Workout.objects.create(
+            member=request.user,
+            name='Machine Guide Session',
+            status='in_progress',
+        )
+
+    we, created = WorkoutExercise.objects.get_or_create(
+        workout=workout,
+        exercise=exercise,
+        defaults={'order': workout.exercises.count()},
+    )
+
+    set_count = we.sets.count()
+
+    workout_set = WorkoutSet.objects.create(
+        workout_exercise=we,
+        set_number=set_count + 1,
+        reps=request.data.get('reps', 8),
+        weight_kg=request.data.get('weight_kg', 0),
+        mean_velocity=request.data.get('mean_velocity'),
+        peak_velocity=request.data.get('peak_velocity'),
+        rpe=request.data.get('rpe'),
+        is_warmup=request.data.get('is_warmup', False),
+    )
+
+    estimated_1rm = float(workout_set.weight_kg) * (1 + workout_set.reps / 30)
+    pr_achieved = False
+
+    pr, pr_created = PersonalRecord.objects.get_or_create(
+        member=request.user,
+        exercise=exercise,
+        defaults={
+            'best_weight_kg': workout_set.weight_kg,
+            'best_reps': workout_set.reps,
+            'best_estimated_1rm': estimated_1rm,
+        },
+    )
+
+    if not pr_created:
+        if estimated_1rm > float(pr.best_estimated_1rm):
+            pr.best_weight_kg = workout_set.weight_kg
+            pr.best_reps = workout_set.reps
+            pr.best_estimated_1rm = estimated_1rm
+            pr.save()
+            workout_set.is_pr = True
+            workout_set.save()
+            pr_achieved = True
+
+    return Response({
+        'set_id': workout_set.id,
+        'workout_id': workout.id,
+        'workout_exercise_id': we.id,
+        'set_number': workout_set.set_number,
+        'reps': workout_set.reps,
+        'weight_kg': float(workout_set.weight_kg),
+        'is_pr': workout_set.is_pr,
+        'pr_achieved': pr_achieved,
+    }, status=status.HTTP_201_CREATED)

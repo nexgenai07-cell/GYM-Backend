@@ -1,0 +1,158 @@
+from rest_framework import serializers
+from .models import (
+    TrainerProfile, TrainerAvailability,
+    Course, CourseModule, Enrollment,
+    TrainerSession,
+    CourseReview, TrainerReview,
+)
+
+
+# ============================================
+# TRAINERS
+# ============================================
+class TrainerUserSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    email = serializers.EmailField()
+    full_name = serializers.CharField()
+    avatar = serializers.ImageField()
+
+
+class TrainerProfileSerializer(serializers.ModelSerializer):
+    user = TrainerUserSerializer(read_only=True)
+    total_courses = serializers.SerializerMethodField()
+    availability = serializers.SerializerMethodField()
+
+    class Meta:
+        model = TrainerProfile
+        fields = [
+            'id', 'user', 'title', 'credentials', 'bio', 'photo_url',
+            'is_verified', 'is_accepting_clients',
+            'specialties', 'rating', 'total_reviews', 'total_students',
+            'years_experience', 'hourly_rate',
+            'offers_1on1', 'offers_consultation',
+            'total_courses', 'availability',
+        ]
+
+    def get_total_courses(self, obj):
+        return obj.courses.filter(status='published').count()
+
+    def get_availability(self, obj):
+        slots = obj.availability.filter(is_active=True)
+        return TrainerAvailabilitySerializer(slots, many=True).data
+
+
+class TrainerAvailabilitySerializer(serializers.ModelSerializer):
+    day_label = serializers.CharField(source='get_day_of_week_display', read_only=True)
+
+    class Meta:
+        model = TrainerAvailability
+        fields = ['id', 'day_of_week', 'day_label', 'start_time', 'end_time', 'is_active']
+
+
+# ============================================
+# COURSES
+# ============================================
+class CourseModuleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CourseModule
+        fields = [
+            'id', 'order', 'title', 'description',
+            'week_number', 'day_number',
+            'video_url', 'pdf_url', 'duration_minutes',
+            'is_locked_until_prev',
+        ]
+
+
+class CourseListSerializer(serializers.ModelSerializer):
+    trainer_name = serializers.CharField(source='trainer.user.full_name', read_only=True)
+    trainer_avatar = serializers.ImageField(source='trainer.user.avatar', read_only=True)
+
+    class Meta:
+        model = Course
+        fields = [
+            'id', 'title', 'subtitle', 'category', 'level',
+            'cover_image_url', 'duration_weeks', 'days_per_week',
+            'estimated_minutes_per_session',
+            'price', 'is_included_with_pro',
+            'rating', 'total_reviews', 'total_enrolled',
+            'is_featured',
+            'trainer_name', 'trainer_avatar',
+            'created_at',
+        ]
+
+
+class CourseDetailSerializer(serializers.ModelSerializer):
+    trainer = TrainerProfileSerializer(read_only=True)
+    modules = CourseModuleSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Course
+        fields = [
+            'id', 'title', 'subtitle', 'description', 'category', 'level',
+            'cover_image_url', 'promo_video_url',
+            'duration_weeks', 'days_per_week', 'estimated_minutes_per_session',
+            'price', 'is_included_with_pro',
+            'status', 'is_featured',
+            'rating', 'total_reviews', 'total_enrolled',
+            'trainer', 'modules',
+            'created_at', 'updated_at',
+        ]
+
+
+# ============================================
+# ENROLLMENTS
+# ============================================
+class EnrollmentSerializer(serializers.ModelSerializer):
+    course = CourseListSerializer(read_only=True)
+    course_id = serializers.IntegerField(write_only=True)
+
+    class Meta:
+        model = Enrollment
+        fields = [
+            'id', 'course', 'course_id', 'status',
+            'enrolled_at', 'completed_at',
+            'progress_percent', 'amount_paid', 'payment_ref',
+        ]
+        read_only_fields = [
+            'id', 'status', 'enrolled_at', 'completed_at',
+            'progress_percent', 'amount_paid', 'payment_ref',
+        ]
+
+
+# ============================================
+# SESSIONS
+# ============================================
+class TrainerSessionSerializer(serializers.ModelSerializer):
+    trainer_name = serializers.CharField(source='trainer.user.full_name', read_only=True)
+    trainer_id = serializers.IntegerField(write_only=True, required=False)
+
+    class Meta:
+        model = TrainerSession
+        fields = [
+            'id', 'trainer', 'trainer_name', 'trainer_id',
+            'scheduled_at', 'duration_minutes', 'status',
+            'focus_area', 'notes', 'amount_charged',
+            'created_at',
+        ]
+        read_only_fields = ['id', 'status', 'amount_charged', 'created_at']
+
+
+# ============================================
+# REVIEWS
+# ============================================
+class CourseReviewSerializer(serializers.ModelSerializer):
+    member_name = serializers.CharField(source='member.full_name', read_only=True)
+
+    class Meta:
+        model = CourseReview
+        fields = ['id', 'member_name', 'rating', 'comment', 'created_at']
+        read_only_fields = ['id', 'created_at']
+
+
+class TrainerReviewSerializer(serializers.ModelSerializer):
+    member_name = serializers.CharField(source='member.full_name', read_only=True)
+
+    class Meta:
+        model = TrainerReview
+        fields = ['id', 'member_name', 'rating', 'comment', 'created_at']
+        read_only_fields = ['id', 'created_at']

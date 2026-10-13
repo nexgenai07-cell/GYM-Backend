@@ -3,6 +3,7 @@
   "buildCommand": "bash build.sh",
   "outputDirectory": "staticfiles_build",
   "rewrites": [
+    { "source": "/static/(.*)", "destination": "/staticfiles_build/static/$1" },
     { "source": "/(.*)", "destination": "/api/index" }
   ]
 }

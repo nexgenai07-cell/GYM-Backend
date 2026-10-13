@@ -3,10 +3,11 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 
+
 urlpatterns = [
     path('django-admin/', admin.site.urls),
 
-    # Existing
+    # ----- Existing APIs -----
     path('api/', include('apps.core.urls')),
     path('api/auth/', include('apps.accounts.urls')),
     path('api/members/', include('apps.members.urls')),
@@ -24,17 +25,18 @@ urlpatterns = [
     path('api/attendance/', include('apps.attendance.urls')),
     path('api/dashboard/', include('apps.dashboard.urls')),
 
-        # Existing admin dashboard API (members, machines, finance, analytics…)
+    # ----- Existing admin dashboard API -----
+    # (members, machines, finance, analytics, audit-feed, arena-heatmap, etc.)
     path('api/admin/', include('apps.admin_api.urls')),
 
-    # Public site registration pipeline
+    # ----- Public site (no auth) -----
     path('api/public/', include('apps.public_api.urls')),
 
-    # Admin approvals + gym-entry lookup (kept under a distinct prefix
-    # so it doesn't collide with apps.admin_api.urls)
+    # ----- Registration approval + gym-entry lookup -----
+    # Mounted under a distinct prefix to avoid colliding with apps.admin_api
     path('api/admin/registrations-api/', include('apps.public_api.admin_urls')),
 ]
-]
+
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

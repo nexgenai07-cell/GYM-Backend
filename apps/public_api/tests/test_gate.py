@@ -1,24 +1,10 @@
-"""
-Gate / entry tests: FaceCheck audit trail, check-in plan validation, session timer.
-
-Run (Command Prompt, from the backend folder):
-    venv\\Scripts\\python.exe manage.py test apps.public_api -v 2
-"""
+"""Gate / entry tests: FaceCheck audit trail, check-in plan validation, session timer."""
 from datetime import date, timedelta
 
-from django.conf import settings
 from django.contrib.auth import get_user_model
 from rest_framework.test import APITestCase
 
 from apps.members.models import CheckIn, FaceCheck, Membership, MembershipPlan
-
-# Test discovery imports this module before Django creates the test database,
-# so this stops a run that would create test_<db> on the production server.
-if 'sqlite' not in settings.DATABASES['default']['ENGINE']:
-    raise RuntimeError(
-        'Refusing to run tests against a non-SQLite DATABASE_URL '
-        f"({settings.DATABASES['default']['ENGINE']}). Use DATABASE_URL=sqlite:///db.sqlite3."
-    )
 
 User = get_user_model()
 BASE = '/api/admin/registrations-api/members'

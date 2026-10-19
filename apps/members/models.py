@@ -130,6 +130,48 @@ class CheckIn(models.Model):
 
 
 # ============================================================
+# FACE CHECK (security audit trail — every gate comparison)
+# ============================================================
+class FaceCheck(models.Model):
+    """
+    One face comparison at the entrance, granted or denied. Kept even if the
+    member is later deleted (member is SET_NULL; iqama_number is a snapshot).
+    """
+    member = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True, blank=True,
+        related_name='face_checks',
+    )
+    iqama_number = models.CharField(max_length=20, blank=True, db_index=True)
+    matched      = models.BooleanField()
+    confidence   = models.FloatField()                       # similarity score
+    threshold    = models.FloatField(null=True, blank=True)  # threshold in force
+    verified_by  = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True, blank=True,
+        related_name='performed_face_checks',
+    )
+    check_in     = models.OneToOneField(
+        CheckIn,
+        on_delete=models.SET_NULL,
+        null=True, blank=True,
+        related_name='face_check',
+    )
+    source       = models.CharField(max_length=30, default='gate')
+    created_at   = models.DateTimeField(auto_now_add=True, db_index=True)
+
+    class Meta:
+        db_table = 'face_checks'
+        ordering = ['-created_at']
+        indexes = [models.Index(fields=['matched', '-created_at'])]
+
+    def __str__(self):
+        return f"{'MATCH' if self.matched else 'DENIED'} {self.iqama_number} ({self.confidence:.3f}) @ {self.created_at}"
+
+
+# ============================================================
 # MEMBERSHIP REGISTRATION (new — public signup pipeline)
 # ============================================================
 class MembershipRegistration(models.Model):

@@ -178,13 +178,21 @@ class Backend:
             raise GateError('Registered photo could not be decoded.')
         return img
 
-    def record_face_check(self, member_id, matched, score):
-        self._call('POST', f'/admin/registrations-api/members/{member_id}/face-verify/',
-                   json={'match': matched, 'confidence': round(score, 4)})
+    def record_face_check(self, member_id, matched, score, threshold):
+        """Saves a FaceCheck (audit trail, incl. denials). Returns its id, or None if not saved."""
+        r = self._call('POST', f'/admin/registrations-api/members/{member_id}/face-verify/',
+                       json={'match': matched, 'confidence': round(score, 4),
+                             'threshold': threshold, 'source': 'gate'})
+        if r.status_code != 201:
+            print(f'{Fore.YELLOW}Warning: face check not recorded (HTTP {r.status_code}).{Style.RESET_ALL}')
+            return None
+        return r.json().get('face_check_id')
 
-    def check_in(self, member_id, facility):
-        r = self._call('POST', f'/admin/registrations-api/members/{member_id}/check-in/',
-                       json={'facility': facility, 'face_verified': True})
+    def check_in(self, member_id, facility, face_check_id=None):
+        body = {'facility': facility, 'face_verified': True}
+        if face_check_id is not None:
+            body['face_check_id'] = face_check_id
+        r = self._call('POST', f'/admin/registrations-api/members/{member_id}/check-in/', json=body)
         if r.status_code != 201:
             raise GateError(f"Face matched but check-in failed: {r.json().get('detail', r.status_code)}")
         return r.json()
@@ -304,8 +312,9 @@ def run(args):
     matched = score >= threshold
     detail = f'similarity {score:.3f} (threshold {threshold:.3f})'
 
+    face_check_id = None
     if not args.no_record:
-        backend.record_face_check(member['id'], matched, score)
+        face_check_id = backend.record_face_check(member['id'], matched, score, threshold)
 
     if not matched:
         raise Denied(f'Face does not match {name} - {detail}.')
@@ -316,7 +325,7 @@ def run(args):
     if args.no_record:
         lines.append('(--no-record: check-in NOT saved)')
     else:
-        ci = backend.check_in(member['id'], cfg['facility'])
+        ci = backend.check_in(member['id'], cfg['facility'], face_check_id)
         lines.append(f"Checked in at {cfg['facility']} (#{ci.get('id')})")
     return lines
 

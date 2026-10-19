@@ -12,7 +12,7 @@ from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from rest_framework.response import Response
 
 from apps.members.models import (
-    MembershipPlan, MembershipRegistration, Membership, CheckIn,
+    MembershipPlan, MembershipRegistration, Membership, CheckIn, FaceCheck,
 )
 from apps.members.serializers import (
     MembershipPlanSerializer, MembershipSerializer, CheckInSerializer,
@@ -439,24 +439,47 @@ def admin_member_lookup(request):
 def admin_member_face_verify(request, member_id):
     """
     POST /api/admin/members/<id>/face-verify/
-    Body: { "match": true|false, "confidence": 0.94 }  — stub.
-    Logs the verification attempt. Real face matching is out of scope for now.
+    Body: { "match": true|false, "confidence": 0.877, "threshold": 0.363, "source": "gate" }
+    Records the comparison (granted or denied) as a FaceCheck — the security audit trail.
+    The matching itself happens at the gate (gym_entry_system/gate_check.py).
     """
     from django.contrib.auth import get_user_model
     User = get_user_model()
     member = get_object_or_404(User, id=member_id)
 
-    matched = bool(request.data.get('match', False))
-    confidence = float(request.data.get('confidence', 0.0))
+    try:
+        confidence = float(request.data.get('confidence'))
+        threshold = request.data.get('threshold')
+        threshold = float(threshold) if threshold is not None else None
+    except (TypeError, ValueError):
+        return Response({'detail': 'confidence (and threshold, if given) must be numbers.'},
+                        status=status.HTTP_400_BAD_REQUEST)
+    matched = request.data.get('match')
+    if not isinstance(matched, bool):
+        return Response({'detail': 'match must be true or false.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    membership = Membership.objects.filter(member=member).only('iqama_number').first()
+    fc = FaceCheck.objects.create(
+        member=member,
+        iqama_number=membership.iqama_number if membership else '',
+        matched=matched,
+        confidence=confidence,
+        threshold=threshold,
+        verified_by=request.user,
+        source=str(request.data.get('source') or 'gate')[:30],
+    )
+    if not matched:
+        logger.warning('Face check DENIED: member #%s (%s) confidence %.3f by %s',
+                       member.id, fc.iqama_number, confidence, request.user.email)
 
     return Response({
         'ok': True,
+        'face_check_id': fc.id,
         'member_id': member.id,
         'matched': matched,
         'confidence': confidence,
         'verified_by': request.user.email,
-        'note': 'Face-verify stub — swap for real matcher (e.g. face_recognition / AWS Rekognition).',
-    })
+    }, status=status.HTTP_201_CREATED)
 
 
 @api_view(['POST'])
@@ -464,7 +487,9 @@ def admin_member_face_verify(request, member_id):
 def admin_check_in(request, member_id):
     """
     POST /api/admin/members/<id>/check-in/
-    Body: { "facility": "...", "zone": "...", "face_verified": true }
+    Body: { "facility": "...", "zone": "...", "face_verified": true, "face_check_id": 12 }
+    face_check_id (optional) links the check-in to the matching FaceCheck; it must be
+    a successful check for this member that isn't linked to another check-in.
     """
     from django.contrib.auth import get_user_model
     User = get_user_model()
@@ -483,13 +508,26 @@ def admin_check_in(request, member_id):
             'check_in_id': existing.id,
         }, status=status.HTTP_400_BAD_REQUEST)
 
+    face_check = None
+    if request.data.get('face_check_id') is not None:
+        face_check = FaceCheck.objects.filter(
+            id=request.data.get('face_check_id'), member=member,
+            matched=True, check_in__isnull=True,
+        ).first()
+        if face_check is None:
+            return Response({'detail': 'face_check_id is not an unused successful face check for this member.'},
+                            status=status.HTTP_400_BAD_REQUEST)
+
     ci = CheckIn.objects.create(
         member=member,
         facility=request.data.get('facility', 'Metro Station Core 01'),
         zone=request.data.get('zone', ''),
         verified_by=request.user,
-        face_verified=bool(request.data.get('face_verified', False)),
+        face_verified=bool(request.data.get('face_verified', False)) or face_check is not None,
     )
+    if face_check is not None:
+        face_check.check_in = ci
+        face_check.save(update_fields=['check_in'])
 
     # Increment membership counter
     try:

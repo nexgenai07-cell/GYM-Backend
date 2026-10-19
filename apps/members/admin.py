@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.utils.html import format_html
-from .models import MembershipPlan, Membership, CheckIn, MembershipRegistration
+from .models import MembershipPlan, Membership, CheckIn, MembershipRegistration, FaceCheck
 
 
 @admin.register(MembershipPlan)
@@ -23,6 +23,24 @@ class CheckInAdmin(admin.ModelAdmin):
     list_filter = ['facility', 'face_verified']
     search_fields = ['member__email']
     raw_id_fields = ['member', 'verified_by']
+
+
+@admin.register(FaceCheck)
+class FaceCheckAdmin(admin.ModelAdmin):
+    """Read-only security audit trail of gate face comparisons."""
+    list_display = ['created_at', 'matched', 'iqama_number', 'member', 'confidence', 'threshold', 'verified_by', 'check_in']
+    list_filter = ['matched', 'source']
+    search_fields = ['iqama_number', 'member__email']
+    date_hierarchy = 'created_at'
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
 
 
 @admin.register(MembershipRegistration)

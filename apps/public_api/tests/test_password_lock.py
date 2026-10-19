@@ -40,7 +40,8 @@ class PasswordLockTests(APITestCase):
             with self.subTest(path=path):
                 r = self.client.get(path)
                 self.assertEqual(r.status_code, 403)
-                self.assertEqual(r.data['detail'].code, 'password_change_required')
+                self.assertEqual(r.json()['code'], 'password_change_required')
+                self.assertIn('temporary password', r.json()['detail'])
 
     def test_me_change_password_and_logout_stay_open(self):
         r = self.login()

@@ -17,7 +17,12 @@ ALLOWED_WHILE_PASSWORD_CHANGE_REQUIRED = (
 
 
 class PasswordChangeRequired(PermissionDenied):
-    default_detail = 'You must change your temporary password before continuing.'
+    # A dict detail is returned as-is, so clients get a stable machine-readable code:
+    # 403 {"detail": "...", "code": "password_change_required"}
+    default_detail = {
+        'detail': 'You must change your temporary password before continuing.',
+        'code': 'password_change_required',
+    }
     default_code = 'password_change_required'
 
 

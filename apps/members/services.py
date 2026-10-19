@@ -81,6 +81,7 @@ def approve_registration(reg: MembershipRegistration, approved_by=None):
     # never logged. Stored hashed by set_password().
     temp_password = generate_temp_password()
     user.set_password(temp_password)
+    user.must_change_password = True   # API is locked to "change password" until they do
     user.save()
 
     # 3. Create the Membership

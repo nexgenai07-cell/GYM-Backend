@@ -18,6 +18,10 @@ class User(AbstractUser):
     avatar = models.ImageField(upload_to='avatars/', blank=True, null=True)
     date_of_birth = models.DateField(blank=True, null=True)
     is_verified = models.BooleanField(default=False)
+    # Set when an account is given a temporary password (registration approval).
+    # While True the API only allows changing the password (see accounts.authentication).
+    # db_default so code deployed before this column existed can still insert users.
+    must_change_password = models.BooleanField(default=False, db_default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

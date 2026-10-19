@@ -18,9 +18,9 @@ class UserSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'email', 'username', 'first_name', 'last_name',
             'full_name', 'phone', 'role', 'avatar', 'date_of_birth',
-            'is_verified', 'created_at',
+            'is_verified', 'must_change_password', 'created_at',
         ]
-        read_only_fields = ['id', 'email', 'role', 'is_verified', 'created_at']
+        read_only_fields = ['id', 'email', 'role', 'is_verified', 'must_change_password', 'created_at']
 
     def get_full_name(self, obj):
         return f"{obj.first_name} {obj.last_name}".strip() or obj.username
@@ -138,8 +138,14 @@ class ChangePasswordSerializer(serializers.Serializer):
             raise serializers.ValidationError('Current password is incorrect.')
         return value
 
+    def validate_new_password(self, value):
+        if self.context['request'].user.check_password(value):
+            raise serializers.ValidationError('Choose a password different from the current one.')
+        return value
+
     def save(self, **kwargs):
         user = self.context['request'].user
         user.set_password(self.validated_data['new_password'])
+        user.must_change_password = False
         user.save()
         return user

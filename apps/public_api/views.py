@@ -33,8 +33,6 @@ from .serializers import (
 )
 from .permissions import IsAdminOrManager
 
-from django.conf import settings
-print(">>> REGISTER VIEW LOADED, STORAGES keys =", list(settings.STORAGES.keys()))
 # ============================================================
 # PUBLIC — CATALOG
 # ============================================================

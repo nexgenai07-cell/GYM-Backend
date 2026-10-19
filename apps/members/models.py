@@ -2,6 +2,7 @@ from django.db import models
 from django.conf import settings
 from django.utils import timezone
 from datetime import date
+from decimal import Decimal, ROUND_HALF_UP
 import uuid
 
 
@@ -144,7 +145,7 @@ class MembershipRegistration(models.Model):
 
     STATUS = [
         (STATUS_PENDING,  'Pending'),
-        (STATUS_PAID,     'Payment Confirmed'),
+        (STATUS_PAID,     'Pending admin approval'),
         (STATUS_APPROVED, 'Approved'),
         (STATUS_REJECTED, 'Rejected'),
         (STATUS_EXPIRED,  'Expired'),
@@ -176,12 +177,19 @@ class MembershipRegistration(models.Model):
     plan            = models.ForeignKey(MembershipPlan, on_delete=models.PROTECT, related_name='registrations')
     duration_months = models.IntegerField(default=1)
 
-    # Payment (Mada)
+    # Payment (Moyasar — Mada / STC Pay)
     payment_method    = models.CharField(max_length=20, default='mada')
     payment_reference = models.CharField(max_length=100, blank=True)
     payment_amount    = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     payment_status    = models.CharField(max_length=20, choices=PAYMENT_STATUS, default='pending')
     payment_paid_at   = models.DateTimeField(null=True, blank=True)
+    # null (not '') so the unique constraint ignores registrations without a payment yet
+    moyasar_payment_id     = models.CharField(max_length=64, unique=True, null=True, blank=True)
+    # Server-issued per attempt and sent in the payment's metadata; verification requires
+    # it to match, so a payment can't be bound to a registration via client metadata alone.
+    payment_attempt_token  = models.CharField(max_length=64, blank=True, db_default='')
+    payment_failure_reason = models.CharField(max_length=255, blank=True, db_default='')
+    payment_raw            = models.JSONField(null=True, blank=True)  # last payment object fetched from Moyasar
 
     # Meta
     status           = models.CharField(max_length=30, choices=STATUS, default=STATUS_PENDING)
@@ -220,6 +228,11 @@ class MembershipRegistration(models.Model):
     @property
     def is_actionable(self):
         return self.status in (self.STATUS_PENDING, self.STATUS_PAID)
+
+    @property
+    def amount_halalas(self):
+        """Server-side expected charge in halalas (Moyasar's smallest unit)."""
+        return int((Decimal(self.payment_amount) * 100).to_integral_value(ROUND_HALF_UP))
 
     @property
     def total_price(self):

@@ -1,10 +1,26 @@
+import re
+import secrets
+from decimal import Decimal
+
 from rest_framework import serializers
+from django.contrib.auth.hashers import make_password
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError as DjangoValidationError
 
 from apps.members.models import (
     MembershipPlan, MembershipRegistration, Membership,
 )
+from .moyasar import sync_payment, MoyasarError, MoyasarUnavailable
+
+IQAMA_RE = re.compile(r'^2\d{9}$')          # Saudi residency ID: 10 digits, starts with 2
+MAX_PHOTO_BYTES = 4 * 1024 * 1024           # Vercel rejects request bodies over 4.5 MB
+
+
+def plan_amount(plan, months):
+    """Server-side price in SAR — the browser never decides how much to charge."""
+    if months >= 12:
+        return (Decimal(plan.price_annual) * months / 12).quantize(Decimal('0.01'))
+    return (Decimal(plan.price_monthly) * months).quantize(Decimal('0.01'))
 
 
 # ============================================================
@@ -26,12 +42,19 @@ class RegistrationCreateSerializer(serializers.ModelSerializer):
     """
     Accepts multipart/form-data from the public site:
       iqama_number, full_name, email, phone, address, age, gender,
-      photo (file), plan (id), duration_months, password
+      photo (file, required), plan (id), duration_months, password
+
+    Resubmitting with the same Iqama + email as an existing *unpaid* pending
+    registration (e.g. after a declined card) updates it instead of failing.
     """
     plan = serializers.PrimaryKeyRelatedField(
         queryset=MembershipPlan.objects.filter(is_active=True),
     )
     password = serializers.CharField(write_only=True, min_length=8)
+    # Declared explicitly so DRF doesn't add UniqueValidators; validate() handles duplicates.
+    iqama_number = serializers.CharField(max_length=20)
+    email = serializers.EmailField(max_length=254)
+    photo = serializers.ImageField()
 
     class Meta:
         model = MembershipRegistration
@@ -42,16 +65,57 @@ class RegistrationCreateSerializer(serializers.ModelSerializer):
         ]
 
     def validate_iqama_number(self, value):
-        value = value.strip().upper()
-        if MembershipRegistration.objects.filter(iqama_number__iexact=value).exists():
-            raise serializers.ValidationError('This Iqama number is already registered.')
+        value = value.strip()
+        if not IQAMA_RE.match(value):
+            raise serializers.ValidationError('Iqama number must be 10 digits starting with 2.')
         return value
 
     def validate_email(self, value):
-        value = value.strip().lower()
-        if MembershipRegistration.objects.filter(email__iexact=value).exists():
-            raise serializers.ValidationError('This email is already registered.')
+        return value.strip().lower()
+
+    def validate_photo(self, value):
+        if value.size > MAX_PHOTO_BYTES:
+            raise serializers.ValidationError('Photo must be under 4 MB.')
         return value
+
+    def validate(self, attrs):
+        by_iqama = MembershipRegistration.objects.filter(iqama_number=attrs['iqama_number']).first()
+        by_email = MembershipRegistration.objects.filter(email__iexact=attrs['email']).first()
+        existing = by_iqama or by_email
+        if existing is None:
+            return attrs
+
+        resumable = (
+            by_iqama == by_email
+            and existing.status == MembershipRegistration.STATUS_PENDING
+            and existing.payment_status != 'paid'
+        )
+        if resumable and existing.moyasar_payment_id:
+            # Make sure the last attempt didn't succeed while the user was away.
+            try:
+                existing = sync_payment(existing.moyasar_payment_id)
+            except MoyasarUnavailable:
+                # Can't rule out that the last attempt succeeded — don't discard it.
+                raise serializers.ValidationError(
+                    {'detail': 'Could not check your previous payment. Please try again shortly.'}
+                )
+            except MoyasarError:
+                pass
+            resumable = (
+                existing.status == MembershipRegistration.STATUS_PENDING
+                and existing.payment_status != 'paid'
+            )
+
+        if not resumable:
+            errors = {}
+            if by_iqama:
+                errors['iqama_number'] = 'This Iqama number is already registered.'
+            if by_email:
+                errors['email'] = 'This email is already registered.'
+            raise serializers.ValidationError(errors)
+
+        self._resume = existing
+        return attrs
 
     def validate_duration_months(self, value):
         if value < 1 or value > 24:
@@ -66,44 +130,39 @@ class RegistrationCreateSerializer(serializers.ModelSerializer):
         return value
 
     def create(self, validated_data):
-        password = validated_data.pop('password')
         # Hash password now; store in password_hash. Real User only on approval.
-        from django.contrib.auth.hashers import make_password
-        password_hash = make_password(password)
-
-        plan = validated_data['plan']
-        months = validated_data.get('duration_months', 1)
-
-        # Compute expected amount
-        if months >= 12:
-            years = months / 12
-            amount = round(float(plan.price_annual) * years, 2)
-        else:
-            amount = float(plan.price_monthly) * months
-
-        reg = MembershipRegistration.objects.create(
-            **validated_data,
-            password_hash=password_hash,
-            payment_amount=amount,
-            payment_status='pending',
-            status=MembershipRegistration.STATUS_PENDING,
+        validated_data['password_hash'] = make_password(validated_data.pop('password'))
+        validated_data['payment_amount'] = plan_amount(
+            validated_data['plan'], validated_data.get('duration_months', 1),
         )
+        validated_data['payment_status'] = 'pending'
+        validated_data['payment_failure_reason'] = ''
+        validated_data['payment_attempt_token'] = secrets.token_urlsafe(24)  # new attempt
+        validated_data['status'] = MembershipRegistration.STATUS_PENDING
+
+        reg = getattr(self, '_resume', None)
+        if reg is None:
+            return MembershipRegistration.objects.create(**validated_data)
+
+        # Retry of an unpaid registration: overwrite it and start a fresh payment.
+        old_photo = reg.photo.name if reg.photo else None
+        for field, value in validated_data.items():
+            setattr(reg, field, value)
+        reg.moyasar_payment_id = None
+        reg.save()
+        if old_photo and old_photo != reg.photo.name:
+            reg.photo.storage.delete(old_photo)
         return reg
 
 
 class RegistrationStatusSerializer(serializers.ModelSerializer):
-    """Public-safe view — no password, no internal IDs."""
-    plan_name = serializers.CharField(source='plan.display_name', read_only=True)
-
+    """
+    Public, unauthenticated view (anyone can call it with any id), so it
+    carries no personal data — only processing state.
+    """
     class Meta:
         model = MembershipRegistration
-        fields = [
-            'id', 'iqama_number', 'full_name', 'email',
-            'plan_name', 'duration_months',
-            'payment_amount', 'payment_status',
-            'status', 'submitted_at', 'approved_at',
-            'rejection_reason',
-        ]
+        fields = ['id', 'status', 'payment_status', 'payment_failure_reason']
 
 
 # ============================================================
@@ -124,6 +183,7 @@ class AdminRegistrationSerializer(serializers.ModelSerializer):
             'plan', 'plan_name', 'duration_months',
             'payment_method', 'payment_reference', 'payment_amount',
             'payment_status', 'payment_paid_at',
+            'moyasar_payment_id', 'payment_failure_reason',
             'status', 'submitted_at', 'approved_at',
             'approved_by_email', 'rejection_reason',
             'created_user_email',
@@ -148,6 +208,11 @@ class BulkApproveSerializer(serializers.Serializer):
         default=False,
         help_text='If true, restricts to registrations submitted today.',
     )
+
+
+class PaymentIdSerializer(serializers.Serializer):
+    """Body for the attach / verify endpoints: the Moyasar payment id."""
+    payment_id = serializers.CharField(max_length=64)
 
 
 class RejectSerializer(serializers.Serializer):

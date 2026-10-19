@@ -2,9 +2,11 @@
 Django settings for Smart Gym Backend.
 """
 
+import os
 from pathlib import Path
 from datetime import timedelta
 from decouple import config, Csv
+from django.core.exceptions import ImproperlyConfigured
 import dj_database_url
 
 
@@ -13,7 +15,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # ============================================
 # SECURITY
 # ============================================
-SECRET_KEY = config('SECRET_KEY', default='django-insecure-change-me')
+# No default: a missing SECRET_KEY must crash startup, not fall back to a guessable key.
+SECRET_KEY = config('SECRET_KEY')
 DEBUG = config('DEBUG', default=True, cast=bool)
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1', cast=Csv())
 
@@ -127,13 +130,53 @@ STATIC_ROOT = BASE_DIR / 'staticfiles_build' / 'static'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
+# Media uploads (registration photos): local disk by default; Cloudflare R2
+# only when R2_ACCESS_KEY_ID is set.
+R2_ACCESS_KEY_ID     = config('R2_ACCESS_KEY_ID', default='')
+R2_SECRET_ACCESS_KEY = config('R2_SECRET_ACCESS_KEY', default='')
+R2_BUCKET_NAME       = config('R2_BUCKET_NAME', default='')
+R2_ENDPOINT_URL      = config('R2_ENDPOINT_URL', default='')
+USE_R2 = bool(R2_ACCESS_KEY_ID)
+
+if USE_R2 and not all([R2_SECRET_ACCESS_KEY, R2_BUCKET_NAME, R2_ENDPOINT_URL]):
+    raise ImproperlyConfigured(
+        'R2_ACCESS_KEY_ID is set, so R2_SECRET_ACCESS_KEY, R2_BUCKET_NAME and '
+        'R2_ENDPOINT_URL must be set too (or unset R2_ACCESS_KEY_ID to use local storage).'
+    )
+
+if not USE_R2 and os.environ.get('VERCEL'):
+    # Vercel's deployment dir is read-only; /tmp is writable but wiped on cold
+    # start and not shared between instances — uploads there are temporary.
+    MEDIA_ROOT = Path('/tmp/media')
+    # warnings, not logging — LOGGING isn't configured yet while settings load.
+    import warnings
+    warnings.warn('R2 not configured on Vercel: media uploads go to /tmp and will be lost.')
+
+if USE_R2:
+    DEFAULT_STORAGE = {
+        "BACKEND": "storages.backends.s3.S3Storage",
+        "OPTIONS": {
+            "access_key": R2_ACCESS_KEY_ID,
+            "secret_key": R2_SECRET_ACCESS_KEY,
+            "bucket_name": R2_BUCKET_NAME,
+            "endpoint_url": R2_ENDPOINT_URL,
+            "region_name": "auto",
+            "signature_version": "s3v4",
+            "default_acl": None,        # R2 ignores ACLs; bucket stays private
+            "querystring_auth": True,   # photos served via signed URLs
+            "querystring_expire": 3600,
+            "file_overwrite": False,
+        },
+    }
+else:
+    DEFAULT_STORAGE = {"BACKEND": "django.core.files.storage.FileSystemStorage"}
+    os.makedirs(MEDIA_ROOT, exist_ok=True)
+
 # Django 5.1+ / 6.x unified storage config.
 # BOTH keys are required — "default" handles FileField/ImageField
 # uploads, "staticfiles" handles collectstatic.
 STORAGES = {
-    "default": {
-        "BACKEND": "django.core.files.storage.FileSystemStorage",
-    },
+    "default": DEFAULT_STORAGE,
     "staticfiles": {
         "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
     },
@@ -142,18 +185,6 @@ STORAGES = {
 # Whitenoise config — makes collectstatic run at every boot on Vercel
 WHITENOISE_MANIFEST_STRICT = False
 WHITENOISE_ALLOW_ALL_ORIGINS = True
-import os
-
-MEDIA_URL = '/media/'
-
-# On Vercel, the deployment filesystem is read-only outside /tmp.
-# Files under /tmp survive until the next cold start — fine for testing.
-if os.environ.get('VERCEL'):
-    MEDIA_ROOT = '/tmp/media'
-else:
-    MEDIA_ROOT = BASE_DIR / 'media'
-
-os.makedirs(MEDIA_ROOT, exist_ok=True)
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
@@ -226,11 +257,13 @@ FRONTEND_URL = config('FRONTEND_URL', default='http://localhost:5173')
 # ============================================
 # PAYMENT GATEWAY
 # ============================================
-MOCK_MADA = config('MOCK_MADA', default=True, cast=bool)
-
-MADA_PROVIDER = config('MADA_PROVIDER', default='mock')
-MADA_API_KEY  = config('MADA_API_KEY', default='')
-MADA_SECRET   = config('MADA_SECRET', default='')
+# Moyasar (Mada / STC Pay). The secret key never leaves the backend.
+# Missing keys only break the payment endpoints (see apps/public_api/moyasar.py),
+# not the whole API.
+MOYASAR_SECRET_KEY      = config('MOYASAR_SECRET_KEY', default='')
+MOYASAR_PUBLISHABLE_KEY = config('MOYASAR_PUBLISHABLE_KEY', default='')
+MOYASAR_WEBHOOK_SECRET  = config('MOYASAR_WEBHOOK_SECRET', default='')
+MOYASAR_API_URL         = config('MOYASAR_API_URL', default='https://api.moyasar.com/v1')
 
 # ============================================
 # EMAIL (stub)

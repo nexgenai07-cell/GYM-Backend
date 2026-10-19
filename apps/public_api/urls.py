@@ -14,5 +14,9 @@ urlpatterns = [
     # Public register
     path('register/',                       views.public_register,         name='register'),
     path('register/<int:reg_id>/status/',   views.public_register_status,  name='register-status'),
-    path('register/<int:reg_id>/payment/',  views.public_payment_webhook,  name='register-payment'),
+    path('register/<int:reg_id>/payment/attach/', views.public_payment_attach, name='register-payment-attach'),
+
+    # Moyasar
+    path('payments/moyasar/verify/',  views.public_payment_verify, name='moyasar-verify'),
+    path('payments/moyasar/webhook/', views.moyasar_webhook,       name='moyasar-webhook'),
 ]

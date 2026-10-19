@@ -33,10 +33,14 @@ class MembershipRegistrationAdmin(admin.ModelAdmin):
         'submitted_at', 'photo_thumb',
     ]
     list_filter = ['status', 'payment_status', 'gender', 'plan']
-    search_fields = ['iqama_number', 'full_name', 'email', 'phone']
+    search_fields = ['iqama_number', 'full_name', 'email', 'phone', 'moyasar_payment_id']
     readonly_fields = [
         'password_hash', 'submitted_at', 'approved_at',
         'approved_by', 'created_user', 'photo_preview',
+        # Payment fields are only ever set by Moyasar verification — never by hand.
+        'payment_method', 'payment_reference', 'payment_amount', 'payment_status',
+        'payment_paid_at', 'moyasar_payment_id', 'payment_attempt_token',
+        'payment_failure_reason', 'payment_raw',
     ]
     raw_id_fields = ['plan', 'created_user', 'approved_by']
     actions = ['action_approve_selected', 'action_reject_selected']

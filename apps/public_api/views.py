@@ -4,7 +4,9 @@ from django.db.models import Q, Count
 from django.conf import settings
 from django.shortcuts import get_object_or_404
 from rest_framework import status
-from rest_framework.decorators import api_view, permission_classes, parser_classes
+from rest_framework.decorators import (
+    api_view, permission_classes, parser_classes, authentication_classes,
+)
 from rest_framework.permissions import AllowAny
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from rest_framework.response import Response
@@ -29,9 +31,17 @@ from .serializers import (
     RegistrationStatusSerializer,
     AdminRegistrationSerializer,
     BulkApproveSerializer,
+    PaymentIdSerializer,
     RejectSerializer,
 )
 from .permissions import IsAdminOrManager
+from .moyasar import (
+    checkout_params, sync_payment, webhook_token_valid,
+    MoyasarError, MoyasarUnavailable,
+)
+import logging
+
+logger = logging.getLogger(__name__)
 
 # ============================================================
 # PUBLIC — CATALOG
@@ -137,23 +147,17 @@ def public_register(request):
     multipart/form-data with:
       iqama_number, full_name, email, phone, address, age, gender,
       photo (file), plan (id), duration_months, password
+
+    Returns the registration status plus `payment` — the parameters the
+    frontend passes to the Moyasar form (amount is computed server-side).
     """
     serializer = RegistrationCreateSerializer(data=request.data)
     if not serializer.is_valid():
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     reg = serializer.save()
-
-    # If MOCK_MADA=True, auto-mark payment as paid so you can test approval flow
-    if getattr(settings, 'MOCK_MADA', False):
-        reg.payment_status = 'paid'
-        reg.payment_reference = f'MOCK-{reg.id:06d}'
-        reg.payment_paid_at = timezone.now()
-        reg.status = MembershipRegistration.STATUS_PAID
-        reg.save(update_fields=['payment_status', 'payment_reference', 'payment_paid_at', 'status'])
-
     return Response(
-        RegistrationStatusSerializer(reg).data,
+        {**RegistrationStatusSerializer(reg).data, 'payment': checkout_params(reg)},
         status=status.HTTP_201_CREATED,
     )
 
@@ -166,37 +170,71 @@ def public_register_status(request, reg_id):
     return Response(RegistrationStatusSerializer(reg).data)
 
 
+# ============================================================
+# PUBLIC — PAYMENT (Moyasar)
+# ============================================================
+def _sync_response(payment_id, registration_id=None):
+    try:
+        reg = sync_payment(payment_id, registration_id=registration_id)
+    except MoyasarUnavailable as exc:
+        return Response({'detail': str(exc)}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+    except MoyasarError as exc:
+        return Response({'detail': str(exc)}, status=status.HTTP_400_BAD_REQUEST)
+    return Response(RegistrationStatusSerializer(reg).data)
+
+
 @api_view(['POST'])
 @permission_classes([AllowAny])
-def public_payment_webhook(request, reg_id):
+def public_payment_attach(request, reg_id):
     """
-    POST /api/public/register/<id>/payment/
-    Payment gateway calls this after Mada charge succeeds/fails.
-    Body: { "status": "paid" | "failed", "reference": "MADA-XXXX", "amount": 79.00 }
+    POST /api/public/register/<id>/payment/attach/   { "payment_id": "..." }
+    Called from the Moyasar form's on_completed hook, before any 3-D Secure
+    redirect, so the payment is recorded even if the user never returns.
     """
-    reg = get_object_or_404(MembershipRegistration, id=reg_id)
-    payload_status = request.data.get('status', 'paid')
-    reference = request.data.get('reference', '')
-    amount = request.data.get('amount')
+    get_object_or_404(MembershipRegistration, id=reg_id)
+    ser = PaymentIdSerializer(data=request.data)
+    ser.is_valid(raise_exception=True)
+    return _sync_response(ser.validated_data['payment_id'], registration_id=reg_id)
 
-    if payload_status == 'paid':
-        reg.payment_status = 'paid'
-        reg.payment_reference = reference
-        reg.payment_paid_at = timezone.now()
-        if amount is not None:
-            reg.payment_amount = amount
-        if reg.status == MembershipRegistration.STATUS_PENDING:
-            reg.status = MembershipRegistration.STATUS_PAID
-        reg.save(update_fields=[
-            'payment_status', 'payment_reference', 'payment_paid_at',
-            'payment_amount', 'status',
-        ])
-        return Response({'ok': True, 'status': reg.status})
 
-    reg.payment_status = 'failed'
-    reg.payment_reference = reference
-    reg.save(update_fields=['payment_status', 'payment_reference'])
-    return Response({'ok': True, 'status': reg.payment_status})
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def public_payment_verify(request):
+    """
+    POST /api/public/payments/moyasar/verify/   { "payment_id": "..." }
+    Called by the public site's callback page with the ?id= Moyasar appends.
+    """
+    ser = PaymentIdSerializer(data=request.data)
+    ser.is_valid(raise_exception=True)
+    return _sync_response(ser.validated_data['payment_id'])
+
+
+@api_view(['POST'])
+@authentication_classes([])
+@permission_classes([AllowAny])
+def moyasar_webhook(request):
+    """
+    POST /api/public/payments/moyasar/webhook/
+    Configured in the Moyasar dashboard. The body is only used for its
+    secret_token and payment id — the payment itself is re-fetched.
+    """
+    if not webhook_token_valid(request.data.get('secret_token')):
+        logger.warning('Moyasar webhook rejected: bad secret_token')
+        return Response({'detail': 'Invalid token.'}, status=status.HTTP_403_FORBIDDEN)
+
+    payment_id = (request.data.get('data') or {}).get('id')
+    if not payment_id:
+        return Response({'detail': 'No payment id.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        sync_payment(payment_id)
+    except MoyasarUnavailable:
+        # Temporary failure — non-2xx so Moyasar retries (guide §7).
+        return Response({'detail': 'Retry later.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    except MoyasarError as exc:
+        # Not ours / not linked — acknowledge so Moyasar stops retrying.
+        logger.warning('Moyasar webhook %s (%s) ignored: %s', payment_id, request.data.get('type'), exc)
+    return Response({'ok': True})
 
 
 # ============================================================
@@ -283,20 +321,16 @@ def admin_bulk_approve(request):
     """
     POST /api/admin/registrations/bulk-approve/
     Body: { "ids": [1,2,3] }              → approve only these
-          { "only_today": true }          → approve all pending submitted today
-          {}                              → approve ALL pending/paid
+          { "only_today": true }          → approve all paid submitted today
+          {}                              → approve ALL paid (pending admin approval)
+    Unpaid registrations are never approved.
     """
     ser = BulkApproveSerializer(data=request.data)
     ser.is_valid(raise_exception=True)
     ids = ser.validated_data.get('ids')
     only_today = ser.validated_data.get('only_today', False)
 
-    qs = MembershipRegistration.objects.filter(
-        status__in=[
-            MembershipRegistration.STATUS_PENDING,
-            MembershipRegistration.STATUS_PAID,
-        ]
-    )
+    qs = MembershipRegistration.objects.filter(status=MembershipRegistration.STATUS_PAID)
     if ids:
         qs = qs.filter(id__in=ids)
     if only_today:

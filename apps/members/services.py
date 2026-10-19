@@ -50,6 +50,16 @@ def approve_registration(reg: MembershipRegistration, approved_by=None):
     if reg.created_user_id:
         raise ValueError('A user has already been created for this registration.')
 
+    if reg.payment_status != 'paid':
+        raise ValueError('Registration has not been paid — cannot approve.')
+
+    # Live re-check with Moyasar — payment_status alone isn't proof (refunds, manual edits).
+    from apps.public_api.moyasar import confirm_paid_for_approval, MoyasarError
+    try:
+        confirm_paid_for_approval(reg)
+    except MoyasarError as exc:
+        raise ValueError(str(exc)) from exc
+
     # 1. Guard against email / iqama collisions (defensive — unique fields should prevent)
     if User.objects.filter(email=reg.email).exists():
         raise ValueError(f'A user with email {reg.email} already exists.')

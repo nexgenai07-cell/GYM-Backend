@@ -11,9 +11,9 @@ class MembershipPlanAdmin(admin.ModelAdmin):
 
 @admin.register(Membership)
 class MembershipAdmin(admin.ModelAdmin):
-    list_display = ['member', 'plan', 'status', 'acama_number', 'expiry_date', 'total_check_ins']
+    list_display = ['member', 'plan', 'status', 'iqama_number', 'expiry_date', 'total_check_ins']
     list_filter = ['status', 'plan', 'is_frozen']
-    search_fields = ['member__email', 'acama_number', 'pass_id']
+    search_fields = ['member__email', 'iqama_number', 'pass_id']
     raw_id_fields = ['member']
 
 
@@ -28,12 +28,12 @@ class CheckInAdmin(admin.ModelAdmin):
 @admin.register(MembershipRegistration)
 class MembershipRegistrationAdmin(admin.ModelAdmin):
     list_display = [
-        'id', 'acama_number', 'full_name', 'email',
+        'id', 'iqama_number', 'full_name', 'email',
         'plan', 'duration_months', 'payment_status', 'status',
         'submitted_at', 'photo_thumb',
     ]
     list_filter = ['status', 'payment_status', 'gender', 'plan']
-    search_fields = ['acama_number', 'full_name', 'email', 'phone']
+    search_fields = ['iqama_number', 'full_name', 'email', 'phone']
     readonly_fields = [
         'password_hash', 'submitted_at', 'approved_at',
         'approved_by', 'created_user', 'photo_preview',

@@ -137,7 +137,7 @@ def public_register(request):
     """
     POST /api/public/register/
     multipart/form-data with:
-      acama_number, full_name, email, phone, address, age, gender,
+      iqama_number, full_name, email, phone, address, age, gender,
       photo (file), plan (id), duration_months, password
     """
     serializer = RegistrationCreateSerializer(data=request.data)
@@ -222,7 +222,7 @@ def admin_registrations(request):
     search = request.query_params.get('search', '').strip()
     if search:
         qs = qs.filter(
-            Q(acama_number__icontains=search) |
+            Q(iqama_number__icontains=search) |
             Q(full_name__icontains=search) |
             Q(email__icontains=search) |
             Q(phone__icontains=search)
@@ -342,21 +342,21 @@ def admin_registration_stats(request):
 @permission_classes([IsAdminOrManager])
 def admin_member_lookup(request):
     """
-    GET /api/admin/members/lookup/?acama=XXX
+    GET /api/admin/members/lookup/?iqama=XXX
     Returns member + membership + registration photo + remaining days + today's session.
     """
-    acama = request.query_params.get('acama', '').strip()
-    if not acama:
-        return Response({'detail': 'acama query param required.'}, status=400)
+    iqama = request.query_params.get('iqama', '').strip()
+    if not iqama:
+        return Response({'detail': 'iqama query param required.'}, status=400)
 
     try:
         membership = Membership.objects.select_related('member', 'plan').get(
-            acama_number__iexact=acama,
+            iqama_number__iexact=iqama,
         )
     except Membership.DoesNotExist:
         # Maybe they registered but aren't approved yet
         pending = MembershipRegistration.objects.filter(
-            acama_number__iexact=acama,
+            iqama_number__iexact=iqama,
         ).first()
         if pending:
             return Response({

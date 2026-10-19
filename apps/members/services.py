@@ -50,7 +50,7 @@ def approve_registration(reg: MembershipRegistration, approved_by=None):
     if reg.created_user_id:
         raise ValueError('A user has already been created for this registration.')
 
-    # 1. Guard against email / acama collisions (defensive — unique fields should prevent)
+    # 1. Guard against email / iqama collisions (defensive — unique fields should prevent)
     if User.objects.filter(email=reg.email).exists():
         raise ValueError(f'A user with email {reg.email} already exists.')
 
@@ -79,7 +79,7 @@ def approve_registration(reg: MembershipRegistration, approved_by=None):
         status='active',
         start_date=start,
         expiry_date=expiry,
-        acama_number=reg.acama_number,
+        iqama_number=reg.iqama_number,
         lifetime_value=reg.payment_amount or reg.total_price,
     )
 
@@ -159,7 +159,7 @@ def _send_welcome_email(user, membership, reg):
         f"Hi {user.first_name or user.email},\n\n"
         f"Your Smart Gym membership is now active.\n\n"
         f"  Pass ID:     {membership.pass_id}\n"
-        f"  Acama #:     {membership.acama_number}\n"
+        f"  Iqama #:     {membership.iqama_number}\n"
         f"  Plan:        {membership.plan.display_name}\n"
         f"  Valid until: {membership.expiry_date}\n\n"
         f"Login: {settings.FRONTEND_URL}/login\n"

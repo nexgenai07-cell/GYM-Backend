@@ -62,8 +62,8 @@ class Membership(models.Model):
     is_frozen = models.BooleanField(default=False)
     frozen_until = models.DateField(null=True, blank=True)
 
-    # ⬇️ NEW — for gym entry lookup
-    acama_number = models.CharField(max_length=20, blank=True, db_index=True)
+    # ⬇️ NEW — for gym entry lookup (Iqama = 10-digit Saudi residency ID)
+    iqama_number = models.CharField(max_length=20, blank=True, db_index=True)
 
     # Digital pass
     pass_id = models.CharField(max_length=20, unique=True, blank=True)
@@ -163,7 +163,7 @@ class MembershipRegistration(models.Model):
     ]
 
     # Applicant info
-    acama_number = models.CharField(max_length=20, unique=True, db_index=True)
+    iqama_number = models.CharField(max_length=20, unique=True, db_index=True)
     full_name    = models.CharField(max_length=150)
     email        = models.EmailField(unique=True)
     phone        = models.CharField(max_length=20)

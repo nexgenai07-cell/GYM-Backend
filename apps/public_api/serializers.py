@@ -25,7 +25,7 @@ class PublicPlanSerializer(serializers.ModelSerializer):
 class RegistrationCreateSerializer(serializers.ModelSerializer):
     """
     Accepts multipart/form-data from the public site:
-      acama_number, full_name, email, phone, address, age, gender,
+      iqama_number, full_name, email, phone, address, age, gender,
       photo (file), plan (id), duration_months, password
     """
     plan = serializers.PrimaryKeyRelatedField(
@@ -36,15 +36,15 @@ class RegistrationCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = MembershipRegistration
         fields = [
-            'acama_number', 'full_name', 'email', 'phone',
+            'iqama_number', 'full_name', 'email', 'phone',
             'address', 'age', 'gender', 'photo',
             'plan', 'duration_months', 'password',
         ]
 
-    def validate_acama_number(self, value):
+    def validate_iqama_number(self, value):
         value = value.strip().upper()
-        if MembershipRegistration.objects.filter(acama_number__iexact=value).exists():
-            raise serializers.ValidationError('This Acama number is already registered.')
+        if MembershipRegistration.objects.filter(iqama_number__iexact=value).exists():
+            raise serializers.ValidationError('This Iqama number is already registered.')
         return value
 
     def validate_email(self, value):
@@ -98,7 +98,7 @@ class RegistrationStatusSerializer(serializers.ModelSerializer):
     class Meta:
         model = MembershipRegistration
         fields = [
-            'id', 'acama_number', 'full_name', 'email',
+            'id', 'iqama_number', 'full_name', 'email',
             'plan_name', 'duration_months',
             'payment_amount', 'payment_status',
             'status', 'submitted_at', 'approved_at',
@@ -119,7 +119,7 @@ class AdminRegistrationSerializer(serializers.ModelSerializer):
         model = MembershipRegistration
         fields = [
             'id',
-            'acama_number', 'full_name', 'email', 'phone',
+            'iqama_number', 'full_name', 'email', 'phone',
             'address', 'age', 'gender', 'photo_url',
             'plan', 'plan_name', 'duration_months',
             'payment_method', 'payment_reference', 'payment_amount',

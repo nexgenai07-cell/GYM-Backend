@@ -25,6 +25,9 @@ from apps.members.models import MembershipRegistration
 logger = logging.getLogger(__name__)
 
 CURRENCY = 'SAR'
+# Moyasar's API sits behind Cloudflare, which rejects Python's default
+# "Python-urllib/x.y" User-Agent with 403 (Cloudflare error 1010).
+USER_AGENT = 'SmartGym-Backend/1.0'
 PAID_STATUSES = {'paid'}  # guide §6.3: provider status must be exactly "paid"
 
 # Only these provider fields are kept in payment_raw (guide §3: redact the rest).
@@ -69,7 +72,11 @@ def fetch_payment(payment_id):
     auth = base64.b64encode(f'{_secret_key()}:'.encode()).decode()
     req = urllib.request.Request(
         f"{settings.MOYASAR_API_URL}/payments/{urllib.parse.quote(payment_id, safe='')}",
-        headers={'Authorization': f'Basic {auth}', 'Accept': 'application/json'},
+        headers={
+            'Authorization': f'Basic {auth}',
+            'Accept': 'application/json',
+            'User-Agent': USER_AGENT,
+        },
     )
     try:
         with urllib.request.urlopen(req, timeout=10) as resp:
@@ -77,7 +84,12 @@ def fetch_payment(payment_id):
     except urllib.error.HTTPError as exc:
         if exc.code == 404:
             raise MoyasarError('Payment not found.') from exc
-        logger.error('Moyasar GET payment %s failed: HTTP %s', payment_id, exc.code)
+        body = exc.read()[:200]
+        if exc.code in (401, 403):
+            # Config problem, not an outage — check MOYASAR_SECRET_KEY (and test vs live mode).
+            logger.error('Moyasar rejected the request for payment %s: HTTP %s %s', payment_id, exc.code, body)
+        else:
+            logger.error('Moyasar GET payment %s failed: HTTP %s %s', payment_id, exc.code, body)
         raise MoyasarUnavailable('Could not verify the payment with the provider.') from exc
     except (urllib.error.URLError, TimeoutError, ValueError) as exc:
         logger.error('Moyasar GET payment %s failed: %s', payment_id, exc)

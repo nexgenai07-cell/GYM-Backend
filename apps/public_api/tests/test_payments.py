@@ -6,6 +6,7 @@ import urllib.error
 from decimal import Decimal
 from unittest import mock
 
+from django.contrib.auth.hashers import check_password
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import SimpleTestCase, override_settings
 from PIL import Image
@@ -16,6 +17,7 @@ from apps.members.services import approve_registration
 from apps.public_api import moyasar
 
 WEBHOOK_SECRET = 'whsec_test'
+SIGNUP_PASSWORD = 'Str0ng-Passw0rd!'
 IQAMA = '2999888777'
 
 
@@ -55,11 +57,12 @@ class PaymentTestBase(APITestCase):
         return self.payments[pid]
 
     def register(self, **overrides):
+        """POST /public/register/. Pass a field as None to leave it out."""
         data = dict(iqama_number=IQAMA, full_name='Test User', email='Test@Example.com', phone='0500000000',
-                    age=30, gender='male', plan=self.plan.id, duration_months=3, photo=photo())
+                    age=30, gender='male', plan=self.plan.id, duration_months=3,
+                    password=SIGNUP_PASSWORD, photo=photo())
         data.update(overrides)
-        if data.get('photo') is None:
-            data.pop('photo')
+        data = {k: v for k, v in data.items() if v is not None}
         return self.client.post('/api/public/register/', data, format='multipart')
 
     def reg(self, reg_id):
@@ -134,18 +137,20 @@ class RegistrationTests(PaymentTestBase):
         r = self.client.post(f'/api/public/register/{reg_id}/payment/', {'status': 'paid'}, format='json')
         self.assertEqual(r.status_code, 404)
 
-    def test_no_password_needed_and_none_stored(self):
-        r = self.register()
-        self.assertEqual(r.status_code, 201)
-        self.assertFalse(self.reg(r.data['id']).password_hash.startswith('pbkdf2'))   # unusable placeholder
+    def test_requires_a_password(self):
+        r = self.register(password=None)
+        self.assertEqual(r.status_code, 400)
+        self.assertIn('password', r.data)
 
-    def test_password_from_an_old_frontend_is_ignored(self):
-        r = self.register(password='Chosen-At-Signup-1')
-        self.assertEqual(r.status_code, 201)
-        self.pay('pay_ok', r.data['id'], 23700)
-        self.verify('pay_ok')
-        user = approve_registration(self.reg(r.data['id']))
-        self.assertFalse(user.check_password('Chosen-At-Signup-1'))
+    def test_rejects_a_weak_password(self):
+        r = self.register(password='12345678')   # common + entirely numeric
+        self.assertEqual(r.status_code, 400)
+        self.assertIn('password', r.data)
+
+    def test_password_is_stored_hashed(self):
+        reg = self.reg(self.register().data['id'])
+        self.assertNotIn(SIGNUP_PASSWORD, reg.password_hash)
+        self.assertTrue(check_password(SIGNUP_PASSWORD, reg.password_hash))
 
     def test_same_iqama_with_different_email_is_rejected(self):
         self.register()

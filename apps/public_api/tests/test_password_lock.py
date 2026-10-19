@@ -2,12 +2,14 @@
 import re
 
 from django.contrib.auth import get_user_model
+from django.contrib.auth.hashers import make_password
 from django.core import mail
 from rest_framework.test import APITestCase
 
+from apps.members.models import MembershipRegistration as R
 from apps.members.services import approve_registration
 
-from .test_payments import PaymentTestBase
+from .test_payments import PaymentTestBase, SIGNUP_PASSWORD
 
 User = get_user_model()
 NEW_PASSWORD = 'My-Own-Strong-Pass-42'
@@ -83,11 +85,22 @@ class PasswordLockTests(APITestCase):
         self.assertEqual(self.client.get('/api/public/plans/').status_code, 200)
 
 
-class ApprovalSetsLockTests(PaymentTestBase):
-    def test_approved_member_must_change_the_emailed_password(self):
-        reg_id = self.registered_and_paid()
+class ApprovalLockTests(PaymentTestBase):
+    def approve(self, reg_id):
         with self.captureOnCommitCallbacks(execute=True):
-            user = approve_registration(self.reg(reg_id))
+            return approve_registration(self.reg(reg_id))
+
+    def test_normal_signup_is_not_locked(self):
+        user = self.approve(self.registered_and_paid())
+        self.assertFalse(user.must_change_password)
+        r = self.client.post('/api/auth/login/', {'email': user.email, 'password': SIGNUP_PASSWORD}, format='json')
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {r.data['access']}")
+        self.assertEqual(self.client.get('/api/members/membership/').status_code, 200)
+
+    def test_legacy_signup_without_password_is_locked_until_changed(self):
+        reg_id = self.registered_and_paid()
+        R.objects.filter(id=reg_id).update(password_hash=make_password(None))
+        user = self.approve(reg_id)
         self.assertTrue(user.must_change_password)
         temp = re.search(r'Temporary password: (\S+)', mail.outbox[0].body).group(1)
         r = self.client.post('/api/auth/login/', {'email': user.email, 'password': temp}, format='json')

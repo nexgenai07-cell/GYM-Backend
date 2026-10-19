@@ -4,6 +4,8 @@ from decimal import Decimal
 
 from rest_framework import serializers
 from django.contrib.auth.hashers import make_password
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError as DjangoValidationError
 
 from apps.members.models import (
     MembershipPlan, MembershipRegistration, Membership,
@@ -40,10 +42,9 @@ class RegistrationCreateSerializer(serializers.ModelSerializer):
     """
     Accepts multipart/form-data from the public site:
       iqama_number, full_name, email, phone, address, age, gender,
-      photo (file, required), plan (id), duration_months
+      photo (file, required), plan (id), duration_months, password
 
-    No password: the login password is generated and emailed on approval
-    (apps.members.services). A `password` field, if sent, is ignored.
+    The password becomes the member's login when an admin approves the signup.
 
     Resubmitting with the same Iqama + email as an existing *unpaid* pending
     registration (e.g. after a declined card) updates it instead of failing.
@@ -51,6 +52,7 @@ class RegistrationCreateSerializer(serializers.ModelSerializer):
     plan = serializers.PrimaryKeyRelatedField(
         queryset=MembershipPlan.objects.filter(is_active=True),
     )
+    password = serializers.CharField(write_only=True, min_length=8)
     # Declared explicitly so DRF doesn't add UniqueValidators; validate() handles duplicates.
     iqama_number = serializers.CharField(max_length=20)
     email = serializers.EmailField(max_length=254)
@@ -61,7 +63,7 @@ class RegistrationCreateSerializer(serializers.ModelSerializer):
         fields = [
             'iqama_number', 'full_name', 'email', 'phone',
             'address', 'age', 'gender', 'photo',
-            'plan', 'duration_months',
+            'plan', 'duration_months', 'password',
         ]
 
     def validate_iqama_number(self, value):
@@ -122,9 +124,16 @@ class RegistrationCreateSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError('Duration must be between 1 and 24 months.')
         return value
 
+    def validate_password(self, value):
+        try:
+            validate_password(value)
+        except DjangoValidationError as e:
+            raise serializers.ValidationError(list(e.messages))
+        return value
+
     def create(self, validated_data):
-        # The real password is generated on approval; keep the column non-empty but unusable.
-        validated_data['password_hash'] = make_password(None)
+        # Hash now; the real User is created from password_hash on approval.
+        validated_data['password_hash'] = make_password(validated_data.pop('password'))
         validated_data['payment_amount'] = plan_amount(
             validated_data['plan'], validated_data.get('duration_months', 1),
         )

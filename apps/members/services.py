@@ -4,6 +4,7 @@ Approval + payment logic for MembershipRegistration.
 from datetime import date, timedelta
 from dateutil.relativedelta import relativedelta
 from django.contrib.auth import get_user_model
+from django.contrib.auth.hashers import is_password_usable
 from django.core.mail import send_mail
 from django.db import transaction
 from django.utils import timezone
@@ -77,11 +78,16 @@ def approve_registration(reg: MembershipRegistration, approved_by=None):
         is_verified=True,            # admin approved = verified
         is_active=True,
     )
-    # Fresh temporary password (replaces the one chosen at signup); emailed below,
-    # never logged. Stored hashed by set_password().
-    temp_password = generate_temp_password()
-    user.set_password(temp_password)
-    user.must_change_password = True   # API is locked to "change password" until they do
+    # Normally the member logs in with the password chosen at signup.
+    # Signups made while the site had no password field have an unusable hash:
+    # those get an emailed temporary password and the change-password lock.
+    temp_password = None
+    if is_password_usable(reg.password_hash):
+        user.password = reg.password_hash          # already hashed at signup
+    else:
+        temp_password = generate_temp_password()
+        user.set_password(temp_password)
+        user.must_change_password = True
     user.save()
 
     # 3. Create the Membership
@@ -113,8 +119,8 @@ def approve_registration(reg: MembershipRegistration, approved_by=None):
         reg.id, user.email, membership.pass_id, expiry,
     )
 
-    # 5. Welcome email with the login details — only once the approval is committed,
-    #    so a rolled-back approval never emails a password that doesn't work.
+    # 5. Welcome email — only once the approval is committed, so a rolled-back
+    #    approval never emails login details that don't work.
     transaction.on_commit(lambda: _send_welcome_email(user, membership, temp_password))
 
     return user
@@ -189,35 +195,46 @@ def member_portal_url():
     return (https or urls or [DEFAULT_MEMBER_PORTAL])[0]
 
 
-def _send_welcome_email(user, membership, temp_password):
+def _send_welcome_email(user, membership, temp_password=None):
     """
-    Emails the login details. The body contains a password, so it is never
-    logged, and in production it is not handed to the console backend
-    (which would print it into the server logs).
+    Emails the approval + login details. Normally the member logs in with the
+    password they chose at signup. temp_password is only set for signups made
+    while the site had no password field (see approve_registration); it is
+    never logged, and in production the console backend is refused because it
+    would print the email (member details, maybe a password) into the logs.
     """
     if settings.EMAIL_BACKEND == CONSOLE_EMAIL_BACKEND and not settings.DEBUG:
         logger.error(
             'Welcome email for %s NOT sent: EMAIL_BACKEND is the console backend, which would '
-            'print the temporary password into the logs. Configure SMTP, then reset this '
-            "member's password from the admin.", user.email,
+            'print it into the server logs. Configure SMTP.', user.email,
         )
         return
+
+    if temp_password:
+        login = (
+            f"YOUR LOGIN\n"
+            f"  Login page:         {member_portal_url()}/login\n"
+            f"  Email:              {user.email}\n"
+            f"  Temporary password: {temp_password}\n\n"
+            f"IMPORTANT: this is a temporary password. You will be asked to choose your own\n"
+            f"password when you first log in. Never share it - Smart Gym staff will never ask for it.\n\n"
+        )
+    else:
+        login = (
+            f"You can now log in with the email and password you created during signup.\n\n"
+            f"  Login page:  {member_portal_url()}/login\n"
+            f"  Email:       {user.email}\n\n"
+        )
 
     subject = 'Welcome to Smart Gym — your membership is active'
     body = (
         f"Hi {user.first_name or user.email},\n\n"
-        f"Your Smart Gym membership is now active.\n\n"
+        f"Your registration is approved! Your Smart Gym membership is now active.\n\n"
         f"  Pass ID:     {membership.pass_id}\n"
         f"  Iqama #:     {membership.iqama_number}\n"
         f"  Plan:        {membership.plan.display_name}\n"
         f"  Valid until: {membership.expiry_date}\n\n"
-        f"YOUR LOGIN\n"
-        f"  Login page:         {member_portal_url()}/login\n"
-        f"  Email:              {user.email}\n"
-        f"  Temporary password: {temp_password}\n\n"
-        f"IMPORTANT: this is a temporary password. Change it as soon as you log in.\n"
-        f"Never share it — Smart Gym staff will never ask for it.\n"
-        f"The password you chose when you registered is no longer used.\n\n"
+        f"{login}"
         f"See you on the floor.\n— Smart Gym"
     )
     try:

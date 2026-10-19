@@ -4,8 +4,10 @@ Approval + payment logic for MembershipRegistration.
 from datetime import date, timedelta
 from dateutil.relativedelta import relativedelta
 from django.contrib.auth import get_user_model
+from django.core.mail import send_mail
 from django.db import transaction
 from django.utils import timezone
+from django.utils.crypto import get_random_string
 from django.conf import settings
 import logging
 
@@ -75,8 +77,10 @@ def approve_registration(reg: MembershipRegistration, approved_by=None):
         is_verified=True,            # admin approved = verified
         is_active=True,
     )
-    # password_hash is already a hash from set_password()
-    user.password = reg.password_hash
+    # Fresh temporary password (replaces the one chosen at signup); emailed below,
+    # never logged. Stored hashed by set_password().
+    temp_password = generate_temp_password()
+    user.set_password(temp_password)
     user.save()
 
     # 3. Create the Membership
@@ -108,8 +112,9 @@ def approve_registration(reg: MembershipRegistration, approved_by=None):
         reg.id, user.email, membership.pass_id, expiry,
     )
 
-    # 5. Optional welcome email (stub)
-    _send_welcome_email(user, membership, reg)
+    # 5. Welcome email with the login details — only once the approval is committed,
+    #    so a rolled-back approval never emails a password that doesn't work.
+    transaction.on_commit(lambda: _send_welcome_email(user, membership, temp_password))
 
     return user
 
@@ -159,12 +164,45 @@ def _split_name(full_name: str):
     return parts[0] if parts else '', ''
 
 
-def _send_welcome_email(user, membership, reg):
+# No look-alike characters (0/O, 1/l/I) so it can be typed from an email.
+TEMP_PASSWORD_CHARS = 'abcdefghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789'
+TEMP_PASSWORD_LENGTH = 12
+DEFAULT_MEMBER_PORTAL = 'https://gym-member-and-admin.vercel.app'
+CONSOLE_EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+
+def generate_temp_password():
+    """12 chars from a 54-symbol alphabet (~69 bits), via the secrets module.
+    (BaseUserManager.make_random_password() was removed in Django 5.1.)"""
+    return get_random_string(TEMP_PASSWORD_LENGTH, TEMP_PASSWORD_CHARS)
+
+
+def member_portal_url():
     """
-    Stub — swap for real email backend later.
-    Set EMAIL_BACKEND in settings to actually send.
+    One URL for emails. FRONTEND_URL is a comma-separated origin list in
+    production ("http://localhost:5173,https://gym-member-and-admin.vercel.app"),
+    so prefer its first https entry; locally that is the localhost one.
     """
-    subject = 'Welcome to Smart Gym — your pass is active'
+    urls = [u.strip().rstrip('/') for u in settings.FRONTEND_URL.split(',') if u.strip()]
+    https = [u for u in urls if u.startswith('https://')]
+    return (https or urls or [DEFAULT_MEMBER_PORTAL])[0]
+
+
+def _send_welcome_email(user, membership, temp_password):
+    """
+    Emails the login details. The body contains a password, so it is never
+    logged, and in production it is not handed to the console backend
+    (which would print it into the server logs).
+    """
+    if settings.EMAIL_BACKEND == CONSOLE_EMAIL_BACKEND and not settings.DEBUG:
+        logger.error(
+            'Welcome email for %s NOT sent: EMAIL_BACKEND is the console backend, which would '
+            'print the temporary password into the logs. Configure SMTP, then reset this '
+            "member's password from the admin.", user.email,
+        )
+        return
+
+    subject = 'Welcome to Smart Gym — your membership is active'
     body = (
         f"Hi {user.first_name or user.email},\n\n"
         f"Your Smart Gym membership is now active.\n\n"
@@ -172,10 +210,19 @@ def _send_welcome_email(user, membership, reg):
         f"  Iqama #:     {membership.iqama_number}\n"
         f"  Plan:        {membership.plan.display_name}\n"
         f"  Valid until: {membership.expiry_date}\n\n"
-        f"Login: {settings.FRONTEND_URL}/login\n"
-        f"Email: {user.email}\n\n"
+        f"YOUR LOGIN\n"
+        f"  Login page:         {member_portal_url()}/login\n"
+        f"  Email:              {user.email}\n"
+        f"  Temporary password: {temp_password}\n\n"
+        f"IMPORTANT: this is a temporary password. Change it as soon as you log in.\n"
+        f"Never share it — Smart Gym staff will never ask for it.\n"
+        f"The password you chose when you registered is no longer used.\n\n"
         f"See you on the floor.\n— Smart Gym"
     )
-    logger.info('WELCOME EMAIL → %s\n%s', user.email, body)
-    # TODO: from django.core.mail import send_mail
-    # send_mail(subject, body, settings.DEFAULT_FROM_EMAIL, [user.email])
+    try:
+        send_mail(subject, body, settings.DEFAULT_FROM_EMAIL, [user.email])
+    except Exception:
+        # Approval is already committed; don't fail it — but make it visible (without the body).
+        logger.exception('Welcome email to %s failed to send.', user.email)
+        return
+    logger.info('Welcome email sent to %s (membership %s).', user.email, membership.pass_id)

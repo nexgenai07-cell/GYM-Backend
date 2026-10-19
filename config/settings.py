@@ -284,6 +284,18 @@ EMAIL_BACKEND = config(
 )
 DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='noreply@smartgym.local')
 
+# SMTP (used when EMAIL_BACKEND=django.core.mail.backends.smtp.EmailBackend).
+# Defaults are SendGrid's: the username is literally "apikey", the password is the API key.
+EMAIL_HOST          = config('EMAIL_HOST', default='smtp.sendgrid.net')
+EMAIL_PORT          = config('EMAIL_PORT', default=587, cast=int)
+EMAIL_USE_TLS       = config('EMAIL_USE_TLS', default=True, cast=bool)
+EMAIL_HOST_USER     = config('EMAIL_HOST_USER', default='apikey')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
+EMAIL_TIMEOUT       = config('EMAIL_TIMEOUT', default=10, cast=int)   # don't hang a serverless request
+
+if EMAIL_BACKEND == 'django.core.mail.backends.smtp.EmailBackend' and not EMAIL_HOST_PASSWORD:
+    raise ImproperlyConfigured('EMAIL_BACKEND is SMTP but EMAIL_HOST_PASSWORD (the SendGrid API key) is not set.')
+
 
 LOGGING = {
     'version': 1,

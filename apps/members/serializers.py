@@ -8,7 +8,7 @@ class MembershipPlanSerializer(serializers.ModelSerializer):
         model = MembershipPlan
         fields = [
             'id', 'name', 'display_name', 'description',
-            'price_monthly', 'price_annual', 'features', 'is_active',
+            'price_monthly', 'price_annual', 'features', 'session_limit_minutes', 'is_active',
         ]
 
 
@@ -43,5 +43,6 @@ class CheckInSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'facility', 'zone',
             'check_in_time', 'check_out_time', 'duration_minutes',
+            'session_limit_minutes', 'expected_checkout_time', 'face_verified',
         ]
-        read_only_fields = ['id', 'check_in_time']
+        read_only_fields = ['id', 'check_in_time', 'session_limit_minutes', 'expected_checkout_time']

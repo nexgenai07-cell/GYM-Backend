@@ -19,6 +19,7 @@ import os
 import sys
 import time
 import urllib.request
+from datetime import datetime
 from pathlib import Path
 
 import cv2
@@ -254,12 +255,17 @@ def banner(granted, lines):
 
 
 def show_result(granted, lines, seconds=5):
-    img = np.full((480, 900, 3), GREEN if granted else RED, np.uint8)
+    width, margin = 1000, 40
+    img = np.full((560, width, 3), GREEN if granted else RED, np.uint8)
     title = 'ACCESS GRANTED - OK' if granted else 'ACCESS DENIED'
     (tw, _), _ = cv2.getTextSize(title, cv2.FONT_HERSHEY_DUPLEX, 2.2, 5)
-    cv2.putText(img, title, ((900 - tw) // 2, 200), cv2.FONT_HERSHEY_DUPLEX, 2.2, WHITE, 5, cv2.LINE_AA)
-    for i, line in enumerate(lines[:4]):
-        cv2.putText(img, line, (40, 290 + i * 42), cv2.FONT_HERSHEY_SIMPLEX, 0.9, WHITE, 2, cv2.LINE_AA)
+    cv2.putText(img, title, ((width - tw) // 2, 180), cv2.FONT_HERSHEY_DUPLEX, 2.2, WHITE, 5, cv2.LINE_AA)
+    for i, line in enumerate(lines[:5]):
+        # First line (the welcome / reason) larger; shrink any line that would overflow.
+        scale = 1.1 if i == 0 else 0.85
+        while scale > 0.4 and cv2.getTextSize(line, cv2.FONT_HERSHEY_SIMPLEX, scale, 2)[0][0] > width - 2 * margin:
+            scale -= 0.05
+        cv2.putText(img, line, (margin, 270 + i * 54), cv2.FONT_HERSHEY_SIMPLEX, scale, WHITE, 2, cv2.LINE_AA)
     window = 'Smart Gym Gate'
     cv2.namedWindow(window, cv2.WINDOW_NORMAL)
     cv2.setWindowProperty(window, cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
@@ -319,15 +325,39 @@ def run(args):
     if not matched:
         raise Denied(f'Face does not match {name} - {detail}.')
 
-    lines = [f'Welcome, {name}', detail,
-             f"{(membership.get('plan') or {}).get('display_name', '')} | "
-             f"{membership.get('days_remaining', '?')} days remaining".strip(' |')]
+    plan = membership.get('plan') or {}
+    plan_line = f"{plan.get('display_name', '')} | {membership.get('days_remaining', '?')} days remaining".strip(' |')
+
     if args.no_record:
-        lines.append('(--no-record: check-in NOT saved)')
+        limit = plan.get('session_limit_minutes')
+        return [session_welcome(name, limit), detail, plan_line,
+                '(--no-record: check-in NOT saved)']
+
+    ci = backend.check_in(member['id'], cfg['facility'], face_check_id)
+    lines = [session_welcome(name, ci.get('session_limit_minutes')), detail, plan_line]
+    until = ci.get('expected_checkout_time')
+    if until:
+        local = datetime.fromisoformat(until.replace('Z', '+00:00')).astimezone()
+        lines.append(f"Session ends at {local:%H:%M} | checked in at {cfg['facility']} (#{ci.get('id')})")
     else:
-        ci = backend.check_in(member['id'], cfg['facility'], face_check_id)
         lines.append(f"Checked in at {cfg['facility']} (#{ci.get('id')})")
     return lines
+
+
+def format_minutes(total):
+    hours, minutes = divmod(int(total), 60)
+    parts = []
+    if hours:
+        parts.append(f"{hours} hour{'s' if hours != 1 else ''}")
+    if minutes:
+        parts.append(f"{minutes} minute{'s' if minutes != 1 else ''}")
+    return ' '.join(parts) or '0 minutes'
+
+
+def session_welcome(name, limit_minutes):
+    if limit_minutes:
+        return f'Welcome {name}! Your session is valid for {format_minutes(limit_minutes)}.'
+    return f'Welcome {name}! Your plan has no session time limit.'
 
 
 def main():

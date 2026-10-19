@@ -5,7 +5,7 @@ from .models import MembershipPlan, Membership, CheckIn, MembershipRegistration,
 
 @admin.register(MembershipPlan)
 class MembershipPlanAdmin(admin.ModelAdmin):
-    list_display = ['display_name', 'name', 'price_monthly', 'price_annual', 'is_active']
+    list_display = ['display_name', 'name', 'price_monthly', 'price_annual', 'session_limit_minutes', 'is_active']
     list_filter = ['is_active', 'name']
 
 
@@ -19,7 +19,7 @@ class MembershipAdmin(admin.ModelAdmin):
 
 @admin.register(CheckIn)
 class CheckInAdmin(admin.ModelAdmin):
-    list_display = ['member', 'facility', 'check_in_time', 'duration_minutes', 'face_verified']
+    list_display = ['member', 'facility', 'check_in_time', 'expected_checkout_time', 'check_out_time', 'duration_minutes', 'face_verified']
     list_filter = ['facility', 'face_verified']
     search_fields = ['member__email']
     raw_id_fields = ['member', 'verified_by']

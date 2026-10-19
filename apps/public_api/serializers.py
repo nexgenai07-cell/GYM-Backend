@@ -31,7 +31,7 @@ class PublicPlanSerializer(serializers.ModelSerializer):
         model = MembershipPlan
         fields = [
             'id', 'name', 'display_name', 'description',
-            'price_monthly', 'price_annual', 'features',
+            'price_monthly', 'price_annual', 'features', 'session_limit_minutes',
         ]
 
 

@@ -23,6 +23,10 @@ class MembershipPlan(models.Model):
     price_monthly = models.DecimalField(max_digits=8, decimal_places=2)
     price_annual = models.DecimalField(max_digits=8, decimal_places=2)
     features = models.JSONField(default=list, blank=True)
+    # Max length of one gym visit; empty = unlimited.
+    session_limit_minutes = models.PositiveIntegerField(
+        null=True, blank=True, help_text='Max minutes per visit. Leave empty for unlimited.',
+    )
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -95,6 +99,13 @@ class Membership(models.Model):
         delta = self.expiry_date - date.today()
         return max(0, delta.days)
 
+    ENTRY_STATUSES = ('active', 'expiring')   # "expiring soon" is still paid up
+
+    @property
+    def allows_entry(self):
+        """Single rule for gym entry — used by the gate lookup and the check-in endpoint."""
+        return self.status in self.ENTRY_STATUSES and not self.is_frozen and self.days_remaining > 0
+
 
 # ============================================================
 # CHECK-IN
@@ -111,6 +122,9 @@ class CheckIn(models.Model):
     check_in_time = models.DateTimeField(auto_now_add=True)
     check_out_time = models.DateTimeField(null=True, blank=True)
     duration_minutes = models.IntegerField(null=True, blank=True)
+    # Session timer — snapshot of the plan's limit at check-in time (empty = unlimited).
+    session_limit_minutes = models.PositiveIntegerField(null=True, blank=True)
+    expected_checkout_time = models.DateTimeField(null=True, blank=True)
 
     # ⬇️ NEW — staff verification trail
     verified_by = models.ForeignKey(

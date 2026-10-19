@@ -1,6 +1,6 @@
-from datetime import date
+from datetime import date, timedelta
 from django.utils import timezone
-from django.db.models import Q, Count
+from django.db.models import Q, Count, F
 from django.conf import settings
 from django.shortcuts import get_object_or_404
 from rest_framework import status
@@ -425,11 +425,7 @@ def admin_member_lookup(request):
         },
         'membership': MembershipSerializer(membership).data,
         'registration_photo_url': reg_photo_url,
-        'is_valid': (
-            membership.status == 'active'
-            and not membership.is_frozen
-            and membership.days_remaining > 0
-        ),
+        'is_valid': membership.allows_entry,
         'active_check_in': CheckInSerializer(active).data if active else None,
     })
 
@@ -490,10 +486,26 @@ def admin_check_in(request, member_id):
     Body: { "facility": "...", "zone": "...", "face_verified": true, "face_check_id": 12 }
     face_check_id (optional) links the check-in to the matching FaceCheck; it must be
     a successful check for this member that isn't linked to another check-in.
+
+    Refused unless the member's current membership is valid. If the plan has a
+    session_limit_minutes, the response carries the session timer
+    (session_limit_minutes + expected_checkout_time).
     """
     from django.contrib.auth import get_user_model
     User = get_user_model()
     member = get_object_or_404(User, id=member_id)
+
+    # Plan validation — same rule as the gate lookup's is_valid (Membership.allows_entry).
+    membership = Membership.objects.filter(member=member).select_related('plan').first()  # newest
+    if membership is None:
+        return Response({'detail': 'Member has no membership.'}, status=status.HTTP_400_BAD_REQUEST)
+    if not membership.allows_entry:
+        return Response({
+            'detail': 'Membership is not valid for entry.',
+            'status': membership.status,
+            'is_frozen': membership.is_frozen,
+            'days_remaining': membership.days_remaining,
+        }, status=status.HTTP_400_BAD_REQUEST)
 
     # Prevent double check-in
     today = timezone.localdate()
@@ -518,24 +530,25 @@ def admin_check_in(request, member_id):
             return Response({'detail': 'face_check_id is not an unused successful face check for this member.'},
                             status=status.HTTP_400_BAD_REQUEST)
 
+    limit = membership.plan.session_limit_minutes
     ci = CheckIn.objects.create(
         member=member,
         facility=request.data.get('facility', 'Metro Station Core 01'),
         zone=request.data.get('zone', ''),
         verified_by=request.user,
         face_verified=bool(request.data.get('face_verified', False)) or face_check is not None,
+        session_limit_minutes=limit,
     )
+    if limit:
+        # check_in_time is set by auto_now_add on create, so compute afterwards.
+        ci.expected_checkout_time = ci.check_in_time + timedelta(minutes=limit)
+        ci.save(update_fields=['expected_checkout_time'])
     if face_check is not None:
         face_check.check_in = ci
         face_check.save(update_fields=['check_in'])
 
-    # Increment membership counter
-    try:
-        m = member.membership
-        m.total_check_ins = (m.total_check_ins or 0) + 1
-        m.save(update_fields=['total_check_ins'])
-    except Exception:
-        pass
+    # Increment the visit counter (atomic, avoids lost updates on concurrent check-ins).
+    Membership.objects.filter(id=membership.id).update(total_check_ins=F('total_check_ins') + 1)
 
     return Response(CheckInSerializer(ci).data, status=status.HTTP_201_CREATED)
 

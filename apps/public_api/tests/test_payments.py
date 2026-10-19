@@ -56,8 +56,7 @@ class PaymentTestBase(APITestCase):
 
     def register(self, **overrides):
         data = dict(iqama_number=IQAMA, full_name='Test User', email='Test@Example.com', phone='0500000000',
-                    age=30, gender='male', plan=self.plan.id, duration_months=3,
-                    password='Str0ng-Passw0rd!', photo=photo())
+                    age=30, gender='male', plan=self.plan.id, duration_months=3, photo=photo())
         data.update(overrides)
         if data.get('photo') is None:
             data.pop('photo')
@@ -134,6 +133,19 @@ class RegistrationTests(PaymentTestBase):
         reg_id = self.register().data['id']
         r = self.client.post(f'/api/public/register/{reg_id}/payment/', {'status': 'paid'}, format='json')
         self.assertEqual(r.status_code, 404)
+
+    def test_no_password_needed_and_none_stored(self):
+        r = self.register()
+        self.assertEqual(r.status_code, 201)
+        self.assertFalse(self.reg(r.data['id']).password_hash.startswith('pbkdf2'))   # unusable placeholder
+
+    def test_password_from_an_old_frontend_is_ignored(self):
+        r = self.register(password='Chosen-At-Signup-1')
+        self.assertEqual(r.status_code, 201)
+        self.pay('pay_ok', r.data['id'], 23700)
+        self.verify('pay_ok')
+        user = approve_registration(self.reg(r.data['id']))
+        self.assertFalse(user.check_password('Chosen-At-Signup-1'))
 
     def test_same_iqama_with_different_email_is_rejected(self):
         self.register()

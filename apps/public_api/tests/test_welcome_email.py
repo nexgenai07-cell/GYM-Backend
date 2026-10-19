@@ -11,7 +11,6 @@ from apps.members.services import approve_registration, generate_temp_password, 
 from .test_payments import PaymentTestBase
 
 PROD_FRONTEND_URL = 'http://localhost:5173,https://gym-member-and-admin.vercel.app'
-SIGNUP_PASSWORD = 'Str0ng-Passw0rd!'   # what PaymentTestBase.register() submits
 
 
 def temp_password_in(body):
@@ -32,7 +31,6 @@ class WelcomeEmailTests(PaymentTestBase):
         password = temp_password_in(mail.outbox[0].body)
         user.refresh_from_db()
         self.assertTrue(user.check_password(password))
-        self.assertFalse(user.check_password(SIGNUP_PASSWORD))
         r = self.client.post('/api/auth/login/', {'email': user.email, 'password': password}, format='json')
         self.assertEqual(r.status_code, 200)
 

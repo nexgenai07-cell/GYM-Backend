@@ -1,0 +1,3 @@
+# Downloaded on first run (~39 MB) and verified by SHA-256 in gate_check.py
+models/*.onnx
+models/*.part

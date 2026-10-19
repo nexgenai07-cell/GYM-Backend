@@ -101,6 +101,16 @@ DATABASES = {
     )
 }
 
+# Safety: DEBUG=True means local development, and local development must never
+# touch the production (Neon) database. Crash instead of silently using it.
+# A deliberate production task needs DEBUG=False in that shell.
+if DEBUG and 'neon.tech' in str(DATABASES['default'].get('HOST', '')):
+    raise ImproperlyConfigured(
+        'DEBUG=True with the production Neon database. Local work must use '
+        'DATABASE_URL=sqlite:///db.sqlite3 (check .env and any "set DATABASE_URL" in this window). '
+        'For a deliberate production task, also set DEBUG=False.'
+    )
+
 # ============================================
 # AUTH
 # ============================================

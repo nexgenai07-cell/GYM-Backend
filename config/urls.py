@@ -3,6 +3,8 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 
+from apps.site_content.urls import public_urlpatterns as site_content_public
+
 
 urlpatterns = [
     path('django-admin/', admin.site.urls),
@@ -31,6 +33,10 @@ urlpatterns = [
 
     # ----- Public site (no auth) -----
     path('api/public/', include('apps.public_api.urls')),
+    path('api/public/', include((site_content_public, 'site_content_public'))),
+
+    # ----- Public-site content editor + contact inbox (admin/manager) -----
+    path('api/admin/site-content/', include('apps.site_content.urls')),
 
     # ----- Registration approval + gym-entry lookup -----
     # Mounted under a distinct prefix to avoid colliding with apps.admin_api

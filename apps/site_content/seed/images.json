@@ -1,0 +1,282 @@
+[
+ {
+  "key": "home.sectors.s1",
+  "page": "home",
+  "const": "IMG_SECTORS",
+  "prop": "s1",
+  "default_url": "https://lh3.googleusercontent.com/aida-public/AB6AXuA23dg0PwZOBLQHFc5L3CR2koDzZ1qCtI2wt0JljLuzWtCzeGO68fwgDV7qXQgzKxDWKCiti668_e4ByD5btmEGMpGqu_U8lV5ijrvOn5eAuLUNyUUKLpZWINudKPQcwOTezUIpXEXcTuzGumCpH8Q6pWIRGC7Xj-gg95KfkINm3lxdWhmXlqlMDniXSXc_3ozdnLJ0EyKdjn8axgsuhCVcvwMjVDcpnDrNQS2y7b0wzuYrBuDdsAtqYQ"
+ },
+ {
+  "key": "home.sectors.s2",
+  "page": "home",
+  "const": "IMG_SECTORS",
+  "prop": "s2",
+  "default_url": "https://lh3.googleusercontent.com/aida-public/AB6AXuDOsUJYZow6PF3XJwRRZJamWbc9ddU024GZW5iYBS5YlX4EO3DDUAI3dHyFQDoMdJvbtf7R38ks3-k6qzgQCZI3O_fh8AlKbR2yz3z-vvjax-8pbzy1dL8MmpX_CBEVnFXLJMN1iYuyI040STPXWEzoFvokbtgqeVqQmgXzQm81YFcKwPRKKxmHZ1rsG5fWLzKw3zV5oN83c3X0ZyTSUA8_9j4e_FdcLtOesXhJpPxFWvFCBOXElsKRMg"
+ },
+ {
+  "key": "home.sectors.s3",
+  "page": "home",
+  "const": "IMG_SECTORS",
+  "prop": "s3",
+  "default_url": "https://lh3.googleusercontent.com/aida-public/AB6AXuDV3CcgN4obCgXaNL3RUNHyf7x2YtvrhJxgbTM4wNNCyA1usAhn_KDjDwELDf84TfRTpL1XkdyU8ZUtARAGnprs3EKZDEJ51h2jc-2m5hsMpfzYpk2AULO5c1yneYCggtcTjPWXCpT_ps8x8zbPxqZc8l6XR4DVu7nGp631CfhhqejxKIfo186fJTeZMjG5wgJeybWGckIhfiGt5e0LVdjMSYt-kqgWzqX9phNvE5WUmgXR32Thq9fFCA"
+ },
+ {
+  "key": "home.sectors.s4",
+  "page": "home",
+  "const": "IMG_SECTORS",
+  "prop": "s4",
+  "default_url": "https://lh3.googleusercontent.com/aida-public/AB6AXuDk5Oh9gpB5ucwXqc_fWi5ICkJK3Y4l6P_-ng0_hFqqNi3-XJgiH4Kq3JApvU80yRgokkd7VoIugJmYt1j_iBTZno_W5pcu-kFgsrfJ_6im9GXAwYcdyCHwWPSzAuMnBkiSnFqix318GepuMGsqTRVJQL3xIhRP-bD2EjxntBw8xaBjzmlbETZCo0JHIziPUuTM5ejE2NDZyBjeIWmt8AYVEypg5dWvCPAnQBvlkpjaRpsra11V68EPVg"
+ },
+ {
+  "key": "home.why.r1",
+  "page": "home",
+  "const": "IMG_WHY",
+  "prop": "r1",
+  "default_url": "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=800&q=80"
+ },
+ {
+  "key": "home.why.r2",
+  "page": "home",
+  "const": "IMG_WHY",
+  "prop": "r2",
+  "default_url": "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?auto=format&fit=crop&w=800&q=80"
+ },
+ {
+  "key": "home.why.r3",
+  "page": "home",
+  "const": "IMG_WHY",
+  "prop": "r3",
+  "default_url": "https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?auto=format&fit=crop&w=800&q=80"
+ },
+ {
+  "key": "home.why.r4",
+  "page": "home",
+  "const": "IMG_WHY",
+  "prop": "r4",
+  "default_url": "https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?auto=format&fit=crop&w=800&q=80"
+ },
+ {
+  "key": "home.services.1",
+  "page": "home",
+  "const": "IMG_SERVICES",
+  "prop": "1",
+  "default_url": "https://lh3.googleusercontent.com/aida-public/AB6AXuA90ADfv5q015Hdv9wJrN2PR94gE-LFkELeKTwdRgiQX8excZjoGepxEN01fxEOkcmxVAOJokVXvHi6HSkoMoTwipTWaG7D1R8Uqz9elu-sp7XiXEudLEW9IP328m3CWd3HpdZZOwTqjoT7yitwdqfx02m-Jj13qvdqhNxEKWBt1qvanvvDy2zZ2nvN-iDRV5m6X-iksFc08fT4FEPCr88r9WLaK0mfI1VL9atxsaGz4gYqdm_ihVrx4Q"
+ },
+ {
+  "key": "home.services.2",
+  "page": "home",
+  "const": "IMG_SERVICES",
+  "prop": "2",
+  "default_url": "https://lh3.googleusercontent.com/aida-public/AB6AXuBlS-alKP7soJN2iWlTU8Xx_RWinLindW32FbUrPxCs9yAasAE6chTuxhM2gVTBY_qBhU8baKOt-zYpNTgoCca3ucS77oMHMwcjX9O_uQOb63hZgY5AEDY_KrEuh93vzQKMrd0WlmLMYyDw5w14YqedkF8-YBVCU5VZKcWhMWA1cv_JUyZqtOaoaaQZzEmlY33KIM3HKQyjMHpllP7KG_906MZNrJN0MWToCEnmJIf-rvvfP7F1KPNfDw"
+ },
+ {
+  "key": "home.services.3",
+  "page": "home",
+  "const": "IMG_SERVICES",
+  "prop": "3",
+  "default_url": "https://lh3.googleusercontent.com/aida-public/AB6AXuCRHsZzWN12JER7VHxDXN-RPFk-D4rsmxLnxmnYbUnZLgB--rhdlx4hNHByEVsF4Vlw_PMROWl278isfWsLDgyaA3dlssuYkhdjCIVEZ1v82sYcCZvlTbGy9Z6nShFxsbg-T43tUFti9JLYLGCwIIqZMUdkR8eioWw5PZanlFnCknEK_He41RjJJbW603phHF_Gk_NKLpNUI1Yi07iSqVhKlEZw-hg3E0LD4GY_cZ1tdj6HOCkW-OBxeQ"
+ },
+ {
+  "key": "home.services.4",
+  "page": "home",
+  "const": "IMG_SERVICES",
+  "prop": "4",
+  "default_url": "https://lh3.googleusercontent.com/aida-public/AB6AXuDADlKHJWbigDsBsIozNsudgjATmwvY8ISSDYQqk40ut9PAkq5z8Vd_E5_Zcp4MPor8cMQTg5PYFciLJB9bcuGhoJWMWY3628cmNFn4SQvV7rOfXg90CiBNspx4iJJWgq1jYiU_bM85FE-1tvXWJE_L2kiQJZcv99l63sX1wbPkPQGkzMoUBRJxO_BFh6PillPtkjs3GKXhQWbPW0mGNqU8gqGXrxQz839Y4_0bZl4HFQUG91W5GmBrKw"
+ },
+ {
+  "key": "home.services.5",
+  "page": "home",
+  "const": "IMG_SERVICES",
+  "prop": "5",
+  "default_url": "https://lh3.googleusercontent.com/aida-public/AB6AXuAJDzC_mzHYHneGW09oV0OIN4YvpHHAyPYMG17Gud5lf6MHEY3Fcld65tSW7HLqX4WJZWV_cQnaI5V-ai521PCFf2cLnEfRHBXUCZxu75_UVNh7q06uxSAXNgx7ECK_DpMD1mHtdQwA8XGowrydf9NvxY16uXvAhySX8ovfo23GQ3GrcAdEYyKuDgfnRRHpl4iWywdd4F6ZXFKcXCLHGV0N4_mB1qezKH8c3rf4fBT_ud5pcOGD1tKDEA"
+ },
+ {
+  "key": "fac.heroBg",
+  "page": "fac",
+  "const": "IMG",
+  "prop": "heroBg",
+  "default_url": "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=1920&q=80"
+ },
+ {
+  "key": "fac.pool",
+  "page": "fac",
+  "const": "IMG",
+  "prop": "pool",
+  "default_url": "https://images.unsplash.com/photo-1530549387789-4c1017266635?auto=format&fit=crop&w=1400&q=80"
+ },
+ {
+  "key": "fac.basketball",
+  "page": "fac",
+  "const": "IMG",
+  "prop": "basketball",
+  "default_url": "https://images.unsplash.com/photo-1546519638-68e109498ffc?auto=format&fit=crop&w=1400&q=80"
+ },
+ {
+  "key": "fac.combat",
+  "page": "fac",
+  "const": "IMG",
+  "prop": "combat",
+  "default_url": "https://images.unsplash.com/photo-1549476464-37392f717541?auto=format&fit=crop&w=1400&q=80"
+ },
+ {
+  "key": "fac.recovery",
+  "page": "fac",
+  "const": "IMG",
+  "prop": "recovery",
+  "default_url": "https://images.unsplash.com/photo-1571902943202-507ec2618e8f?auto=format&fit=crop&w=1400&q=80"
+ },
+ {
+  "key": "fac.volleyball",
+  "page": "fac",
+  "const": "IMG",
+  "prop": "volleyball",
+  "default_url": "https://images.unsplash.com/photo-1612872087720-bb876e2e67d1?auto=format&fit=crop&w=1400&q=80"
+ },
+ {
+  "key": "fac.strength",
+  "page": "fac",
+  "const": "IMG",
+  "prop": "strength",
+  "default_url": "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=1400&q=80"
+ },
+ {
+  "key": "svc.heroBg",
+  "page": "svc",
+  "const": "IMG",
+  "prop": "heroBg",
+  "default_url": "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=1920&q=80"
+ },
+ {
+  "key": "svc.vo2",
+  "page": "svc",
+  "const": "IMG",
+  "prop": "vo2",
+  "default_url": "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?auto=format&fit=crop&w=1400&q=80"
+ },
+ {
+  "key": "svc.coaching",
+  "page": "svc",
+  "const": "IMG",
+  "prop": "coaching",
+  "default_url": "https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?auto=format&fit=crop&w=1400&q=80"
+ },
+ {
+  "key": "svc.nutrition",
+  "page": "svc",
+  "const": "IMG",
+  "prop": "nutrition",
+  "default_url": "https://images.unsplash.com/photo-1490645935967-10de6ba17061?auto=format&fit=crop&w=1400&q=80"
+ },
+ {
+  "key": "svc.combat",
+  "page": "svc",
+  "const": "IMG",
+  "prop": "combat",
+  "default_url": "https://images.unsplash.com/photo-1549476464-37392f717541?auto=format&fit=crop&w=1400&q=80"
+ },
+ {
+  "key": "svc.recovery",
+  "page": "svc",
+  "const": "IMG",
+  "prop": "recovery",
+  "default_url": "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?auto=format&fit=crop&w=1400&q=80"
+ },
+ {
+  "key": "ins.heroBg",
+  "page": "ins",
+  "const": "IMG",
+  "prop": "heroBg",
+  "default_url": "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=1920&q=80"
+ },
+ {
+  "key": "ins.featured",
+  "page": "ins",
+  "const": "IMG",
+  "prop": "featured",
+  "default_url": "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=1600&q=80"
+ },
+ {
+  "key": "ins.vo2",
+  "page": "ins",
+  "const": "IMG",
+  "prop": "vo2",
+  "default_url": "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?auto=format&fit=crop&w=900&q=80"
+ },
+ {
+  "key": "ins.nutrition",
+  "page": "ins",
+  "const": "IMG",
+  "prop": "nutrition",
+  "default_url": "https://images.unsplash.com/photo-1490645935967-10de6ba17061?auto=format&fit=crop&w=900&q=80"
+ },
+ {
+  "key": "ins.cryo",
+  "page": "ins",
+  "const": "IMG",
+  "prop": "cryo",
+  "default_url": "https://images.unsplash.com/photo-1571902943202-507ec2618e8f?auto=format&fit=crop&w=900&q=80"
+ },
+ {
+  "key": "ins.grip",
+  "page": "ins",
+  "const": "IMG",
+  "prop": "grip",
+  "default_url": "https://images.unsplash.com/photo-1526506118085-60ce8714f8c5?auto=format&fit=crop&w=900&q=80"
+ },
+ {
+  "key": "ins.squat",
+  "page": "ins",
+  "const": "IMG",
+  "prop": "squat",
+  "default_url": "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=900&q=80"
+ },
+ {
+  "key": "ct.heroBg",
+  "page": "ct",
+  "const": "IMG",
+  "prop": "heroBg",
+  "default_url": "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=1920&q=80"
+ },
+ {
+  "key": "ct.map",
+  "page": "ct",
+  "const": "IMG",
+  "prop": "map",
+  "default_url": "https://images.unsplash.com/photo-1524661135-423995f22d0b?auto=format&fit=crop&w=1400&q=80"
+ },
+ {
+  "key": "ct.hub1",
+  "page": "ct",
+  "const": "IMG",
+  "prop": "hub1",
+  "default_url": "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?auto=format&fit=crop&w=900&q=80"
+ },
+ {
+  "key": "ct.hub2",
+  "page": "ct",
+  "const": "IMG",
+  "prop": "hub2",
+  "default_url": "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=900&q=80"
+ },
+ {
+  "key": "ct.hub3",
+  "page": "ct",
+  "const": "IMG",
+  "prop": "hub3",
+  "default_url": "https://images.unsplash.com/photo-1571902943202-507ec2618e8f?auto=format&fit=crop&w=900&q=80"
+ },
+ {
+  "key": "en.facility",
+  "page": "en",
+  "const": "IMG",
+  "prop": "facility",
+  "default_url": "https://images.unsplash.com/photo-1540497077202-7c8a3999166f?auto=format&fit=crop&w=1200&q=80"
+ },
+ {
+  "key": "en.avatar",
+  "page": "en",
+  "const": "IMG",
+  "prop": "avatar",
+  "default_url": "https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?auto=format&fit=crop&w=120&q=80"
+ }
+]

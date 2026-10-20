@@ -1,0 +1,5894 @@
+[
+ {
+  "key": "meta.title",
+  "page": "meta",
+  "en": "Smart Gym — The Future of Fitness",
+  "ar": "سمارت جيم — مستقبل اللياقة"
+ },
+ {
+  "key": "nav.home",
+  "page": "nav",
+  "en": "Home",
+  "ar": "الرئيسية"
+ },
+ {
+  "key": "nav.facilities",
+  "page": "nav",
+  "en": "Facilities",
+  "ar": "المرافق"
+ },
+ {
+  "key": "nav.services",
+  "page": "nav",
+  "en": "Services",
+  "ar": "الخدمات"
+ },
+ {
+  "key": "nav.membership",
+  "page": "nav",
+  "en": "Membership",
+  "ar": "العضوية"
+ },
+ {
+  "key": "nav.insights",
+  "page": "nav",
+  "en": "Insights",
+  "ar": "الأخبار"
+ },
+ {
+  "key": "nav.contact",
+  "page": "nav",
+  "en": "Contact",
+  "ar": "اتصل بنا"
+ },
+ {
+  "key": "nav.joinNow",
+  "page": "nav",
+  "en": "JOIN NOW",
+  "ar": "انضم الآن"
+ },
+ {
+  "key": "boot.label",
+  "page": "boot",
+  "en": "CALIBRATING TELEMETRY GRID",
+  "ar": "معايرة شبكة القياس"
+ },
+ {
+  "key": "svc.kicker",
+  "page": "svc",
+  "en": "DIAGNOSTIC & CONDITIONING DIVISION // LIVE",
+  "ar": "قسم التشخيص والتكييف // مباشر"
+ },
+ {
+  "key": "svc.hero.line1",
+  "page": "svc",
+  "en": "PRECISION",
+  "ar": "الدقة"
+ },
+ {
+  "key": "svc.hero.line2",
+  "page": "svc",
+  "en": "PERFORMANCE",
+  "ar": "الأداء"
+ },
+ {
+  "key": "svc.hero.line3",
+  "page": "svc",
+  "en": "PROTOCOLS",
+  "ar": "البروتوكولات"
+ },
+ {
+  "key": "svc.hero.line4",
+  "page": "svc",
+  "en": "& SERVICES",
+  "ar": "والخدمات"
+ },
+ {
+  "key": "svc.hero.lede",
+  "page": "svc",
+  "en": "Engineered for elite powerlifters, hybrid athletes, and uncompromising competitors. Deploy advanced metabolic telemetry, periodized force protocols, and cellular-grade recovery modules.",
+  "ar": "مصمم لرفعي الأثقال النخبة، الرياضيين الهجين، والمنافسين الذين لا يساومون. انشر قياسات أيضية متقدمة، بروتوكولات قوة دورية، ووحدات تعافي بمعايير خلوية."
+ },
+ {
+  "key": "svc.scroll",
+  "page": "svc",
+  "en": "SCROLL",
+  "ar": "اسحب"
+ },
+ {
+  "key": "svc.filter.all",
+  "page": "svc",
+  "en": "ALL SERVICES",
+  "ar": "جميع الخدمات"
+ },
+ {
+  "key": "svc.filter.diagnostics",
+  "page": "svc",
+  "en": "BIOMETRIC DIAGNOSTICS",
+  "ar": "التشخيص الحيوي"
+ },
+ {
+  "key": "svc.filter.coaching",
+  "page": "svc",
+  "en": "PERSONAL COACHING",
+  "ar": "التدريب الشخصي"
+ },
+ {
+  "key": "svc.filter.nutrition",
+  "page": "svc",
+  "en": "NUTRITION ARCHITECTURE",
+  "ar": "هندسة التغذية"
+ },
+ {
+  "key": "svc.filter.combat",
+  "page": "svc",
+  "en": "COMBAT CONDITIONING",
+  "ar": "تجهيز القتال"
+ },
+ {
+  "key": "svc.filter.recovery",
+  "page": "svc",
+  "en": "RECOVERY THERAPY",
+  "ar": "علاج التعافي"
+ },
+ {
+  "key": "svc.search.placeholder",
+  "page": "svc",
+  "en": "Query biometric protocols…",
+  "ar": "ابحث في البروتوكولات الحيوية…"
+ },
+ {
+  "key": "svc.metric.accuracy",
+  "page": "svc",
+  "en": "TELEMETRY ACCURACY",
+  "ar": "دقة القياس"
+ },
+ {
+  "key": "svc.metric.sync",
+  "page": "svc",
+  "en": "COACH SYNC WINDOW",
+  "ar": "نافذة مزامنة المدرب"
+ },
+ {
+  "key": "svc.metric.cryo",
+  "page": "svc",
+  "en": "CRYO POD FLOOR",
+  "ar": "أرضية كبسولة التبريد"
+ },
+ {
+  "key": "svc.metric.feedback",
+  "page": "svc",
+  "en": "BIOMETRIC FEEDBACK",
+  "ar": "التغذية الحيوية الراجعة"
+ },
+ {
+  "key": "svc.belt.biometrics",
+  "page": "svc",
+  "en": "BIOMETRICS",
+  "ar": "القياسات الحيوية"
+ },
+ {
+  "key": "svc.belt.coaching",
+  "page": "svc",
+  "en": "COACHING",
+  "ar": "التدريب"
+ },
+ {
+  "key": "svc.belt.nutrition",
+  "page": "svc",
+  "en": "NUTRITION",
+  "ar": "التغذية"
+ },
+ {
+  "key": "svc.belt.combat",
+  "page": "svc",
+  "en": "COMBAT",
+  "ar": "القتال"
+ },
+ {
+  "key": "svc.belt.recovery",
+  "page": "svc",
+  "en": "RECOVERY",
+  "ar": "التعافي"
+ },
+ {
+  "key": "svc.belt.diagnostics",
+  "page": "svc",
+  "en": "DIAGNOSTICS",
+  "ar": "التشخيص"
+ },
+ {
+  "key": "svc.belt.open",
+  "page": "svc",
+  "en": "OPEN 24/7",
+  "ar": "مفتوح 24/7"
+ },
+ {
+  "key": "svc.count.online",
+  "page": "svc",
+  "en": "/ {{total}} PROTOCOLS ONLINE",
+  "ar": "/ {{total}} بروتوكول متاح"
+ },
+ {
+  "key": "svc.card1.lab",
+  "page": "svc",
+  "en": "LAB PROTOCOL 01",
+  "ar": "بروتوكول مختبر 01"
+ },
+ {
+  "key": "svc.card1.meta",
+  "page": "svc",
+  "en": "TELEMETRY",
+  "ar": "القياس"
+ },
+ {
+  "key": "svc.card1.tag",
+  "page": "svc",
+  "en": "BIOMETRIC DIAGNOSTICS",
+  "ar": "التشخيص الحيوي"
+ },
+ {
+  "key": "svc.card1.title",
+  "page": "svc",
+  "en": "VO2 Max & Metabolic Testing",
+  "ar": "اختبار VO2 الأقصى والأيض"
+ },
+ {
+  "key": "svc.card1.per",
+  "page": "svc",
+  "en": "/ SESSION",
+  "ar": "/ جلسة"
+ },
+ {
+  "key": "svc.card1.duration",
+  "page": "svc",
+  "en": "60 MIN LAB PROFILE",
+  "ar": "60 دقيقة ملف مختبري"
+ },
+ {
+  "key": "svc.card1.cta",
+  "page": "svc",
+  "en": "BOOK DIAGNOSTIC",
+  "ar": "احجز التشخيص"
+ },
+ {
+  "key": "svc.card1.desc",
+  "page": "svc",
+  "en": "Determine exact respiratory exchange ratios, lactate turnaround zones, and maximum aerobic output with hospital-grade gas analysis. Includes targeted wattage calibrations and pulse-wave speed profiling.",
+  "ar": "حدّد نسب تبادل الجهاز التنفسي الدقيقة، ومناطق تحول اللاكتات، والحد الأقصى للأداء الهوائي عبر تحليل غازات بمعايير المستشفيات. يشمل معايرات واط المستهدفة وتوصيف سرعة الموجة النبضية."
+ },
+ {
+  "key": "svc.card1.tag1",
+  "page": "svc",
+  "en": "Biometrics",
+  "ar": "القياسات الحيوية"
+ },
+ {
+  "key": "svc.card1.tag2",
+  "page": "svc",
+  "en": "Anaerobic Threshold",
+  "ar": "العتبة اللاهوائية"
+ },
+ {
+  "key": "svc.card1.tag3",
+  "page": "svc",
+  "en": "Heart Rate Zones",
+  "ar": "مناطق معدل ضربات القلب"
+ },
+ {
+  "key": "svc.card2.lab",
+  "page": "svc",
+  "en": "STRENGTH UNIT 02",
+  "ar": "وحدة القوة 02"
+ },
+ {
+  "key": "svc.card2.meta",
+  "page": "svc",
+  "en": "FRAMEWORK",
+  "ar": "الإطار"
+ },
+ {
+  "key": "svc.card2.tag",
+  "page": "svc",
+  "en": "PERSONAL COACHING",
+  "ar": "التدريب الشخصي"
+ },
+ {
+  "key": "svc.card2.title",
+  "page": "svc",
+  "en": "1-on-1 Elite Strength Coaching",
+  "ar": "تدريب القوة النخبوي فردي"
+ },
+ {
+  "key": "svc.card2.per",
+  "page": "svc",
+  "en": "/ SESSION",
+  "ar": "/ جلسة"
+ },
+ {
+  "key": "svc.card2.duration",
+  "page": "svc",
+  "en": "CSCS CERTIFIED STAFF",
+  "ar": "طاقم معتمد CSCS"
+ },
+ {
+  "key": "svc.card2.cta",
+  "page": "svc",
+  "en": "MATCH WITH COACH",
+  "ar": "طابق مع مدرب"
+ },
+ {
+  "key": "svc.card2.desc",
+  "page": "svc",
+  "en": "Direct barbell mastery engineered around your anthropometry. Velocity-based training (VBT) with transducer telemetry, neural recovery checks, and periodized microcycles designed for maximal neuromuscular adaptation.",
+  "ar": "إتقان مباشر للبار مُصمم حول قياسات جسمك. تدريب قائم على السرعة (VBT) مع قياسات محوّل، وفحوصات التعافي العصبي، ودورات دقيقة مصممة لأقصى تكيّف عصبي عضلي."
+ },
+ {
+  "key": "svc.card2.tag1",
+  "page": "svc",
+  "en": "Biomechanics",
+  "ar": "الميكانيكا الحيوية"
+ },
+ {
+  "key": "svc.card2.tag2",
+  "page": "svc",
+  "en": "Hypertrophy",
+  "ar": "التضخم العضلي"
+ },
+ {
+  "key": "svc.card2.tag3",
+  "page": "svc",
+  "en": "Periodization",
+  "ar": "الدورية"
+ },
+ {
+  "key": "svc.card3.lab",
+  "page": "svc",
+  "en": "NUTRITION SYNC 03",
+  "ar": "مزامنة التغذية 03"
+ },
+ {
+  "key": "svc.card3.meta",
+  "page": "svc",
+  "en": "ASSESSMENT",
+  "ar": "التقييم"
+ },
+ {
+  "key": "svc.card3.tag",
+  "page": "svc",
+  "en": "NUTRITION ARCHITECTURE",
+  "ar": "هندسة التغذية"
+ },
+ {
+  "key": "svc.card3.title",
+  "page": "svc",
+  "en": "Precision Nutrition & Macro Tracking",
+  "ar": "التغذية الدقيقة وتتبع الماكروز"
+ },
+ {
+  "key": "svc.card3.per",
+  "page": "svc",
+  "en": "/ BI-WEEKLY",
+  "ar": "/ كل أسبوعين"
+ },
+ {
+  "key": "svc.card3.duration",
+  "page": "svc",
+  "en": "APP INTEGRATED",
+  "ar": "مدمج بالتطبيق"
+ },
+ {
+  "key": "svc.card3.cta",
+  "page": "svc",
+  "en": "START NUTRITION PLAN",
+  "ar": "ابدأ خطة التغذية"
+ },
+ {
+  "key": "svc.card3.desc",
+  "page": "svc",
+  "en": "Hyper-calibrated nutrition planning synchronized with your training loads and DEXA lean mass benchmarks. Dynamic carb-cycling protocols, glycogen optimization, and continuous biofeedback audits.",
+  "ar": "تخطيط غذائي معاير بدقة ومتزامن مع أحمالك التدريبية ومراجع الكتلة النحيفة DEXA. بروتوكولات ديناميكية لتدوير الكارب، وتحسين الجليكوجين، ومراجعات حيوية مستمرة."
+ },
+ {
+  "key": "svc.card3.tag1",
+  "page": "svc",
+  "en": "Macro Architecture",
+  "ar": "هندسة الماكروز"
+ },
+ {
+  "key": "svc.card3.tag2",
+  "page": "svc",
+  "en": "DEXA Sync",
+  "ar": "مزامنة DEXA"
+ },
+ {
+  "key": "svc.card3.tag3",
+  "page": "svc",
+  "en": "Weekly Plan",
+  "ar": "خطة أسبوعية"
+ },
+ {
+  "key": "svc.card4.lab",
+  "page": "svc",
+  "en": "COMBAT DOJO 04",
+  "ar": "دوجو القتال 04"
+ },
+ {
+  "key": "svc.card4.meta",
+  "page": "svc",
+  "en": "IMPACT RATE",
+  "ar": "معدل التأثير"
+ },
+ {
+  "key": "svc.card4.tag",
+  "page": "svc",
+  "en": "COMBAT CONDITIONING",
+  "ar": "تجهيز القتال"
+ },
+ {
+  "key": "svc.card4.title",
+  "page": "svc",
+  "en": "High-Performance Combat & Striking",
+  "ar": "القتال والضرب عالي الأداء"
+ },
+ {
+  "key": "svc.card4.per",
+  "page": "svc",
+  "en": "/ SESSION",
+  "ar": "/ جلسة"
+ },
+ {
+  "key": "svc.card4.duration",
+  "page": "svc",
+  "en": "ELEVATED OCTAGON ACCESS",
+  "ar": "دخول الأوكتاغون المتقدم"
+ },
+ {
+  "key": "svc.card4.cta",
+  "page": "svc",
+  "en": "RESERVE RING SESSION",
+  "ar": "احجز جلسة الحلبة"
+ },
+ {
+  "key": "svc.card4.desc",
+  "page": "svc",
+  "en": "Authentic tactical standup striking, Muay Thai clinch control, and explosive anaerobic burst conditioning. Taught by professional titleholders with custom heart-rate threshold management inside full ring settings.",
+  "ar": "ضرب وقوف تكتيكي أصيل، والتحكم بالكلينش في المواي تاي، وتكييف انفجاري لاهوائي. يُدرّب بواسطة أبطال محترفين مع إدارة مخصصة لعتبة معدل ضربات القلب داخل حلبة كاملة."
+ },
+ {
+  "key": "svc.card4.tag1",
+  "page": "svc",
+  "en": "Muay Thai",
+  "ar": "المواي تاي"
+ },
+ {
+  "key": "svc.card4.tag2",
+  "page": "svc",
+  "en": "Boxing",
+  "ar": "الملاكمة"
+ },
+ {
+  "key": "svc.card4.tag3",
+  "page": "svc",
+  "en": "Pro Sparring",
+  "ar": "سبرنغ احترافي"
+ },
+ {
+  "key": "svc.card5.lab",
+  "page": "svc",
+  "en": "THERMAL CELL 05",
+  "ar": "خلية حرارية 05"
+ },
+ {
+  "key": "svc.card5.meta",
+  "page": "svc",
+  "en": "REGEN SPEED",
+  "ar": "سرعة التجديد"
+ },
+ {
+  "key": "svc.card5.tag",
+  "page": "svc",
+  "en": "RECOVERY THERAPY",
+  "ar": "علاج التعافي"
+ },
+ {
+  "key": "svc.card5.title",
+  "page": "svc",
+  "en": "Contrast Hydrotherapy & Cryo",
+  "ar": "العلاج المائي بالتباين والتبريد"
+ },
+ {
+  "key": "svc.card5.per",
+  "page": "svc",
+  "en": "/ SESSION",
+  "ar": "/ جلسة"
+ },
+ {
+  "key": "svc.card5.duration",
+  "page": "svc",
+  "en": "INCLUDES HYDRATION LOUNGE",
+  "ar": "يشمل صالة الترطيب"
+ },
+ {
+  "key": "svc.card5.cta",
+  "page": "svc",
+  "en": "BOOK RECOVERY",
+  "ar": "احجز التعافي"
+ },
+ {
+  "key": "svc.card5.desc",
+  "page": "svc",
+  "en": "Accelerate central nervous system recovery through rapid vasodilation and vasoconstriction. Sub-zero whole-body liquid nitrogen chambers combined with full-spectrum infrared saunas and localized pneumatic compression sleeves.",
+  "ar": "سرّع تعافي الجهاز العصبي المركزي عبر توسيع وتضييق الأوعية السريع. غرف نيتروجين سائل تحت الصفر للجسم بأكمله مع ساونا أشعة تحت الحمراء كاملة الطيف وأكمام ضغط هوائية موضعية."
+ },
+ {
+  "key": "svc.card5.tag1",
+  "page": "svc",
+  "en": "Cryotherapy",
+  "ar": "العلاج بالتبريد"
+ },
+ {
+  "key": "svc.card5.tag2",
+  "page": "svc",
+  "en": "Infrared Sauna",
+  "ar": "ساونا الأشعة"
+ },
+ {
+  "key": "svc.card5.tag3",
+  "page": "svc",
+  "en": "Lymphatic Drainage",
+  "ar": "تصريف الليمف"
+ },
+ {
+  "key": "svc.empty.title",
+  "page": "svc",
+  "en": "NO PROTOCOLS FOUND",
+  "ar": "لا توجد بروتوكولات"
+ },
+ {
+  "key": "svc.empty.desc",
+  "page": "svc",
+  "en": "No diagnostics or training services match your search criteria. Try filtering by Biometrics or Coaching.",
+  "ar": "لا توجد خدمات تشخيص أو تدريب تطابق معايير البحث. جرّب التصفية حسب القياسات الحيوية أو التدريب."
+ },
+ {
+  "key": "svc.empty.reset",
+  "page": "svc",
+  "en": "RESET ALL FILTERS",
+  "ar": "إعادة تعيين الفلاتر"
+ },
+ {
+  "key": "svc.rail.certified",
+  "page": "svc",
+  "en": "FACILITY CERTIFIED",
+  "ar": "منشأة معتمدة"
+ },
+ {
+  "key": "svc.rail.industrial",
+  "page": "svc",
+  "en": "SMART INDUSTRIAL",
+  "ar": "سمارت إندستريال"
+ },
+ {
+  "key": "svc.rail.desc",
+  "page": "svc",
+  "en": "All services operate under strictly supervised medical and sports science safety standards. Biometrics sync instantly to your Smart Gym Mobile ID key.",
+  "ar": "جميع الخدمات تعمل وفق معايير سلامة طبية ورياضية صارمة. تتزامن القياسات الحيوية فوراً مع مفتاح الهوية عبر تطبيق سمارت جيم."
+ },
+ {
+  "key": "svc.rail.queueLabel",
+  "page": "svc",
+  "en": "ACTIVE INTAKE QUEUE",
+  "ar": "طابور الاستقبال النشط"
+ },
+ {
+  "key": "svc.rail.queueVal",
+  "page": "svc",
+  "en": "4 SLOTS OPEN TODAY",
+  "ar": "4 فتحات متاحة اليوم"
+ },
+ {
+  "key": "svc.rail.capacity",
+  "page": "svc",
+  "en": "STATION CAPACITY: 85%",
+  "ar": "سعة المحطة: 85%"
+ },
+ {
+  "key": "svc.rail.campus",
+  "page": "svc",
+  "en": "DISTRICT 01 CAMPUS",
+  "ar": "حرم المنطقة 01"
+ },
+ {
+  "key": "svc.tel.title",
+  "page": "svc",
+  "en": "LIVE SYSTEM TELEMETRY",
+  "ar": "قياس النظام المباشر"
+ },
+ {
+  "key": "svc.tel.output",
+  "page": "svc",
+  "en": "METABOLIC OUTPUT",
+  "ar": "الناتج الأيضي"
+ },
+ {
+  "key": "svc.tel.peak",
+  "page": "svc",
+  "en": "184 BPM PEAK",
+  "ar": "184 نبضة/د ذروة"
+ },
+ {
+  "key": "svc.tel.live",
+  "page": "svc",
+  "en": "LIVE",
+  "ar": "مباشر"
+ },
+ {
+  "key": "svc.tel.lactate",
+  "page": "svc",
+  "en": "Lactate Clearance Baseline",
+  "ar": "خط أساس تصفية اللاكتات"
+ },
+ {
+  "key": "svc.tel.maxO2",
+  "page": "svc",
+  "en": "Max Oxygen Uptake",
+  "ar": "أقصى استهلاك للأوكسجين"
+ },
+ {
+  "key": "svc.tel.chamber",
+  "page": "svc",
+  "en": "Hydrotherapy Chamber",
+  "ar": "غرفة العلاج المائي"
+ },
+ {
+  "key": "svc.tel.ready",
+  "page": "svc",
+  "en": "READY NOW",
+  "ar": "جاهز الآن"
+ },
+ {
+  "key": "svc.conc.title",
+  "page": "svc",
+  "en": "NEED CUSTOM ARCHITECTURE?",
+  "ar": "تحتاج هندسة مخصصة؟"
+ },
+ {
+  "key": "svc.conc.desc",
+  "page": "svc",
+  "en": "Our Head of Human Performance will build an integrated multi-service protocol tailored to your competition schedule.",
+  "ar": "سيقوم رئيس أداء الإنسان لدينا ببناء بروتوكول متعدد الخدمات مخصص لجدول منافساتك."
+ },
+ {
+  "key": "svc.conc.goal",
+  "page": "svc",
+  "en": "SELECT PRIMARY GOAL",
+  "ar": "اختر الهدف الأساسي"
+ },
+ {
+  "key": "svc.conc.goal1",
+  "page": "svc",
+  "en": "Maximal Force & Hypertrophy",
+  "ar": "أقصى قوة وتضخم"
+ },
+ {
+  "key": "svc.conc.goal2",
+  "page": "svc",
+  "en": "Cardiovascular Engine & VO2",
+  "ar": "محرك القلب والأوعية و VO2"
+ },
+ {
+  "key": "svc.conc.goal3",
+  "page": "svc",
+  "en": "Combat Striking Velocity",
+  "ar": "سرعة الضرب القتالي"
+ },
+ {
+  "key": "svc.conc.goal4",
+  "page": "svc",
+  "en": "Injury Rehabilitation & Cryo",
+  "ar": "تأهيل الإصابات والتبريد"
+ },
+ {
+  "key": "svc.conc.email",
+  "page": "svc",
+  "en": "ATHLETE IDENTIFIER / EMAIL",
+  "ar": "معرف الرياضي / البريد"
+ },
+ {
+  "key": "svc.conc.emailPh",
+  "page": "svc",
+  "en": "athlete@domain.com",
+  "ar": "athlete@domain.com"
+ },
+ {
+  "key": "svc.conc.submit",
+  "page": "svc",
+  "en": "REQUEST PERFORMANCE AUDIT",
+  "ar": "اطلب تقييم الأداء"
+ },
+ {
+  "key": "svc.conc.sent",
+  "page": "svc",
+  "en": "REQUEST TRANSMITTED",
+  "ar": "تم إرسال الطلب"
+ },
+ {
+  "key": "svc.conc.sentLog",
+  "page": "svc",
+  "en": "REQUEST LOGGED — COACH SYNC WINDOW < 24H",
+  "ar": "تم تسجيل الطلب — نافذة مزامنة المدرب أقل من 24 ساعة"
+ },
+ {
+  "key": "svc.method.kicker",
+  "page": "svc",
+  "en": "THE SMARTGYM METHOD",
+  "ar": "منهجية سمارت جيم"
+ },
+ {
+  "key": "svc.method.readout",
+  "page": "svc",
+  "en": "LOOP COMPLETION",
+  "ar": "إنجاز الحلقة"
+ },
+ {
+  "key": "svc.method.step1.t",
+  "page": "svc",
+  "en": "TEST",
+  "ar": "الاختبار"
+ },
+ {
+  "key": "svc.method.step1.s",
+  "page": "svc",
+  "en": "BIOMETRIC BASELINE",
+  "ar": "خط الأساس الحيوي"
+ },
+ {
+  "key": "svc.method.step1.d",
+  "page": "svc",
+  "en": "VO2, DEXA, lactate and force-velocity profiling. We map your engine before we touch a single plate.",
+  "ar": "تحليل VO2 و DEXA واللاكتات والقوة-السرعة. نرسم خريطة محركك قبل أن نلمس أي وزن."
+ },
+ {
+  "key": "svc.method.step1.stat",
+  "page": "svc",
+  "en": "12 METRICS CAPTURED",
+  "ar": "12 قياس تم التقاطه"
+ },
+ {
+  "key": "svc.method.step2.t",
+  "page": "svc",
+  "en": "TRAIN",
+  "ar": "التدريب"
+ },
+ {
+  "key": "svc.method.step2.s",
+  "page": "svc",
+  "en": "PERIODIZED EXECUTION",
+  "ar": "تنفيذ دوري"
+ },
+ {
+  "key": "svc.method.step2.d",
+  "page": "svc",
+  "en": "Velocity-based coaching inside microcycles engineered from your baseline. Every rep measured, every session logged.",
+  "ar": "تدريب قائم على السرعة داخل دورات دقيقة مصممة من خط أساسك. كل تكرار يُقاس، وكل جلسة تُسجّل."
+ },
+ {
+  "key": "svc.method.step2.stat",
+  "page": "svc",
+  "en": "VBT + LIVE COACHING",
+  "ar": "VBT + تدريب مباشر"
+ },
+ {
+  "key": "svc.method.step3.t",
+  "page": "svc",
+  "en": "ANALYZE",
+  "ar": "التحليل"
+ },
+ {
+  "key": "svc.method.step3.s",
+  "page": "svc",
+  "en": "TELEMETRY AUDIT",
+  "ar": "تدقيق القياسات"
+ },
+ {
+  "key": "svc.method.step3.d",
+  "page": "svc",
+  "en": "Your biometric feed is audited weekly. Load, recovery and nutrition shift against the data — never guesswork.",
+  "ar": "يُراجع قياسك الحيوي أسبوعياً. الحمل والتعافي والتغذية يتحركون وفق البيانات — لا تخمين."
+ },
+ {
+  "key": "svc.method.step3.stat",
+  "page": "svc",
+  "en": "< 24 HR COACH SYNC",
+  "ar": "< 24 س مزامنة المدرب"
+ },
+ {
+  "key": "svc.method.step4.t",
+  "page": "svc",
+  "en": "RECOVER",
+  "ar": "التعافي"
+ },
+ {
+  "key": "svc.method.step4.s",
+  "page": "svc",
+  "en": "REGEN PROTOCOL",
+  "ar": "بروتوكول التجديد"
+ },
+ {
+  "key": "svc.method.step4.d",
+  "page": "svc",
+  "en": "Cryo, contrast hydrotherapy and compression stack to compress CNS recovery so the next block hits harder.",
+  "ar": "التبريد والعلاج المائي بالتباين والضغط يتكدسون لتسريع تعافي الجهاز العصبي ليضرب البلوك التالي أقوى."
+ },
+ {
+  "key": "svc.method.step4.stat",
+  "page": "svc",
+  "en": "−110°C CHAMBER FLOOR",
+  "ar": "−110°م أرضية الغرفة"
+ },
+ {
+  "key": "svc.method.step5.t",
+  "page": "svc",
+  "en": "REPEAT",
+  "ar": "التكرار"
+ },
+ {
+  "key": "svc.method.step5.s",
+  "page": "svc",
+  "en": "SUPERCOMPENSATION",
+  "ar": "التعويض الفائق"
+ },
+ {
+  "key": "svc.method.step5.d",
+  "page": "svc",
+  "en": "Retest, compare, escalate. The loop compounds — every cycle raises your ceiling higher than the last.",
+  "ar": "أعد الاختبار، قارن، صعّد. الحلقة تتراكم — كل دورة ترفع سقفك أعلى من السابقة."
+ },
+ {
+  "key": "svc.method.step5.stat",
+  "page": "svc",
+  "en": "CEILING ↑ EVERY CYCLE",
+  "ar": "السقف ↑ كل دورة"
+ },
+ {
+  "key": "svc.cta.eyebrow",
+  "page": "svc",
+  "en": "READY TO DEPLOY YOUR PROTOCOL?",
+  "ar": "مستعد لنشر بروتوكولك؟"
+ },
+ {
+  "key": "svc.cta.h2a",
+  "page": "svc",
+  "en": "START WITH A",
+  "ar": "ابدأ بخط"
+ },
+ {
+  "key": "svc.cta.h2b",
+  "page": "svc",
+  "en": "BIOMETRIC BASELINE.",
+  "ar": "أساس حيوي."
+ },
+ {
+  "key": "svc.cta.desc",
+  "page": "svc",
+  "en": "Free 30-minute consultation and metabolic snapshot. If our protocols aren't right for you, you walk away owing nothing.",
+  "ar": "استشارة مجانية 30 دقيقة ولقطة أيضية. إذا لم تكن بروتوكولاتنا مناسبة لك، تغادر دون أي التزام."
+ },
+ {
+  "key": "svc.cta.btn",
+  "page": "svc",
+  "en": "BOOK FREE CONSULT",
+  "ar": "احجز الاستشارة المجانية"
+ },
+ {
+  "key": "foot.desc",
+  "page": "foot",
+  "en": "Strength & conditioning club with biometric telemetry and elite training infrastructure. Built for people who train.",
+  "ar": "نادٍ للقوة والتكييف مع قياسات حيوية وبنية تحتية نخبوية. مصنوع لمن يتدربون."
+ },
+ {
+  "key": "foot.live",
+  "page": "foot",
+  "en": "TELEMETRY GRID LIVE",
+  "ar": "شبكة القياس نشطة"
+ },
+ {
+  "key": "foot.architecture",
+  "page": "foot",
+  "en": "ARCHITECTURE",
+  "ar": "البنية"
+ },
+ {
+  "key": "foot.platform",
+  "page": "foot",
+  "en": "PLATFORM",
+  "ar": "المنصة"
+ },
+ {
+  "key": "foot.operations",
+  "page": "foot",
+  "en": "OPERATIONS",
+  "ar": "العمليات"
+ },
+ {
+  "key": "foot.iron",
+  "page": "foot",
+  "en": "Heavy Iron Arena",
+  "ar": "ساحة الحديد الثقيل"
+ },
+ {
+  "key": "foot.sprint",
+  "page": "foot",
+  "en": "Sprint Velocity Track",
+  "ar": "مسار سرعة السبرنت"
+ },
+ {
+  "key": "foot.cryo",
+  "page": "foot",
+  "en": "Cryo & Recovery Pods",
+  "ar": "كبسولات التبريد والتعافي"
+ },
+ {
+  "key": "foot.metabolic",
+  "page": "foot",
+  "en": "Metabolic Testing Lab",
+  "ar": "مختبر الاختبار الأيضي"
+ },
+ {
+  "key": "foot.coaching",
+  "page": "foot",
+  "en": "Coaching Protocol",
+  "ar": "بروتوكول التدريب"
+ },
+ {
+  "key": "foot.bioapp",
+  "page": "foot",
+  "en": "Biometric App Sync",
+  "ar": "مزامنة التطبيق الحيوي"
+ },
+ {
+  "key": "foot.corporate",
+  "page": "foot",
+  "en": "Corporate High Performance",
+  "ar": "أداء الشركات العالي"
+ },
+ {
+  "key": "foot.portal",
+  "page": "foot",
+  "en": "Member Portal",
+  "ar": "بوابة الأعضاء"
+ },
+ {
+  "key": "foot.hours",
+  "page": "foot",
+  "en": "04:00 – 24:00 Daily Operations",
+  "ar": "04:00 – 24:00 عمليات يومية"
+ },
+ {
+  "key": "foot.access",
+  "page": "foot",
+  "en": "Access via biometric passcode key.",
+  "ar": "الدخول بمفتاح حيوي."
+ },
+ {
+  "key": "foot.hq",
+  "page": "foot",
+  "en": "HQ TERMINAL",
+  "ar": "المحطة الرئيسية"
+ },
+ {
+  "key": "foot.address",
+  "page": "foot",
+  "en": "District 01, Performance Plaza",
+  "ar": "المنطقة 01، ساحة الأداء"
+ },
+ {
+  "key": "foot.rights",
+  "page": "foot",
+  "en": "© 2025 SMART GYM INDUSTRIAL ATHLETICS. ALL RIGHTS RESERVED.",
+  "ar": "© 2025 سمارت جيم إندستريال أثلتكس. جميع الحقوق محفوظة."
+ },
+ {
+  "key": "foot.privacy",
+  "page": "foot",
+  "en": "Privacy Architecture",
+  "ar": "بنية الخصوصية"
+ },
+ {
+  "key": "foot.terms",
+  "page": "foot",
+  "en": "Terms of Conditioning",
+  "ar": "شروط التدريب"
+ },
+ {
+  "key": "foot.security",
+  "page": "foot",
+  "en": "Security Protocols",
+  "ar": "بروتوكولات الأمان"
+ },
+ {
+  "key": "svc.dot.hero",
+  "page": "svc",
+  "en": "APEX",
+  "ar": "القمة"
+ },
+ {
+  "key": "svc.dot.filters",
+  "page": "svc",
+  "en": "FILTER",
+  "ar": "التصفية"
+ },
+ {
+  "key": "svc.dot.catalog",
+  "page": "svc",
+  "en": "PROTOCOLS",
+  "ar": "البروتوكولات"
+ },
+ {
+  "key": "svc.dot.method",
+  "page": "svc",
+  "en": "METHOD",
+  "ar": "المنهجية"
+ },
+ {
+  "key": "svc.dot.cta",
+  "page": "svc",
+  "en": "DEPLOY",
+  "ar": "التنفيذ"
+ },
+ {
+  "key": "nav.foot",
+  "page": "nav",
+  "en": "OPEN 24/7 // DISTRICT 01",
+  "ar": "مفتوح 24/7 // المنطقة 01"
+ },
+ {
+  "key": "svc.ghost",
+  "page": "svc",
+  "en": "PROTOCOLS",
+  "ar": "البروتوكولات"
+ },
+ {
+  "key": "home.boot",
+  "page": "home",
+  "en": "CALIBRATING TELEMETRY GRID",
+  "ar": "معايرة شبكة القياس"
+ },
+ {
+  "key": "home.kicker",
+  "page": "home",
+  "en": "BIOMETRIC TELEMETRY // LIVE OPERATIONS GRID",
+  "ar": "القياس الحيوي // شبكة العمليات المباشرة"
+ },
+ {
+  "key": "home.hero.l1",
+  "page": "home",
+  "en": "THE FUTURE",
+  "ar": "مستقبل"
+ },
+ {
+  "key": "home.hero.l2",
+  "page": "home",
+  "en": "OF",
+  "ar": "اللياقة"
+ },
+ {
+  "key": "home.hero.l3",
+  "page": "home",
+  "en": "FITNESS",
+  "ar": "الرقمية"
+ },
+ {
+  "key": "home.hero.l4",
+  "page": "home",
+  "en": "IS",
+  "ar": "هو"
+ },
+ {
+  "key": "home.hero.l5",
+  "page": "home",
+  "en": "SMART.",
+  "ar": "الذكاء."
+ },
+ {
+  "key": "home.hero.lede",
+  "page": "home",
+  "en": "High-precision biometrics. AI-guided training. Data-driven conditioning in a purpose-built arena. No gimmicks. No guesswork. Just the work — measured.",
+  "ar": "قياسات حيوية عالية الدقة. تدريب موجّه بالذكاء الاصطناعي. تكييف قائم على البيانات في ساحة مبنية لهذا الغرض. بلا حيل. بلا تخمين. العمل فقط — مقيسًا."
+ },
+ {
+  "key": "home.hero.cta1",
+  "page": "home",
+  "en": "JOIN THE MOVEMENT",
+  "ar": "انضم إلى الحركة"
+ },
+ {
+  "key": "home.hero.cta2",
+  "page": "home",
+  "en": "BOOK A TOUR",
+  "ar": "احجز جولة"
+ },
+ {
+  "key": "home.hero.rail",
+  "page": "home",
+  "en": "EST. 2016 — PERFORMANCE CLUB",
+  "ar": "تأسس 2016 — نادي الأداء"
+ },
+ {
+  "key": "home.hero.scroll",
+  "page": "home",
+  "en": "SCROLL",
+  "ar": "اسحب"
+ },
+ {
+  "key": "home.hero.cue",
+  "page": "home",
+  "en": "SCROLL",
+  "ar": "اسحب"
+ },
+ {
+  "key": "home.cl.hr",
+  "page": "home",
+  "en": "HEART RATE",
+  "ar": "معدل النبض"
+ },
+ {
+  "key": "home.cl.hrUnit",
+  "page": "home",
+  "en": "BPM",
+  "ar": "نبضة/د"
+ },
+ {
+  "key": "home.cl.live",
+  "page": "home",
+  "en": "LIVE",
+  "ar": "مباشر"
+ },
+ {
+  "key": "home.cl.pwr",
+  "page": "home",
+  "en": "POWER OUTPUT",
+  "ar": "القدرة الناتجة"
+ },
+ {
+  "key": "home.cl.pwrZone",
+  "page": "home",
+  "en": "ZONE 5",
+  "ar": "المنطقة 5"
+ },
+ {
+  "key": "home.cl.pwrUnit",
+  "page": "home",
+  "en": "WATTS",
+  "ar": "واط"
+ },
+ {
+  "key": "home.cl.cap",
+  "page": "home",
+  "en": "CAPACITY LOAD",
+  "ar": "حمل السعة"
+ },
+ {
+  "key": "home.cl.capSub",
+  "page": "home",
+  "en": "PRIME HOUR",
+  "ar": "ساعة الذروة"
+ },
+ {
+  "key": "home.stat1.v",
+  "page": "home",
+  "en": "24/7",
+  "ar": "24/7"
+ },
+ {
+  "key": "home.stat1.l",
+  "page": "home",
+  "en": "ACCESS",
+  "ar": "دخول"
+ },
+ {
+  "key": "home.stat2.v",
+  "page": "home",
+  "en": "418",
+  "ar": "418"
+ },
+ {
+  "key": "home.stat2.l",
+  "page": "home",
+  "en": "IN-CLUB NOW",
+  "ar": "في النادي الآن"
+ },
+ {
+  "key": "home.stat3.v",
+  "page": "home",
+  "en": "840W",
+  "ar": "840و"
+ },
+ {
+  "key": "home.stat3.l",
+  "page": "home",
+  "en": "MEAN PEAK",
+  "ar": "متوسط الذروة"
+ },
+ {
+  "key": "home.stat4.v",
+  "page": "home",
+  "en": "94.2%",
+  "ar": "94.2%"
+ },
+ {
+  "key": "home.stat4.l",
+  "page": "home",
+  "en": "RECOVERY OPTIMAL",
+  "ar": "تعافي مثالي"
+ },
+ {
+  "key": "home.belt.strength",
+  "page": "home",
+  "en": "STRENGTH",
+  "ar": "القوة"
+ },
+ {
+  "key": "home.belt.cond",
+  "page": "home",
+  "en": "CONDITIONING",
+  "ar": "التكييف"
+ },
+ {
+  "key": "home.belt.oly",
+  "page": "home",
+  "en": "OLYMPIC LIFTING",
+  "ar": "رفع أولمبي"
+ },
+ {
+  "key": "home.belt.combat",
+  "page": "home",
+  "en": "COMBAT",
+  "ar": "القتال"
+ },
+ {
+  "key": "home.belt.mobility",
+  "page": "home",
+  "en": "MOBILITY",
+  "ar": "الحركة"
+ },
+ {
+  "key": "home.belt.recovery",
+  "page": "home",
+  "en": "RECOVERY",
+  "ar": "التعافي"
+ },
+ {
+  "key": "home.belt.nutrition",
+  "page": "home",
+  "en": "NUTRITION",
+  "ar": "التغذية"
+ },
+ {
+  "key": "home.belt.open",
+  "page": "home",
+  "en": "OPEN 24/7",
+  "ar": "مفتوح 24/7"
+ },
+ {
+  "key": "home.caps.1.k",
+  "page": "home",
+  "en": "24/7",
+  "ar": "24/7"
+ },
+ {
+  "key": "home.caps.1.t",
+  "page": "home",
+  "en": "SMART ACCESS",
+  "ar": "دخول ذكي"
+ },
+ {
+  "key": "home.caps.1.d",
+  "page": "home",
+  "en": "Biometric entry, zero staff queue. Your clock, your floor.",
+  "ar": "دخول حيوي، بلا طوابير. وقتك، صالتك."
+ },
+ {
+  "key": "home.caps.2.k",
+  "page": "home",
+  "en": "100%",
+  "ar": "100%"
+ },
+ {
+  "key": "home.caps.2.t",
+  "page": "home",
+  "en": "BIOMETRIC TELEMETRY",
+  "ar": "القياس الحيوي"
+ },
+ {
+  "key": "home.caps.2.d",
+  "page": "home",
+  "en": "Every rack, lane and pod streams live to your profile.",
+  "ar": "كل رف ومسار وكبسولة يُبَث مباشرة إلى ملفك."
+ },
+ {
+  "key": "home.caps.3.k",
+  "page": "home",
+  "en": "CSCS",
+  "ar": "CSCS"
+ },
+ {
+  "key": "home.caps.3.t",
+  "page": "home",
+  "en": "ELITE COACHING",
+  "ar": "تدريب نخبوي"
+ },
+ {
+  "key": "home.caps.3.d",
+  "page": "home",
+  "en": "Certified coaches walk the floor — not a call center.",
+  "ar": "مدربون معتمدون على الأرض — لا مركز اتصال."
+ },
+ {
+  "key": "home.caps.4.k",
+  "page": "home",
+  "en": "1:01",
+  "ar": "1:01"
+ },
+ {
+  "key": "home.caps.4.t",
+  "page": "home",
+  "en": "MACHINE GUIDANCE",
+  "ar": "إرشاد الآلات"
+ },
+ {
+  "key": "home.caps.4.d",
+  "page": "home",
+  "en": "Rep-by-rep form feedback from sensor-equipped iron.",
+  "ar": "ملاحظات على الشكل تكرارًا بتكرار من حديد مزوّد بالحساسات."
+ },
+ {
+  "key": "home.floor.stag",
+  "page": "home",
+  "en": "01 — LIVE FROM THE FLOOR",
+  "ar": "01 — مباشر من الأرض"
+ },
+ {
+  "key": "home.floor.title",
+  "page": "home",
+  "en": "THE CLUB, RIGHT NOW",
+  "ar": "النادي، الآن"
+ },
+ {
+  "key": "home.floor.sub",
+  "page": "home",
+  "en": "Pulled straight from gate check-ins and platform sensors. No vanity metrics — this is what training here looks like on a Tuesday.",
+  "ar": "مسحوب مباشرة من تسجيلات الدخول ومستشعرات المنصات. لا قياسات مظهرية — هكذا يبدو التدريب هنا يوم الثلاثاء."
+ },
+ {
+  "key": "home.floor.word",
+  "page": "home",
+  "en": "CAPACITY",
+  "ar": "السعة"
+ },
+ {
+  "key": "home.floor.tile1.lab",
+  "page": "home",
+  "en": "ATHLETES ON FLOOR",
+  "ar": "رياضيون على الأرض"
+ },
+ {
+  "key": "home.floor.tile1.unit",
+  "page": "home",
+  "en": "NOW",
+  "ar": "الآن"
+ },
+ {
+  "key": "home.floor.tile1.badge",
+  "page": "home",
+  "en": "LIVE",
+  "ar": "مباشر"
+ },
+ {
+  "key": "home.floor.tile1.note",
+  "page": "home",
+  "en": "Peak window 5–8 PM · all 12 platforms running",
+  "ar": "نافذة الذروة 5–8 م · جميع المنصات الـ12 تعمل"
+ },
+ {
+  "key": "home.floor.tile2.lab",
+  "page": "home",
+  "en": "VOLUME MOVED TODAY",
+  "ar": "الحجم المنقول اليوم"
+ },
+ {
+  "key": "home.floor.tile2.unit",
+  "page": "home",
+  "en": "KG",
+  "ar": "كغ"
+ },
+ {
+  "key": "home.floor.tile2.badge",
+  "page": "home",
+  "en": "TODAY",
+  "ar": "اليوم"
+ },
+ {
+  "key": "home.floor.tile2.note",
+  "page": "home",
+  "en": "Squat · bench · dead · carries · sleds",
+  "ar": "سكوات · بنش · ديدليفت · حَمْل · زحافات"
+ },
+ {
+  "key": "home.floor.tile3.lab",
+  "page": "home",
+  "en": "SESSIONS COACHED",
+  "ar": "جلسات مُدرّبة"
+ },
+ {
+  "key": "home.floor.tile3.unit",
+  "page": "home",
+  "en": "THIS WEEK",
+  "ar": "هذا الأسبوع"
+ },
+ {
+  "key": "home.floor.tile3.badge",
+  "page": "home",
+  "en": "BOOKED",
+  "ar": "محجوز"
+ },
+ {
+  "key": "home.floor.tile3.note",
+  "page": "home",
+  "en": "Form-first programming · all sectors",
+  "ar": "برمجة تبدأ بالشكل · جميع القطاعات"
+ },
+ {
+  "key": "home.floor.tile4.lab",
+  "page": "home",
+  "en": "RACK WAIT TIME",
+  "ar": "وقت انتظار الرف"
+ },
+ {
+  "key": "home.floor.tile4.unit",
+  "page": "home",
+  "en": "MIN",
+  "ar": "دقيقة"
+ },
+ {
+  "key": "home.floor.tile4.badge",
+  "page": "home",
+  "en": "ALWAYS",
+  "ar": "دائمًا"
+ },
+ {
+  "key": "home.floor.tile4.note",
+  "page": "home",
+  "en": "34 stations · zero-queue guarantee",
+  "ar": "34 محطة · ضمان عدم الطوابير"
+ },
+ {
+  "key": "home.feed.p1",
+  "page": "home",
+  "en": "PLATFORM 01",
+  "ar": "منصة 01"
+ },
+ {
+  "key": "home.feed.use",
+  "page": "home",
+  "en": "IN USE",
+  "ar": "مستخدمة"
+ },
+ {
+  "key": "home.feed.r4",
+  "page": "home",
+  "en": "RACK 04",
+  "ar": "رف 04"
+ },
+ {
+  "key": "home.feed.open",
+  "page": "home",
+  "en": "OPEN",
+  "ar": "متاح"
+ },
+ {
+  "key": "home.feed.oly",
+  "page": "home",
+  "en": "OLY PLATFORM 02",
+  "ar": "منصة أولمبية 02"
+ },
+ {
+  "key": "home.feed.plunge",
+  "page": "home",
+  "en": "COLD PLUNGE",
+  "ar": "حوض بارد"
+ },
+ {
+  "key": "home.feed.turf",
+  "page": "home",
+  "en": "TURF LANE 03",
+  "ar": "مسار العشب 03"
+ },
+ {
+  "key": "home.feed.sauna",
+  "page": "home",
+  "en": "SAUNA",
+  "ar": "ساونا"
+ },
+ {
+  "key": "home.feed.pit",
+  "page": "home",
+  "en": "COMBAT PIT",
+  "ar": "حفرة القتال"
+ },
+ {
+  "key": "home.feed.spar",
+  "page": "home",
+  "en": "SPARRING 19:15",
+  "ar": "سبرنغ 19:15"
+ },
+ {
+  "key": "home.feed.court",
+  "page": "home",
+  "en": "COURT",
+  "ar": "الملعب"
+ },
+ {
+  "key": "home.feed.league",
+  "page": "home",
+  "en": "LEAGUE 20:00",
+  "ar": "دوري 20:00"
+ },
+ {
+  "key": "home.why.stag",
+  "page": "home",
+  "en": "02 — WHY PEOPLE STAY",
+  "ar": "02 — لماذا يبقى الأعضاء"
+ },
+ {
+  "key": "home.why.t1",
+  "page": "home",
+  "en": "BUILT LIKE A",
+  "ar": "مبنيّ كـ"
+ },
+ {
+  "key": "home.why.t2",
+  "page": "home",
+  "en": "SPORTS LAB.",
+  "ar": "مختبر رياضي."
+ },
+ {
+  "key": "home.why.t3",
+  "page": "home",
+  "en": "PRICED LIKE A GYM.",
+  "ar": "بأسعار النادي."
+ },
+ {
+  "key": "home.why.lede",
+  "page": "home",
+  "en": "Four reasons members renew without thinking about it. Scroll — each one lights up as it matters.",
+  "ar": "أربعة أسباب تجعل الأعضاء يجددون دون تفكير. اسحب — كل سبب يُضيء عند لحظته."
+ },
+ {
+  "key": "home.why.c1.v",
+  "page": "home",
+  "en": "94%",
+  "ar": "94%"
+ },
+ {
+  "key": "home.why.c1.l",
+  "page": "home",
+  "en": "renew after year one",
+  "ar": "يجددون بعد السنة الأولى"
+ },
+ {
+  "key": "home.why.c2.v",
+  "page": "home",
+  "en": "4.9/5",
+  "ar": "4.9/5"
+ },
+ {
+  "key": "home.why.c2.l",
+  "page": "home",
+  "en": "member score",
+  "ar": "تقييم الأعضاء"
+ },
+ {
+  "key": "home.why.c3.v",
+  "page": "home",
+  "en": "1,900+",
+  "ar": "1,900+"
+ },
+ {
+  "key": "home.why.c3.l",
+  "page": "home",
+  "en": "active members",
+  "ar": "عضو نشط"
+ },
+ {
+  "key": "home.why.note",
+  "page": "home",
+  "en": "ALL FOUR INCLUDED WITH EVERY MEMBERSHIP — NO UPSELLS, NO ASTERISKS.",
+  "ar": "الأربعة جميعًا مضمنة مع كل عضوية — بلا إضافات، بلا شروط خفية."
+ },
+ {
+  "key": "home.why.r1.t",
+  "page": "home",
+  "en": "24/7 BIOMETRIC ACCESS",
+  "ar": "دخول حيوي 24/7"
+ },
+ {
+  "key": "home.why.r1.tag",
+  "page": "home",
+  "en": "THE KEYS",
+  "ar": "المفاتيح"
+ },
+ {
+  "key": "home.why.r1.m",
+  "page": "home",
+  "en": "Included — Basic tier and up",
+  "ar": "مضمّن — من الفئة الأساسية فما فوق"
+ },
+ {
+  "key": "home.why.r1.d",
+  "page": "home",
+  "en": "Your phone is your key. Train at 3AM or 3PM — the floor never closes and neither does your window.",
+  "ar": "هاتفك هو مفتاحك. تدرّب في الـ3 صباحًا أو بعد الظهر — الصالة لا تُغلق ونافذتك أيضًا لا."
+ },
+ {
+  "key": "home.why.r2.t",
+  "page": "home",
+  "en": "VELOCITY-TRACKED IRON",
+  "ar": "حديد مُتتبَّع بالسرعة"
+ },
+ {
+  "key": "home.why.r2.tag",
+  "page": "home",
+  "en": "THE DATA",
+  "ar": "البيانات"
+ },
+ {
+  "key": "home.why.r2.m",
+  "page": "home",
+  "en": "Every platform · every rep",
+  "ar": "كل منصة · كل تكرار"
+ },
+ {
+  "key": "home.why.r2.d",
+  "page": "home",
+  "en": "Calibrated plates and bar-speed sensors on every platform. Every rep is measured, logged, progressed.",
+  "ar": "أوزان معايرة وحساسات لسرعة البار على كل منصة. كل تكرار يُقاس، يُسجّل، يُطوَّر."
+ },
+ {
+  "key": "home.why.r3.t",
+  "page": "home",
+  "en": "COACHES ON THE FLOOR",
+  "ar": "مدربون على الأرض"
+ },
+ {
+  "key": "home.why.r3.tag",
+  "page": "home",
+  "en": "THE PEOPLE",
+  "ar": "الفريق"
+ },
+ {
+  "key": "home.why.r3.m",
+  "page": "home",
+  "en": "386 sessions coached this week",
+  "ar": "386 جلسة هذا الأسبوع"
+ },
+ {
+  "key": "home.why.r3.d",
+  "page": "home",
+  "en": "CSCS-certified coaches walk the floor — real-time form fixes, not PDFs. Included, never upsold.",
+  "ar": "مدربون معتمدون يسيرون على الأرض — تصحيح فوري للشكل، لا ملفات PDF. مضمّن، لا يُباع إضافيًا."
+ },
+ {
+  "key": "home.why.r4.t",
+  "page": "home",
+  "en": "RECOVERY, BUILT-IN",
+  "ar": "تعافٍ مدمج"
+ },
+ {
+  "key": "home.why.r4.tag",
+  "page": "home",
+  "en": "THE RESET",
+  "ar": "إعادة الضبط"
+ },
+ {
+  "key": "home.why.r4.m",
+  "page": "home",
+  "en": "Plunge · sauna · compression",
+  "ar": "حوض · ساونا · ضغط"
+ },
+ {
+  "key": "home.why.r4.d",
+  "page": "home",
+  "en": "Cold plunge, sauna and compression bays in the base plan — adaptation happens between sessions.",
+  "ar": "حوض بارد وساونا وأجنحة ضغط في الخطة الأساسية — التكيّف يحدث بين الجلسات."
+ },
+ {
+  "key": "home.fc.stag",
+  "page": "home",
+  "en": "03 — THE FLOOR PLAN",
+  "ar": "03 — مخطط الأرض"
+ },
+ {
+  "key": "home.fc.title",
+  "page": "home",
+  "en": "ELITE ENVIRONMENTS",
+  "ar": "بيئات نخبوية"
+ },
+ {
+  "key": "home.fc.kicker",
+  "page": "home",
+  "en": "FOUR SECTORS. ONE SYSTEM.",
+  "ar": "أربعة قطاعات. نظام واحد."
+ },
+ {
+  "key": "home.fc.lede",
+  "page": "home",
+  "en": "Every square meter is tuned on purpose — flooring, acoustics, air handling and sensor coverage built for a specific adaptation.",
+  "ar": "كل متر مربع مُهندس لغرض — الأرضيات والصوتيات ومعالجة الهواء وتغطية الحساسات مبنية لتكيّف محدد."
+ },
+ {
+  "key": "home.fc.hint",
+  "page": "home",
+  "en": "KEEP SCROLLING",
+  "ar": "واصل السحب"
+ },
+ {
+  "key": "home.fc.s1.t",
+  "page": "home",
+  "en": "Olympic Swimming Pool",
+  "ar": "مسبح أولمبي"
+ },
+ {
+  "key": "home.fc.s1.tag",
+  "page": "home",
+  "en": "HYDRO-PERFORMANCE",
+  "ar": "أداء مائي"
+ },
+ {
+  "key": "home.fc.s1.b",
+  "page": "home",
+  "en": "STATUS: OPEN",
+  "ar": "الحالة: مفتوح"
+ },
+ {
+  "key": "home.fc.s1.d",
+  "page": "home",
+  "en": "Precision 8-lane racing reservoir with automated lap telemetry and ozone purification.",
+  "ar": "حوض سباق دقيق بثمانية مسارات مع قياس تلقائي لللفات وتنقية بالأوزون."
+ },
+ {
+  "key": "home.fc.s1.m1k",
+  "page": "home",
+  "en": "LANES",
+  "ar": "المسارات"
+ },
+ {
+  "key": "home.fc.s1.m2k",
+  "page": "home",
+  "en": "TEMP",
+  "ar": "الحرارة"
+ },
+ {
+  "key": "home.fc.s1.m3k",
+  "page": "home",
+  "en": "PURITY",
+  "ar": "النقاء"
+ },
+ {
+  "key": "home.fc.s1.cta",
+  "page": "home",
+  "en": "BOOK A LANE",
+  "ar": "احجز مسارًا"
+ },
+ {
+  "key": "home.fc.s2.t",
+  "page": "home",
+  "en": "Combat & Boxing Pit",
+  "ar": "حفرة القتال والملاكمة"
+ },
+ {
+  "key": "home.fc.s2.tag",
+  "page": "home",
+  "en": "FIGHT CONDITIONING",
+  "ar": "تكييف قتالي"
+ },
+ {
+  "key": "home.fc.s2.b",
+  "page": "home",
+  "en": "SPARRING OPEN",
+  "ar": "السبرنغ مفتوح"
+ },
+ {
+  "key": "home.fc.s2.d",
+  "page": "home",
+  "en": "Full regulation octagon, force-sensor heavy bags and tatami grappling mats for MMA work.",
+  "ar": "أوكتاغون تنظيمي كامل وأكياس ثقيلة بحساسات قوة وحصائر تاتامي لتدريب MMA."
+ },
+ {
+  "key": "home.fc.s2.m1k",
+  "page": "home",
+  "en": "BAGS",
+  "ar": "الأكياس"
+ },
+ {
+  "key": "home.fc.s2.m2k",
+  "page": "home",
+  "en": "CAGE",
+  "ar": "القفص"
+ },
+ {
+  "key": "home.fc.s2.m3k",
+  "page": "home",
+  "en": "COACH",
+  "ar": "المدرب"
+ },
+ {
+  "key": "home.fc.s2.cta",
+  "page": "home",
+  "en": "JOIN CLASS",
+  "ar": "انضم للحصة"
+ },
+ {
+  "key": "home.fc.s3.t",
+  "page": "home",
+  "en": "Steam & Cryo Recovery",
+  "ar": "بخار وتبريد للتعافي"
+ },
+ {
+  "key": "home.fc.s3.tag",
+  "page": "home",
+  "en": "BIO-RECOVERY PODS",
+  "ar": "كبسولات التعافي الحيوي"
+ },
+ {
+  "key": "home.fc.s3.b",
+  "page": "home",
+  "en": "AVAILABLE",
+  "ar": "متاح"
+ },
+ {
+  "key": "home.fc.s3.d",
+  "page": "home",
+  "en": "Eucalyptus vapor thermal suites, −110°C cryo chambers, contrast baths and compression lounges.",
+  "ar": "أجنحة بخار الكافور وغرف تبريد −110°م وأحواض تباين وصالات ضغط."
+ },
+ {
+  "key": "home.fc.s3.m1k",
+  "page": "home",
+  "en": "SAUNA",
+  "ar": "ساونا"
+ },
+ {
+  "key": "home.fc.s3.m2k",
+  "page": "home",
+  "en": "CRYO",
+  "ar": "تبريد"
+ },
+ {
+  "key": "home.fc.s3.m3k",
+  "page": "home",
+  "en": "PLUNGE",
+  "ar": "حوض بارد"
+ },
+ {
+  "key": "home.fc.s3.cta",
+  "page": "home",
+  "en": "BOOK SESSION",
+  "ar": "احجز جلسة"
+ },
+ {
+  "key": "home.fc.s4.t",
+  "page": "home",
+  "en": "Heavy Iron Arena",
+  "ar": "ساحة الحديد الثقيل"
+ },
+ {
+  "key": "home.fc.s4.tag",
+  "page": "home",
+  "en": "STRENGTH FLOOR",
+  "ar": "أرضية القوة"
+ },
+ {
+  "key": "home.fc.s4.b",
+  "page": "home",
+  "en": "OPEN ACCESS",
+  "ar": "دخول مفتوح"
+ },
+ {
+  "key": "home.fc.s4.d",
+  "page": "home",
+  "en": "18 competition power racks, Eleiko-calibrated steel, acoustic deadlift zones and velocity sensors.",
+  "ar": "18 رف قوة تنافسي، صلب معاير Eleiko، مناطق ديدليفت صوتية، وحساسات سرعة."
+ },
+ {
+  "key": "home.fc.s4.m1k",
+  "page": "home",
+  "en": "RACKS",
+  "ar": "الرفوف"
+ },
+ {
+  "key": "home.fc.s4.m2k",
+  "page": "home",
+  "en": "LOAD",
+  "ar": "الحمل"
+ },
+ {
+  "key": "home.fc.s4.m3k",
+  "page": "home",
+  "en": "VELOCITY",
+  "ar": "السرعة"
+ },
+ {
+  "key": "home.fc.s4.cta",
+  "page": "home",
+  "en": "RESERVE PLATFORM",
+  "ar": "احجز منصة"
+ },
+ {
+  "key": "home.tel.eyebrow",
+  "page": "home",
+  "en": "PROPRIETARY BIOMETRICS",
+  "ar": "قياسات حيوية خاصة"
+ },
+ {
+  "key": "home.tel.title",
+  "page": "home",
+  "en": "REAL-TIME FORCE & VELOCITY TRACKING",
+  "ar": "تتبع القوة والسرعة في الوقت الحقيقي"
+ },
+ {
+  "key": "home.tel.desc",
+  "page": "home",
+  "en": "Every barbell, cable stack and treadmill transmits millisecond-level telemetry to your profile. Track bar-speed decline, power drops and recruitment asymmetries — rep by rep.",
+  "ar": "كل بار وبكرة ومشاية ترسل قياسات بمستوى الميلي ثانية إلى ملفك. تتبّع هبوط سرعة البار وانخفاض القدرة وعدم تماثل التجنيد — تكرارًا بتكرار."
+ },
+ {
+  "key": "home.tel.m1.lab",
+  "page": "home",
+  "en": "CONCENTRIC BAR ACCELERATION",
+  "ar": "تسارع البار المركزي"
+ },
+ {
+  "key": "home.tel.m1.val",
+  "page": "home",
+  "en": "1.24 m/s",
+  "ar": "1.24 م/ث"
+ },
+ {
+  "key": "home.tel.m1.s",
+  "page": "home",
+  "en": "✓ TARGET MET",
+  "ar": "✓ تم تحقيق الهدف"
+ },
+ {
+  "key": "home.tel.m2.lab",
+  "page": "home",
+  "en": "NEUROMUSCULAR EFFICIENCY",
+  "ar": "الكفاءة العصبية العضلية"
+ },
+ {
+  "key": "home.tel.m2.val",
+  "page": "home",
+  "en": "96.8%",
+  "ar": "96.8%"
+ },
+ {
+  "key": "home.tel.m2.s",
+  "page": "home",
+  "en": "✓ OPTIMAL",
+  "ar": "✓ مثالي"
+ },
+ {
+  "key": "home.tel.live",
+  "page": "home",
+  "en": "LIVE FORCE CURVE // SQUAT RACK 04",
+  "ar": "منحنى القوة المباشر // رف السكوات 04"
+ },
+ {
+  "key": "home.tel.load",
+  "page": "home",
+  "en": "185 KG BAR LOAD",
+  "ar": "حمل البار 185 كغ"
+ },
+ {
+  "key": "home.tel.peak",
+  "page": "home",
+  "en": "PEAK FORCE",
+  "ar": "قوة الذروة"
+ },
+ {
+  "key": "home.tel.peakV",
+  "page": "home",
+  "en": "2,840 N",
+  "ar": "2,840 نيوتن"
+ },
+ {
+  "key": "home.tel.tpeak",
+  "page": "home",
+  "en": "TIME TO PEAK",
+  "ar": "زمن الوصول للذروة"
+ },
+ {
+  "key": "home.tel.tpeakV",
+  "page": "home",
+  "en": "0.38 SEC",
+  "ar": "0.38 ثانية"
+ },
+ {
+  "key": "home.tel.rep",
+  "page": "home",
+  "en": "REP #",
+  "ar": "التكرار #"
+ },
+ {
+  "key": "home.tel.repV",
+  "page": "home",
+  "en": "5 OF 5",
+  "ar": "5 من 5"
+ },
+ {
+  "key": "home.svc.stag",
+  "page": "home",
+  "en": "04 — PROTOCOLS & COACHING",
+  "ar": "04 — البروتوكولات والتدريب"
+ },
+ {
+  "key": "home.svc.title",
+  "page": "home",
+  "en": "TRAIN WITH INTENT.",
+  "ar": "تدرّب بوعي."
+ },
+ {
+  "key": "home.svc.sub",
+  "page": "home",
+  "en": "Diagnostics, coaching and recovery protocols you can bolt onto any membership. Book by the session or by the month.",
+  "ar": "تشخيص وتدريب وبروتوكولات تعافٍ يمكنك إضافتها لأي عضوية. احجز بالجلسة أو بالشهر."
+ },
+ {
+  "key": "home.svc.all",
+  "page": "home",
+  "en": "ALL PROTOCOLS",
+  "ar": "جميع البروتوكولات"
+ },
+ {
+  "key": "home.svc.bio",
+  "page": "home",
+  "en": "biometrics",
+  "ar": "قياسات حيوية"
+ },
+ {
+  "key": "home.svc.coach",
+  "page": "home",
+  "en": "coaching",
+  "ar": "تدريب"
+ },
+ {
+  "key": "home.svc.nut",
+  "page": "home",
+  "en": "nutrition",
+  "ar": "تغذية"
+ },
+ {
+  "key": "home.svc.cmb",
+  "page": "home",
+  "en": "combat",
+  "ar": "قتال"
+ },
+ {
+  "key": "home.svc.rec",
+  "page": "home",
+  "en": "recovery",
+  "ar": "تعافٍ"
+ },
+ {
+  "key": "home.svc.searchPh",
+  "page": "home",
+  "en": "Search protocols…",
+  "ar": "ابحث في البروتوكولات…"
+ },
+ {
+  "key": "home.svc.book",
+  "page": "home",
+  "en": "BOOK",
+  "ar": "احجز"
+ },
+ {
+  "key": "home.svc.empty1",
+  "page": "home",
+  "en": "NO PROTOCOLS MATCH",
+  "ar": "لا توجد بروتوكولات مطابقة"
+ },
+ {
+  "key": "home.svc.reset",
+  "page": "home",
+  "en": "RESET FILTERS",
+  "ar": "إعادة الفلاتر"
+ },
+ {
+  "key": "home.pr.stag",
+  "page": "home",
+  "en": "05 — MEMBERSHIP",
+  "ar": "05 — العضوية"
+ },
+ {
+  "key": "home.pr.title",
+  "page": "home",
+  "en": "SELECT YOUR FREQUENCY",
+  "ar": "اختر وتيرتك"
+ },
+ {
+  "key": "home.pr.sub",
+  "page": "home",
+  "en": "Every tier includes round-the-clock biometric entry and telemetry sync. No joining fee. Cancel anytime.",
+  "ar": "كل فئة تشمل دخولًا حيويًا على مدار الساعة ومزامنة القياسات. بلا رسوم انضمام. ألغِ في أي وقت."
+ },
+ {
+  "key": "home.pr.monthly",
+  "page": "home",
+  "en": "MONTHLY",
+  "ar": "شهري"
+ },
+ {
+  "key": "home.pr.annual",
+  "page": "home",
+  "en": "ANNUAL",
+  "ar": "سنوي"
+ },
+ {
+  "key": "home.pr.save",
+  "page": "home",
+  "en": "–20%",
+  "ar": "–20%"
+ },
+ {
+  "key": "home.pr.billedM",
+  "page": "home",
+  "en": "billed monthly",
+  "ar": "فاتورة شهرية"
+ },
+ {
+  "key": "home.pr.billedA",
+  "page": "home",
+  "en": "billed annually",
+  "ar": "فاتورة سنوية"
+ },
+ {
+  "key": "home.pr.and",
+  "page": "home",
+  "en": "AND",
+  "ar": "و"
+ },
+ {
+  "key": "home.pr.popular",
+  "page": "home",
+  "en": "MOST POPULAR",
+  "ar": "الأكثر شعبية"
+ },
+ {
+  "key": "home.pr.claim",
+  "page": "home",
+  "en": "CLAIM PRO MEMBERSHIP",
+  "ar": "اطلب عضوية برو"
+ },
+ {
+  "key": "home.pr.select",
+  "page": "home",
+  "en": "SELECT",
+  "ar": "اختر"
+ },
+ {
+  "key": "home.pr.inc1",
+  "page": "home",
+  "en": "24/7 biometric entry",
+  "ar": "دخول حيوي 24/7"
+ },
+ {
+  "key": "home.pr.inc2",
+  "page": "home",
+  "en": "App telemetry sync",
+  "ar": "مزامنة التطبيق"
+ },
+ {
+  "key": "home.pr.inc3",
+  "page": "home",
+  "en": "Recovery lounge",
+  "ar": "صالة التعافي"
+ },
+ {
+  "key": "home.pr.inc4",
+  "page": "home",
+  "en": "No joining fee",
+  "ar": "بلا رسوم انضمام"
+ },
+ {
+  "key": "home.pr.t1.label",
+  "page": "home",
+  "en": "ESSENTIAL ACCESS",
+  "ar": "وصول أساسي"
+ },
+ {
+  "key": "home.pr.t1.name",
+  "page": "home",
+  "en": "Basic Tier",
+  "ar": "الفئة الأساسية"
+ },
+ {
+  "key": "home.pr.t1.short",
+  "page": "home",
+  "en": "Basic",
+  "ar": "أساسي"
+ },
+ {
+  "key": "home.pr.t1.desc",
+  "page": "home",
+  "en": "Full iron arena and cardio floor access during staffed hours.",
+  "ar": "دخول كامل لساحة الحديد وأرضية الكارديو خلال ساعات الطاقم."
+ },
+ {
+  "key": "home.pr.t1.f1",
+  "page": "home",
+  "en": "Arena & cardio floor access",
+  "ar": "دخول ساحة الحديد والكارديو"
+ },
+ {
+  "key": "home.pr.t1.f2",
+  "page": "home",
+  "en": "Biometric keyless entry",
+  "ar": "دخول حيوي بلا مفاتيح"
+ },
+ {
+  "key": "home.pr.t1.f3",
+  "page": "home",
+  "en": "Mobile telemetry app",
+  "ar": "تطبيق القياسات"
+ },
+ {
+  "key": "home.pr.t1.f4",
+  "page": "home",
+  "en": "Cryo & infrared recovery pods",
+  "ar": "كبسولات التبريد والأشعة"
+ },
+ {
+  "key": "home.pr.t1.f5",
+  "page": "home",
+  "en": "1-on-1 performance coaching",
+  "ar": "تدريب أداء فردي"
+ },
+ {
+  "key": "home.pr.t2.label",
+  "page": "home",
+  "en": "FULL CONDITIONING",
+  "ar": "تكييف كامل"
+ },
+ {
+  "key": "home.pr.t2.name",
+  "page": "home",
+  "en": "Smart Pro",
+  "ar": "سمارت برو"
+ },
+ {
+  "key": "home.pr.t2.short",
+  "page": "home",
+  "en": "Pro",
+  "ar": "برو"
+ },
+ {
+  "key": "home.pr.t2.desc",
+  "page": "home",
+  "en": "Unrestricted 24/7 access to every sector, plus machine telemetry.",
+  "ar": "دخول غير مقيّد 24/7 لكل قطاع، مع قياسات الآلات."
+ },
+ {
+  "key": "home.pr.t2.f1",
+  "page": "home",
+  "en": "24/7 unlimited floor & track",
+  "ar": "أرضية ومسار غير محدود 24/7"
+ },
+ {
+  "key": "home.pr.t2.f2",
+  "page": "home",
+  "en": "Velocity pool & combat pit",
+  "ar": "مسبح السرعة وحفرة القتال"
+ },
+ {
+  "key": "home.pr.t2.f3",
+  "page": "home",
+  "en": "Sauna & steam suite",
+  "ar": "ساونا وجناح بخار"
+ },
+ {
+  "key": "home.pr.t2.f4",
+  "page": "home",
+  "en": "Sensor barbells & force data",
+  "ar": "بارات بحساسات وبيانات قوة"
+ },
+ {
+  "key": "home.pr.t2.f5",
+  "page": "home",
+  "en": "Dedicated sports scientist",
+  "ar": "عالم رياضي مخصص"
+ },
+ {
+  "key": "home.pr.t3.label",
+  "page": "home",
+  "en": "PEAK HUMAN PROTOCOL",
+  "ar": "بروتوكول الذروة البشرية"
+ },
+ {
+  "key": "home.pr.t3.name",
+  "page": "home",
+  "en": "Black Tier",
+  "ar": "الفئة السوداء"
+ },
+ {
+  "key": "home.pr.t3.short",
+  "page": "home",
+  "en": "Elite",
+  "ar": "نخبة"
+ },
+ {
+  "key": "home.pr.t3.desc",
+  "page": "home",
+  "en": "The full protocol — private coaching, screening and every amenity.",
+  "ar": "البروتوكول الكامل — تدريب خاص وفحوصات وكل وسائل الراحة."
+ },
+ {
+  "key": "home.pr.t3.f1",
+  "page": "home",
+  "en": "Everything in Pro Tier",
+  "ar": "كل ما في فئة برو"
+ },
+ {
+  "key": "home.pr.t3.f2",
+  "page": "home",
+  "en": "Dedicated performance coach",
+  "ar": "مدرب أداء مخصص"
+ },
+ {
+  "key": "home.pr.t3.f3",
+  "page": "home",
+  "en": "Unlimited cryotherapy (−110°C)",
+  "ar": "تبريد غير محدود (−110°م)"
+ },
+ {
+  "key": "home.pr.t3.f4",
+  "page": "home",
+  "en": "Quarterly DEXA + VO₂ max tests",
+  "ar": "فحوصات DEXA و VO₂ ربع سنوية"
+ },
+ {
+  "key": "home.pr.t3.f5",
+  "page": "home",
+  "en": "Private locker & laundry care",
+  "ar": "خزانة خاصة وخدمة غسيل"
+ },
+ {
+  "key": "home.pf.stag",
+  "page": "home",
+  "en": "06 — PROOF",
+  "ar": "06 — الإثبات"
+ },
+ {
+  "key": "home.pf.title",
+  "page": "home",
+  "en": "RESULTS ON RECORD",
+  "ar": "نتائج موثّقة"
+ },
+ {
+  "key": "home.pf.quote",
+  "page": "home",
+  "en": "Smart Gym removed all guesswork from my pre-season. The bar-velocity feedback alone boosted my clean & jerk by *17.5 kg*.",
+  "ar": "أزال سمارت جيم كل التخمين من مرحلة ما قبل الموسم. تغذية سرعة البار وحدها رفعت الكلين والنطر بـ *17.5 كغ*."
+ },
+ {
+  "key": "home.pf.author",
+  "page": "home",
+  "en": "ELENA ROSTOVA",
+  "ar": "إيلينا روستوفا"
+ },
+ {
+  "key": "home.pf.authorMeta",
+  "page": "home",
+  "en": "National Weightlifting Champion · Pro Tier",
+  "ar": "بطلة رفع أثقال وطنية · فئة برو"
+ },
+ {
+  "key": "home.pf.s1.t",
+  "page": "home",
+  "en": "TARGET RETENTION",
+  "ar": "الاحتفاظ المستهدف"
+ },
+ {
+  "key": "home.pf.s1.d",
+  "page": "home",
+  "en": "Members hit baseline conditioning targets within 90 days.",
+  "ar": "الأعضاء يحققون أهداف التكييف الأساسية خلال 90 يومًا."
+ },
+ {
+  "key": "home.pf.s2.t",
+  "page": "home",
+  "en": "DATA POINTS / MONTH",
+  "ar": "نقاط بيانات شهريًا"
+ },
+ {
+  "key": "home.pf.s2.d",
+  "page": "home",
+  "en": "Logged across smart barbells and sprint treadmills.",
+  "ar": "مسجّلة من البارات الذكية ومشايات السبرنت."
+ },
+ {
+  "key": "home.pf.s3.t",
+  "page": "home",
+  "en": "UNINTERRUPTED ACCESS",
+  "ar": "دخول دون انقطاع"
+ },
+ {
+  "key": "home.pf.s3.d",
+  "page": "home",
+  "en": "Zero booking queues for racks or plunge bays.",
+  "ar": "بلا طوابير حجز للرفوف أو أحواض الغمر."
+ },
+ {
+  "key": "home.pf.s4.t",
+  "page": "home",
+  "en": "GATE SYNC",
+  "ar": "مزامنة البوابة"
+ },
+ {
+  "key": "home.pf.s4.d",
+  "page": "home",
+  "en": "Touchless entry via facial verification.",
+  "ar": "دخول بدون لمس عبر التحقق من الوجه."
+ },
+ {
+  "key": "home.cta.eyebrow",
+  "page": "home",
+  "en": "READY TO ENTER THE ARENA?",
+  "ar": "مستعد لدخول الساحة؟"
+ },
+ {
+  "key": "home.cta.h2a",
+  "page": "home",
+  "en": "CLAIM YOUR 7-DAY",
+  "ar": "احصل على"
+ },
+ {
+  "key": "home.cta.h2b",
+  "page": "home",
+  "en": "PERFORMANCE PASS.",
+  "ar": "تصريح الأداء 7 أيام."
+ },
+ {
+  "key": "home.cta.desc",
+  "page": "home",
+  "en": "Free biometric baseline, full floor access and one coached session. If we're not your gym, you walk away owing nothing.",
+  "ar": "خط أساس حيوي مجاني، دخول كامل للأرضية، وجلسة تدريب واحدة. إذا لم نكن ناديك، تغادر دون أي التزام."
+ },
+ {
+  "key": "home.cta.btn",
+  "page": "home",
+  "en": "START FREE WEEK",
+  "ar": "ابدأ أسبوعًا مجانيًا"
+ },
+ {
+  "key": "tab.home",
+  "page": "tab",
+  "en": "HOME",
+  "ar": "الرئيسية"
+ },
+ {
+  "key": "tab.facilities",
+  "page": "tab",
+  "en": "FACILITIES",
+  "ar": "المرافق"
+ },
+ {
+  "key": "tab.services",
+  "page": "tab",
+  "en": "SERVICES",
+  "ar": "الخدمات"
+ },
+ {
+  "key": "tab.join",
+  "page": "tab",
+  "en": "JOIN NOW",
+  "ar": "انضم الآن"
+ },
+ {
+  "key": "en.boot",
+  "page": "en",
+  "en": "OPENING BIOMETRIC ENCLAVE",
+  "ar": "فتح القبو الحيوي"
+ },
+ {
+  "key": "en.kicker",
+  "page": "en",
+  "en": "BIOMETRIC ENCLAVE REGISTRATION — DISTRICT 01 GATEWAY",
+  "ar": "تسجيل القبو الحيوي — بوابة المنطقة 01"
+ },
+ {
+  "key": "en.title",
+  "page": "en",
+  "en": "ATHLETE",
+  "ar": "بروتوكول"
+ },
+ {
+  "key": "en.title.em",
+  "page": "en",
+  "en": "ENROLLMENT",
+  "ar": "تسجيل"
+ },
+ {
+  "key": "en.title.tail",
+  "page": "en",
+  "en": "PROTOCOL",
+  "ar": "الرياضي"
+ },
+ {
+  "key": "en.lede",
+  "page": "en",
+  "en": "Secure digital provisioning for uninterrupted 24/7 terminal access, biometric barbell telemetry, and recovery infrastructure.",
+  "ar": "تزويد رقمي آمن للوصول المستمر إلى المحطات على مدار الساعة، وقياس حيوي للبار، وبنية تعافٍ متكاملة."
+ },
+ {
+  "key": "en.sec1.label",
+  "page": "en",
+  "en": "SESSION SECURITY",
+  "ar": "أمان الجلسة"
+ },
+ {
+  "key": "en.sec1.value",
+  "page": "en",
+  "en": "TLS 1.3 / EAL6+",
+  "ar": "TLS 1.3 / EAL6+"
+ },
+ {
+  "key": "en.sec2.label",
+  "page": "en",
+  "en": "ALLOCATION",
+  "ar": "التخصيص"
+ },
+ {
+  "key": "en.ghost",
+  "page": "en",
+  "en": "ENROLL",
+  "ar": "تسجيل"
+ },
+ {
+  "key": "en.step1.b",
+  "page": "en",
+  "en": "STEP 01 — ATHLETE PROFILE & PROTOCOL",
+  "ar": "الخطوة 01 — ملف الرياضي والبروتوكول"
+ },
+ {
+  "key": "en.step1.s",
+  "page": "en",
+  "en": "Identity, home terminal location, and training vector",
+  "ar": "الهوية، موقع المحطة الرئيسية، والمتجه التدريبي"
+ },
+ {
+  "key": "en.step2.b",
+  "page": "en",
+  "en": "STEP 02 — BIOMETRICS & INSTANT CHECKOUT",
+  "ar": "الخطوة 02 — الحيوية والدفع الفوري"
+ },
+ {
+  "key": "en.step2.s.ready",
+  "page": "en",
+  "en": "Express mobile wallet, biometric encryption token",
+  "ar": "محفظة الجوال السريعة، رمز التشفير الحيوي"
+ },
+ {
+  "key": "en.step2.s.locked",
+  "page": "en",
+  "en": "Open to review — complete step 01 fields to pay",
+  "ar": "افتح للمراجعة — أكمل حقول الخطوة 01 للدفع"
+ },
+ {
+  "key": "en.progress.step1",
+  "page": "en",
+  "en": "STEP 1 OF 2: ATHLETE DOSSIER",
+  "ar": "الخطوة 1 من 2: ملف الرياضي"
+ },
+ {
+  "key": "en.progress.step2",
+  "page": "en",
+  "en": "STEP 2 OF 2: SECURE CHECKOUT",
+  "ar": "الخطوة 2 من 2: الدفع الآمن"
+ },
+ {
+  "key": "en.progress.pct",
+  "page": "en",
+  "en": "% COMPLETE",
+  "ar": "% مكتمل"
+ },
+ {
+  "key": "en.hud.pct",
+  "page": "en",
+  "en": "ENROLLED",
+  "ar": "مسجّل"
+ },
+ {
+  "key": "en.p1.title",
+  "page": "en",
+  "en": "ATHLETE CREDENTIALS & VECTOR",
+  "ar": "بيانات الرياضي والمتجه"
+ },
+ {
+  "key": "en.p1.proto",
+  "page": "en",
+  "en": "FIELD PROTOCOL · 01/02",
+  "ar": "بروتوكول ميداني · 01/02"
+ },
+ {
+  "key": "en.p1.name",
+  "page": "en",
+  "en": "FULL LEGAL NAME",
+  "ar": "الاسم القانوني الكامل"
+ },
+ {
+  "key": "en.p1.namePh",
+  "page": "en",
+  "en": "e.g. MARCUS VANCE",
+  "ar": "مثال: ماركوس فانس"
+ },
+ {
+  "key": "en.p1.email",
+  "page": "en",
+  "en": "ENCRYPTED EMAIL ADDRESS",
+  "ar": "البريد الإلكتروني المشفر"
+ },
+ {
+  "key": "en.p1.emailPh",
+  "page": "en",
+  "en": "vance.athletics@domain.io",
+  "ar": "athlete@domain.io"
+ },
+ {
+  "key": "en.p1.phone",
+  "page": "en",
+  "en": "MOBILE SECURITY LINE",
+  "ar": "خط الهاتف الآمن"
+ },
+ {
+  "key": "en.p1.phonePh",
+  "page": "en",
+  "en": "+1 (555) 890-4412",
+  "ar": "+966 55 890 4412"
+ },
+ {
+  "key": "en.p1.node",
+  "page": "en",
+  "en": "HOME PERFORMANCE TERMINAL",
+  "ar": "محطة الأداء الرئيسية"
+ },
+ {
+  "key": "en.p1.vecHead",
+  "page": "en",
+  "en": "PRIMARY ATHLETIC VECTOR (TELEMETRY CALIBRATION)",
+  "ar": "المتجه الرياضي الأساسي (معايرة القياسات)"
+ },
+ {
+  "key": "en.p1.vecMulti",
+  "page": "en",
+  "en": "SELECT MULTIPLE",
+  "ar": "اختر عدة"
+ },
+ {
+  "key": "en.p1.cta",
+  "page": "en",
+  "en": "PROCEED TO CHECKOUT",
+  "ar": "المتابعة إلى الدفع"
+ },
+ {
+  "key": "en.vec.hyp.t",
+  "page": "en",
+  "en": "HYPERTROPHY",
+  "ar": "التضخم"
+ },
+ {
+  "key": "en.vec.hyp.s",
+  "page": "en",
+  "en": "Heavy Iron Vol.",
+  "ar": "حجم حديد ثقيل"
+ },
+ {
+  "key": "en.vec.shred.t",
+  "page": "en",
+  "en": "FAT SHRED",
+  "ar": "تنشيف الدهون"
+ },
+ {
+  "key": "en.vec.shred.s",
+  "page": "en",
+  "en": "Metabolic Cut",
+  "ar": "قطع أيضي"
+ },
+ {
+  "key": "en.vec.endu.t",
+  "page": "en",
+  "en": "ENDURANCE",
+  "ar": "التحمل"
+ },
+ {
+  "key": "en.vec.endu.s",
+  "page": "en",
+  "en": "Engine Building",
+  "ar": "بناء المحرك"
+ },
+ {
+  "key": "en.vec.combat.t",
+  "page": "en",
+  "en": "COMBAT / MMA",
+  "ar": "قتال / MMA"
+ },
+ {
+  "key": "en.vec.combat.s",
+  "page": "en",
+  "en": "Striking & Power",
+  "ar": "ضرب وقوة"
+ },
+ {
+  "key": "en.vec.biomech.t",
+  "page": "en",
+  "en": "BIOMECHANICS",
+  "ar": "الميكانيكا الحيوية"
+ },
+ {
+  "key": "en.vec.biomech.s",
+  "page": "en",
+  "en": "VBT Velocity",
+  "ar": "سرعة VBT"
+ },
+ {
+  "key": "en.vec.recovery.t",
+  "page": "en",
+  "en": "RECOVERY",
+  "ar": "التعافي"
+ },
+ {
+  "key": "en.vec.recovery.s",
+  "page": "en",
+  "en": "Cryo & Sauna",
+  "ar": "تبريد وساونا"
+ },
+ {
+  "key": "en.node.1",
+  "page": "en",
+  "en": "Tokyo Monolith HQ — District 01",
+  "ar": "المقر الرئيسي طوكيو — المنطقة 01"
+ },
+ {
+  "key": "en.node.2",
+  "page": "en",
+  "en": "Neo-Kyoto Velocity Annex — District 02",
+  "ar": "ملحق السرعة نيو كيوتو — المنطقة 02"
+ },
+ {
+  "key": "en.node.3",
+  "page": "en",
+  "en": "Osaka Iron Yard — District 04",
+  "ar": "ساحة الحديد أوساكا — المنطقة 04"
+ },
+ {
+  "key": "en.node.4",
+  "page": "en",
+  "en": "Shibuya Cryo Lab — District 07",
+  "ar": "مختبر التبريد شيبويا — المنطقة 07"
+ },
+ {
+  "key": "en.p2.title",
+  "page": "en",
+  "en": "PAYMENT & BIOMETRIC ENCRYPTION",
+  "ar": "الدفع والتشفير الحيوي"
+ },
+ {
+  "key": "en.p2.proto",
+  "page": "en",
+  "en": "FIELD PROTOCOL · 02/02",
+  "ar": "بروتوكول ميداني · 02/02"
+ },
+ {
+  "key": "en.p2.reqLabel",
+  "page": "en",
+  "en": "STEP 01 REQUIRED FIRST",
+  "ar": "الخطوة 01 مطلوبة أولاً"
+ },
+ {
+  "key": "en.p2.expressLabel",
+  "page": "en",
+  "en": "INSTANT EXPRESS CHECKOUT",
+  "ar": "دفع فوري سريع"
+ },
+ {
+  "key": "en.p2.apple",
+  "page": "en",
+  "en": "PAY WITH APPLE",
+  "ar": "الدفع عبر Apple"
+ },
+ {
+  "key": "en.p2.google",
+  "page": "en",
+  "en": "GOOGLE PAY",
+  "ar": "Google Pay"
+ },
+ {
+  "key": "en.p2.divider",
+  "page": "en",
+  "en": "OR VAULT ENCRYPTED CREDIT CARD",
+  "ar": "أو البطاقة الائتمانية المشفرة"
+ },
+ {
+  "key": "en.p2.num",
+  "page": "en",
+  "en": "CARD NUMBER",
+  "ar": "رقم البطاقة"
+ },
+ {
+  "key": "en.p2.exp",
+  "page": "en",
+  "en": "EXPIRY",
+  "ar": "تاريخ الانتهاء"
+ },
+ {
+  "key": "en.p2.cvc",
+  "page": "en",
+  "en": "CVC / CVV",
+  "ar": "CVC / CVV"
+ },
+ {
+  "key": "en.p2.zip",
+  "page": "en",
+  "en": "POSTAL / ZIP",
+  "ar": "الرمز البريدي"
+ },
+ {
+  "key": "en.p2.autoB",
+  "page": "en",
+  "en": "Auto-Renew Protocol Enabled",
+  "ar": "بروتوكول التجديد التلقائي مُفعّل"
+ },
+ {
+  "key": "en.p2.autoI.pre",
+  "page": "en",
+  "en": "Maintain seamless terminal access without interruption. Billed ",
+  "ar": "حافظ على وصول سلس إلى المحطات بلا انقطاع. يتم الخصم "
+ },
+ {
+  "key": "en.p2.autoI.post",
+  "page": "en",
+  "en": " on the 1st of each calendar month. Cancel anytime with tap.",
+  "ar": " في الأول من كل شهر ميلادي. إلغاء متى شئت بلمسة."
+ },
+ {
+  "key": "en.p2.agreeB",
+  "page": "en",
+  "en": "Conditioning Protocol Agreement & Biometric Enclave Waiver",
+  "ar": "اتفاقية بروتوكول التدريب وتنازل القبو الحيوي"
+ },
+ {
+  "key": "en.p2.agreeI",
+  "page": "en",
+  "en": "I agree to the Terms of Conditioning, biometric data sync, encrypted bar speed sensor calibration, and privacy-first on-device encrypted telemetry sync.",
+  "ar": "أوافق على شروط التدريب، ومزامنة البيانات الحيوية، ومعايرة مستشعر سرعة البار المشفرة، ومزامنة القياسات المشفرة على الجهاز أولاً."
+ },
+ {
+  "key": "en.p2.tokenAes",
+  "page": "en",
+  "en": "AES-256 TOKENIZATION",
+  "ar": "ترميز AES-256"
+ },
+ {
+  "key": "en.p2.tokenVault",
+  "page": "en",
+  "en": "SECURE VAULT",
+  "ar": "الخزنة الآمنة"
+ },
+ {
+  "key": "en.p2.submit",
+  "page": "en",
+  "en": "COMPLETE ENROLLMENT & ACTIVATE PASS",
+  "ar": "أكمل التسجيل وفعّل التصريح"
+ },
+ {
+  "key": "en.p2.submitApple",
+  "page": "en",
+  "en": "ACTIVATE VIA APPLE PAY",
+  "ar": "فعّل عبر Apple Pay"
+ },
+ {
+  "key": "en.p2.submitGoogle",
+  "page": "en",
+  "en": "ACTIVATE VIA GOOGLE PAY",
+  "ar": "فعّل عبر Google Pay"
+ },
+ {
+  "key": "en.p2.processing",
+  "page": "en",
+  "en": "PROVISIONING PASS",
+  "ar": "جارٍ تجهيز التصريح"
+ },
+ {
+  "key": "en.p2.secure",
+  "page": "en",
+  "en": "ENCRYPTED VIA 256-BIT AES TOKENIZATION · INSTANT PASS DELIVERY TO PHONE",
+  "ar": "مشفّر بترميز AES 256 بت · تسليم فوري للتصريح على جوالك"
+ },
+ {
+  "key": "en.cp.brand",
+  "page": "en",
+  "en": "SMART PAY",
+  "ar": "SMART PAY"
+ },
+ {
+  "key": "en.cp.holder",
+  "page": "en",
+  "en": "CARD HOLDER",
+  "ar": "حامل البطاقة"
+ },
+ {
+  "key": "en.cp.namePh",
+  "page": "en",
+  "en": "ATHLETE NAME",
+  "ar": "اسم الرياضي"
+ },
+ {
+  "key": "en.cp.expires",
+  "page": "en",
+  "en": "EXPIRES",
+  "ar": "تنتهي في"
+ },
+ {
+  "key": "en.cp.expPh",
+  "page": "en",
+  "en": "MM/YY",
+  "ar": "MM/YY"
+ },
+ {
+  "key": "en.cp.cvcNote",
+  "page": "en",
+  "en": "CVC — 3-DIGIT ENCRYPTION TOKEN",
+  "ar": "CVC — رمز تشفير مكوّن من 3 أرقام"
+ },
+ {
+  "key": "en.err.name",
+  "page": "en",
+  "en": "MIN 2 CHARACTERS",
+  "ar": "حرفان على الأقل"
+ },
+ {
+  "key": "en.err.email",
+  "page": "en",
+  "en": "INVALID EMAIL",
+  "ar": "بريد غير صالح"
+ },
+ {
+  "key": "en.err.phone",
+  "page": "en",
+  "en": "ENTER VALID NUMBER",
+  "ar": "أدخل رقمًا صحيحًا"
+ },
+ {
+  "key": "en.err.vec",
+  "page": "en",
+  "en": "SELECT AT LEAST ONE VECTOR",
+  "ar": "اختر متجهًا واحدًا على الأقل"
+ },
+ {
+  "key": "en.err.num",
+  "page": "en",
+  "en": "16 DIGITS REQUIRED",
+  "ar": "16 رقمًا مطلوبة"
+ },
+ {
+  "key": "en.err.exp",
+  "page": "en",
+  "en": "MM/YY",
+  "ar": "MM/YY"
+ },
+ {
+  "key": "en.err.cvc",
+  "page": "en",
+  "en": "3–4 DIGITS",
+  "ar": "3–4 أرقام"
+ },
+ {
+  "key": "en.err.zip",
+  "page": "en",
+  "en": "REQUIRED",
+  "ar": "مطلوب"
+ },
+ {
+  "key": "en.err.agree",
+  "page": "en",
+  "en": "REQUIRED TO ACTIVATE PASS",
+  "ar": "مطلوب لتفعيل التصريح"
+ },
+ {
+  "key": "en.err.chipName",
+  "page": "en",
+  "en": "FULL NAME",
+  "ar": "الاسم الكامل"
+ },
+ {
+  "key": "en.err.chipEmail",
+  "page": "en",
+  "en": "EMAIL",
+  "ar": "البريد"
+ },
+ {
+  "key": "en.err.chipPhone",
+  "page": "en",
+  "en": "PHONE",
+  "ar": "الهاتف"
+ },
+ {
+  "key": "en.err.chipVector",
+  "page": "en",
+  "en": "VECTOR",
+  "ar": "المتجه"
+ },
+ {
+  "key": "en.ok.title",
+  "page": "en",
+  "en": "ENROLLMENT COMPLETE",
+  "ar": "اكتمل التسجيل"
+ },
+ {
+  "key": "en.ok.pass",
+  "page": "en",
+  "en": "SMART KEY ACTIVATED — SHOW PASS AT ANY TURNSTILE",
+  "ar": "تم تفعيل المفتاح الذكي — أظهر التصريح عند أي بوابة"
+ },
+ {
+  "key": "en.ok.tier",
+  "page": "en",
+  "en": "TIER",
+  "ar": "الفئة"
+ },
+ {
+  "key": "en.ok.memberId",
+  "page": "en",
+  "en": "MEMBER ID",
+  "ar": "معرف العضو"
+ },
+ {
+  "key": "en.ok.homeNode",
+  "page": "en",
+  "en": "HOME NODE",
+  "ar": "الفرع الرئيسي"
+ },
+ {
+  "key": "en.ok.status",
+  "page": "en",
+  "en": "STATUS",
+  "ar": "الحالة"
+ },
+ {
+  "key": "en.ok.active",
+  "page": "en",
+  "en": "ACTIVE",
+  "ar": "نشط"
+ },
+ {
+  "key": "en.ok.nfc",
+  "page": "en",
+  "en": "HOLD NEAR TURNSTILE",
+  "ar": "ضعه قرب البوابة"
+ },
+ {
+  "key": "en.ok.appleWallet",
+  "page": "en",
+  "en": "ADD TO APPLE WALLET",
+  "ar": "أضف إلى Apple Wallet"
+ },
+ {
+  "key": "en.ok.simTurn",
+  "page": "en",
+  "en": "SIMULATE TURNSTILE",
+  "ar": "محاكاة البوابة"
+ },
+ {
+  "key": "en.ok.notePre",
+  "page": "en",
+  "en": "Confirmation payload sent to ",
+  "ar": "تم إرسال تأكيد إلى "
+ },
+ {
+  "key": "en.ok.notePost",
+  "page": "en",
+  "en": ". Your pass activates instantly at any terminal — no key cards, no check-in desks.",
+  "ar": ". يتم تفعيل تصريحك فورًا في أي محطة — بلا بطاقات، بلا مكاتب تسجيل."
+ },
+ {
+  "key": "en.ok.athlete",
+  "page": "en",
+  "en": "ATHLETE",
+  "ar": "الرياضي"
+ },
+ {
+  "key": "en.sum.order",
+  "page": "en",
+  "en": "ORDER SUMMARY",
+  "ar": "ملخص الطلب"
+ },
+ {
+  "key": "en.sum.eyebrow",
+  "page": "en",
+  "en": "RECOMMENDED PERFORMANCE STANDARD",
+  "ar": "معيار الأداء الموصى به"
+ },
+ {
+  "key": "en.sum.perMonth",
+  "page": "en",
+  "en": "/ MONTH",
+  "ar": "/ شهريًا"
+ },
+ {
+  "key": "en.sum.switch",
+  "page": "en",
+  "en": "SWITCH PLAN",
+  "ar": "تبديل الخطة"
+ },
+ {
+  "key": "en.sum.terms1",
+  "page": "en",
+  "en": "MONTH-TO-MONTH",
+  "ar": "شهر بشهر"
+ },
+ {
+  "key": "en.sum.terms2",
+  "page": "en",
+  "en": "NO LOCK-IN DURATION",
+  "ar": "بلا التزام بمدة"
+ },
+ {
+  "key": "en.sum.terms3",
+  "page": "en",
+  "en": "CANCEL ANYTIME",
+  "ar": "إلغاء متى شئت"
+ },
+ {
+  "key": "en.sum.occ",
+  "page": "en",
+  "en": "TERMINAL 01 LIVE OCCUPANCY: ",
+  "ar": "إشغال المحطة 01 المباشر: "
+ },
+ {
+  "key": "en.sum.mediaCap",
+  "page": "en",
+  "en": "DIRECT HIGH-VELOCITY FACILITY ACCESS",
+  "ar": "وصول مباشر لمرافق السرعة العالية"
+ },
+ {
+  "key": "en.sum.perksHead",
+  "page": "en",
+  "en": "INCLUDED PERFORMANCE EQUIPMENT & INFRASTRUCTURE",
+  "ar": "معدات وبنية أداء مشمولة"
+ },
+ {
+  "key": "en.sum.line1",
+  "page": "en",
+  "en": " Membership (First Month)",
+  "ar": " عضوية (الشهر الأول)"
+ },
+ {
+  "key": "en.sum.line2",
+  "page": "en",
+  "en": "Biometric Smart Key Setup",
+  "ar": "إعداد المفتاح الحيوي الذكي"
+ },
+ {
+  "key": "en.sum.line3",
+  "page": "en",
+  "en": "Digital Telemetry Integration",
+  "ar": "تكامل القياسات الرقمية"
+ },
+ {
+  "key": "en.sum.line4",
+  "page": "en",
+  "en": "Facility State Surcharge & Tax",
+  "ar": "ضريبة الولاية ورسوم المرافق"
+ },
+ {
+  "key": "en.sum.waived",
+  "page": "en",
+  "en": "WAIVED",
+  "ar": "معفى"
+ },
+ {
+  "key": "en.sum.promo",
+  "page": "en",
+  "en": "PROMO",
+  "ar": "عرض"
+ },
+ {
+  "key": "en.sum.total",
+  "page": "en",
+  "en": "TOTAL DUE TODAY",
+  "ar": "الإجمالي المستحق اليوم"
+ },
+ {
+  "key": "en.sum.totalSub",
+  "page": "en",
+  "en": "IMMEDIATE PASS PROVISIONING",
+  "ar": "تجهيز فوري للتصريح"
+ },
+ {
+  "key": "en.sum.usd",
+  "page": "en",
+  "en": "SAR",
+  "ar": "ر.س"
+ },
+ {
+  "key": "en.sum.trust1t",
+  "page": "en",
+  "en": "256-BIT BIOMETRIC ENCLAVE",
+  "ar": "قبو حيوي 256 بت"
+ },
+ {
+  "key": "en.sum.trust1d",
+  "page": "en",
+  "en": "Hardware security level data storage",
+  "ar": "تخزين بيانات بمستوى أمان العتاد"
+ },
+ {
+  "key": "en.sum.trust2t",
+  "page": "en",
+  "en": "14-DAY PEAK GUARANTEE",
+  "ar": "ضمان الذروة 14 يومًا"
+ },
+ {
+  "key": "en.sum.trust2d",
+  "page": "en",
+  "en": "100% full refund if training expectations aren't exceeded",
+  "ar": "استرداد كامل 100% إذا لم تتجاوز توقعات التدريب"
+ },
+ {
+  "key": "en.sum.trust3t",
+  "page": "en",
+  "en": "INSTANT WALLET PASS",
+  "ar": "تصريح فوري للمحفظة"
+ },
+ {
+  "key": "en.sum.trust3d",
+  "page": "en",
+  "en": "One-tap pass save to Apple Wallet or Google Wallet",
+  "ar": "حفظ التصريح بلمسة إلى Apple أو Google Wallet"
+ },
+ {
+  "key": "en.sum.corpB",
+  "page": "en",
+  "en": "Team or Corporate Account?",
+  "ar": "حساب فريق أو شركة؟"
+ },
+ {
+  "key": "en.sum.corpI",
+  "page": "en",
+  "en": "Group billing & exclusive telemetry slots",
+  "ar": "فوترة جماعية وفتحات قياس حصرية"
+ },
+ {
+  "key": "en.sum.corpLink",
+  "page": "en",
+  "en": "INQUIRE",
+  "ar": "استفسر"
+ },
+ {
+  "key": "en.plan.base.short",
+  "page": "en",
+  "en": "BASE",
+  "ar": "أساسي"
+ },
+ {
+  "key": "en.plan.base.name",
+  "page": "en",
+  "en": "SMART BASE TIER",
+  "ar": "الفئة الأساسية سمارت"
+ },
+ {
+  "key": "en.plan.base.desc",
+  "page": "en",
+  "en": "Core Industrial Access · Standard Machine Telemetry",
+  "ar": "وصول صناعي أساسي · قياسات معيارية للآلات"
+ },
+ {
+  "key": "en.plan.base.p1",
+  "page": "en",
+  "en": "24/7 Keyless Turnstile Entry (Apple / Google Pass)",
+  "ar": "دخول بلا مفاتيح 24/7 (Apple / Google Pass)"
+ },
+ {
+  "key": "en.plan.base.p2",
+  "page": "en",
+  "en": "QR Machine Telemetry Sync & Progress Ledger",
+  "ar": "مزامنة قياسات الآلة عبر QR وسجل التقدم"
+ },
+ {
+  "key": "en.plan.base.p3",
+  "page": "en",
+  "en": "Strength Floor, Cardio Deck & Velocity Track",
+  "ar": "أرضية القوة وسطح الكارديو ومسار السرعة"
+ },
+ {
+  "key": "en.plan.base.p4",
+  "page": "en",
+  "en": "Infrared Sauna — 2 Sessions / Week",
+  "ar": "ساونا الأشعة — جلستان أسبوعيًا"
+ },
+ {
+  "key": "en.plan.base.p5",
+  "page": "en",
+  "en": "Member App, Class Booking & Biometric ID",
+  "ar": "تطبيق العضو وحجز الحصص والهوية الحيوية"
+ },
+ {
+  "key": "en.plan.pro.short",
+  "page": "en",
+  "en": "PRO",
+  "ar": "برو"
+ },
+ {
+  "key": "en.plan.pro.name",
+  "page": "en",
+  "en": "SMART PRO TIER",
+  "ar": "فئة سمارت برو"
+ },
+ {
+  "key": "en.plan.pro.desc",
+  "page": "en",
+  "en": "Full Industrial Access · Unlimited Biometric Telemetry",
+  "ar": "وصول صناعي كامل · قياسات حيوية غير محدودة"
+ },
+ {
+  "key": "en.plan.pro.p1",
+  "page": "en",
+  "en": "24/7 Biometric Turnstile & Keyless Apple/Google Pass Entry",
+  "ar": "بوابة حيوية 24/7 ودخول بلا مفاتيح عبر Apple/Google"
+ },
+ {
+  "key": "en.plan.pro.p2",
+  "page": "en",
+  "en": "Smart QR Machine Telemetry Sync & Barbell Velocity Sensors",
+  "ar": "مزامنة قياسات QR الذكية ومستشعرات سرعة البار"
+ },
+ {
+  "key": "en.plan.pro.p3",
+  "page": "en",
+  "en": "Full Olympic Pool, Velocity Track & Combat Pit Access",
+  "ar": "دخول كامل للمسبح الأولمبي ومسار السرعة وحفرة القتال"
+ },
+ {
+  "key": "en.plan.pro.p4",
+  "page": "en",
+  "en": "Unlimited Hydro-Massage, Infrared Sauna & Cryo Pod Access",
+  "ar": "وصول غير محدود للتدليك المائي وساونا الأشعة وكبسولة التبريد"
+ },
+ {
+  "key": "en.plan.pro.p5",
+  "page": "en",
+  "en": "2 Guest Biometric Access Day Passes / Month",
+  "ar": "تصريحان يوميان لضيوف شهريًا بوصول حيوي"
+ },
+ {
+  "key": "en.plan.elite.short",
+  "page": "en",
+  "en": "ELITE",
+  "ar": "نخبة"
+ },
+ {
+  "key": "en.plan.elite.name",
+  "page": "en",
+  "en": "ELITE APEX TIER",
+  "ar": "فئة القمة نخبة"
+ },
+ {
+  "key": "en.plan.elite.desc",
+  "page": "en",
+  "en": "Apex Access · Coaching Credits & Priority Recovery",
+  "ar": "وصول القمة · أرصدة تدريب وأولوية تعافٍ"
+ },
+ {
+  "key": "en.plan.elite.p1",
+  "page": "en",
+  "en": "Everything in Smart Pro Tier",
+  "ar": "كل ما في فئة سمارت برو"
+ },
+ {
+  "key": "en.plan.elite.p2",
+  "page": "en",
+  "en": "2× 45-min Elite Coaching Screens / Month",
+  "ar": "جلستان × 45 دقيقة فحص تدريبي نخبوي شهريًا"
+ },
+ {
+  "key": "en.plan.elite.p3",
+  "page": "en",
+  "en": "Priority Cryo Pod & Hydro-Massage Reservations",
+  "ar": "أولوية حجز كبسولة التبريد والتدليك المائي"
+ },
+ {
+  "key": "en.plan.elite.p4",
+  "page": "en",
+  "en": "Combat Pit Open Mat + 4 Guest Passes / Month",
+  "ar": "حصيرة القتال المفتوحة + 4 تصاريح ضيوف شهريًا"
+ },
+ {
+  "key": "en.plan.elite.p5",
+  "page": "en",
+  "en": "Quarterly DEXA Scan & Movement Audit",
+  "ar": "مسح DEXA ومراجعة حركة ربع سنوية"
+ },
+ {
+  "key": "en.trust.1.t",
+  "page": "en",
+  "en": "ZERO KEY CARDS",
+  "ar": "بلا بطاقات مفاتيح"
+ },
+ {
+  "key": "en.trust.1.d",
+  "page": "en",
+  "en": "Enter seamlessly with encrypted facial scan or phone NFC turnstile access.",
+  "ar": "دخول سلس بمسح الوجه المشفر أو NFC عبر جوالك."
+ },
+ {
+  "key": "en.trust.2.t",
+  "page": "en",
+  "en": "CLOUD METRIC BACKUP",
+  "ar": "نسخ احتياطي سحابي للقياسات"
+ },
+ {
+  "key": "en.trust.2.d",
+  "page": "en",
+  "en": "All barbell load, power output, and velocity data stored automatically.",
+  "ar": "يتم تخزين كل بيانات حمل البار والقدرة والسرعة تلقائيًا."
+ },
+ {
+  "key": "en.trust.3.t",
+  "page": "en",
+  "en": "FLEXIBLE CANCELLATION",
+  "ar": "إلغاء مرن"
+ },
+ {
+  "key": "en.trust.3.d",
+  "page": "en",
+  "en": "No 12-month commitments. Pause or terminate your contract directly in-app.",
+  "ar": "بلا التزام 12 شهرًا. أوقف أو أنهِ عقدك داخل التطبيق."
+ },
+ {
+  "key": "en.trust.4.t",
+  "page": "en",
+  "en": "ELITE COACHING ON CALL",
+  "ar": "تدريب نخبوي عند الطلب"
+ },
+ {
+  "key": "en.trust.4.d",
+  "page": "en",
+  "en": "Complimentary monthly 45-minute biomechanical movement screen included.",
+  "ar": "فحص حركة حيوي شهري مجاني لمدة 45 دقيقة."
+ },
+ {
+  "key": "en.paybar.step1",
+  "page": "en",
+  "en": "PROCEED TO CHECKOUT",
+  "ar": "المتابعة إلى الدفع"
+ },
+ {
+  "key": "en.paybar.step2",
+  "page": "en",
+  "en": "COMPLETE ENROLLMENT",
+  "ar": "أكمل التسجيل"
+ },
+ {
+  "key": "en.paybar.sec",
+  "page": "en",
+  "en": "256-BIT SSL MILITARY GRADE ENCRYPTION",
+  "ar": "تشفير SSL 256 بت بمعايير عسكرية"
+ },
+ {
+  "key": "en.tab.home",
+  "page": "en",
+  "en": "HOME",
+  "ar": "الرئيسية"
+ },
+ {
+  "key": "en.tab.facilities",
+  "page": "en",
+  "en": "FACILITIES",
+  "ar": "المرافق"
+ },
+ {
+  "key": "en.tab.services",
+  "page": "en",
+  "en": "SERVICES",
+  "ar": "الخدمات"
+ },
+ {
+  "key": "en.tab.join",
+  "page": "en",
+  "en": "JOIN NOW",
+  "ar": "انضم الآن"
+ },
+ {
+  "key": "ins.boot",
+  "page": "ins",
+  "en": "CALIBRATING TELEMETRY GRID",
+  "ar": "معايرة شبكة القياس"
+ },
+ {
+  "key": "ins.kicker",
+  "page": "ins",
+  "en": "SMART GYM // KINETIC INSIGHTS",
+  "ar": "سمارت جيم // رؤى حركية"
+ },
+ {
+  "key": "ins.hero.l1",
+  "page": "ins",
+  "en": "KINETIC",
+  "ar": "رؤى"
+ },
+ {
+  "key": "ins.hero.l2",
+  "page": "ins",
+  "en": "INSIGHTS",
+  "ar": "حركية"
+ },
+ {
+  "key": "ins.issue.left",
+  "page": "ins",
+  "en": "PEER-REVIEWED ATHLETIC DATA",
+  "ar": "بيانات رياضية محكّمة"
+ },
+ {
+  "key": "ins.issue.right",
+  "page": "ins",
+  "en": "ISSUE NO. 142",
+  "ar": "العدد 142"
+ },
+ {
+  "key": "ins.hero.lede",
+  "page": "ins",
+  "en": "Biomechanical research, precision fueling protocols, and high-voltage athletic telemetry published weekly by Smart Gym sport scientists and elite conditioning directors.",
+  "ar": "أبحاث الميكانيكا الحيوية وبروتوكولات التغذية الدقيقة وقياسات الأداء الرياضي المنشورة أسبوعيًا من علماء سمارت جيم ومديري التكييف النخبة."
+ },
+ {
+  "key": "ins.belt.training",
+  "page": "ins",
+  "en": "TRAINING",
+  "ar": "التدريب"
+ },
+ {
+  "key": "ins.belt.nutrition",
+  "page": "ins",
+  "en": "NUTRITION",
+  "ar": "التغذية"
+ },
+ {
+  "key": "ins.belt.recovery",
+  "page": "ins",
+  "en": "RECOVERY",
+  "ar": "التعافي"
+ },
+ {
+  "key": "ins.belt.biometrics",
+  "page": "ins",
+  "en": "BIOMETRICS",
+  "ar": "القياسات"
+ },
+ {
+  "key": "ins.belt.cases",
+  "page": "ins",
+  "en": "CASE STUDIES",
+  "ar": "دراسات حالة"
+ },
+ {
+  "key": "ins.belt.protocols",
+  "page": "ins",
+  "en": "PROTOCOLS",
+  "ar": "البروتوكولات"
+ },
+ {
+  "key": "ins.f.all",
+  "page": "ins",
+  "en": "ALL ARTICLES",
+  "ar": "جميع المقالات"
+ },
+ {
+  "key": "ins.f.training",
+  "page": "ins",
+  "en": "TRAINING SCIENCE",
+  "ar": "علم التدريب"
+ },
+ {
+  "key": "ins.f.nutrition",
+  "page": "ins",
+  "en": "NUTRITION & MACROS",
+  "ar": "التغذية والماكروز"
+ },
+ {
+  "key": "ins.f.recovery",
+  "page": "ins",
+  "en": "RECOVERY & CRYO",
+  "ar": "التعافي والتبريد"
+ },
+ {
+  "key": "ins.f.biometrics",
+  "page": "ins",
+  "en": "BIOMETRIC TELEMETRY",
+  "ar": "القياسات الحيوية"
+ },
+ {
+  "key": "ins.f.cases",
+  "page": "ins",
+  "en": "ATHLETE CASE STUDIES",
+  "ar": "دراسات حالة رياضية"
+ },
+ {
+  "key": "ins.search.ph",
+  "page": "ins",
+  "en": "Query biometric protocols…",
+  "ar": "ابحث في البروتوكولات الحيوية…"
+ },
+ {
+  "key": "ins.feat.badge",
+  "page": "ins",
+  "en": "LAB DISPATCH // VBT-09",
+  "ar": "إرسال مختبري // VBT-09"
+ },
+ {
+  "key": "ins.feat.sparkLab",
+  "page": "ins",
+  "en": "BAR SPEED",
+  "ar": "سرعة البار"
+ },
+ {
+  "key": "ins.feat.tag",
+  "page": "ins",
+  "en": "FEATURED PROTOCOL // TRAINING SCIENCE",
+  "ar": "بروتوكول مميز // علم التدريب"
+ },
+ {
+  "key": "ins.feat.certified",
+  "page": "ins",
+  "en": "LAB CERTIFIED",
+  "ar": "معتمد مختبريًا"
+ },
+ {
+  "key": "ins.feat.title",
+  "page": "ins",
+  "en": "The Velocity-Based Training (VBT) Protocol: How Real-Time Sensors Eliminate Recovery Plateaus",
+  "ar": "بروتوكول التدريب القائم على السرعة (VBT): كيف تُلغي المستشعرات الفورية هضبات التعافي"
+ },
+ {
+  "key": "ins.feat.desc",
+  "page": "ins",
+  "en": "Transitioning from arbitrary percentage-based one-rep maxes to linear position transducers and real-time velocity loss cutoffs preserves the central nervous system while targeting concentric force curves.",
+  "ar": "الانتقال من النسب الاعتباطية بناءً على الحد الأقصى للتكرار الواحد إلى محوّلات الموضع الخطية وحدود فقدان السرعة الفورية يحافظ على الجهاز العصبي المركزي مع استهداف منحنيات القوة المركزة."
+ },
+ {
+  "key": "ins.feat.author",
+  "page": "ins",
+  "en": "Dr. Elias Vance, PhD, CSCS",
+  "ar": "د. إلياس فانس، دكتوراه، CSCS"
+ },
+ {
+  "key": "ins.feat.authorMeta",
+  "page": "ins",
+  "en": "Director of Biomechanics • 8 Min Read",
+  "ar": "مدير الميكانيكا الحيوية • 8 دقائق قراءة"
+ },
+ {
+  "key": "ins.feat.date",
+  "page": "ins",
+  "en": "Yesterday",
+  "ar": "أمس"
+ },
+ {
+  "key": "ins.feat.cta",
+  "page": "ins",
+  "en": "READ FULL PROTOCOL",
+  "ar": "اقرأ البروتوكول الكامل"
+ },
+ {
+  "key": "ins.m1.l",
+  "page": "ins",
+  "en": "ACTIVE RESEARCH COHORT",
+  "ar": "فوج البحث النشط"
+ },
+ {
+  "key": "ins.m1.s",
+  "page": "ins",
+  "en": "+12% THIS WK",
+  "ar": "+12% هذا الأسبوع"
+ },
+ {
+  "key": "ins.m2.l",
+  "page": "ins",
+  "en": "CNS RECOVERY BASELINE",
+  "ar": "خط أساس تعافي الجهاز العصبي"
+ },
+ {
+  "key": "ins.m2.s",
+  "page": "ins",
+  "en": "HRV AVG",
+  "ar": "متوسط HRV"
+ },
+ {
+  "key": "ins.m3.l",
+  "page": "ins",
+  "en": "WEEKLY INTAKE VOLUME",
+  "ar": "حجم الاستهلاك الأسبوعي"
+ },
+ {
+  "key": "ins.m3.s",
+  "page": "ins",
+  "en": "ELECTROLYTE OPT.",
+  "ar": "تحسين الإلكتروليت"
+ },
+ {
+  "key": "ins.m4.l",
+  "page": "ins",
+  "en": "FORCE OUTPUT DELTA",
+  "ar": "فارق ناتج القوة"
+ },
+ {
+  "key": "ins.m4.s",
+  "page": "ins",
+  "en": "POST-CRYO",
+  "ar": "بعد التبريد"
+ },
+ {
+  "key": "ins.art1.tag",
+  "page": "ins",
+  "en": "BIOMETRICS // ZONES",
+  "ar": "القياسات الحيوية // المناطق"
+ },
+ {
+  "key": "ins.art1.date",
+  "page": "ins",
+  "en": "OCTOBER 24",
+  "ar": "24 أكتوبر"
+ },
+ {
+  "key": "ins.art1.title",
+  "page": "ins",
+  "en": "Zone 2 vs. Anaerobic Thresholds: Decoding VO2 Max for Hypertrophy Lifters",
+  "ar": "المنطقة 2 مقابل العتبات اللاهوائية: فك شيفرة VO2 الأقصى لرفعي التضخم"
+ },
+ {
+  "key": "ins.art1.desc",
+  "page": "ins",
+  "en": "How low-intensity mitochondrial biogenesis enhances inter-set clearance of metabolic byproducts without blunting the hypertrophic signaling pathways of resistance training.",
+  "ar": "كيف يعزز تكوّن المتقدرات منخفض الشدة تصفية نواتج الأيض بين المجموعات دون إضعاف مسارات الإشارة التضخمية في تدريب المقاومة."
+ },
+ {
+  "key": "ins.art1.read",
+  "page": "ins",
+  "en": "6 MIN READ",
+  "ar": "6 دقائق قراءة"
+ },
+ {
+  "key": "ins.art1.line",
+  "page": "ins",
+  "en": "METABOLIC LAB",
+  "ar": "مختبر الأيض"
+ },
+ {
+  "key": "ins.art1.author",
+  "page": "ins",
+  "en": "Dr. M. Kovacs",
+  "ar": "د. م. كوفاكس"
+ },
+ {
+  "key": "ins.art2.tag",
+  "page": "ins",
+  "en": "NUTRITION & MACROS",
+  "ar": "التغذية والماكروز"
+ },
+ {
+  "key": "ins.art2.date",
+  "page": "ins",
+  "en": "OCTOBER 21",
+  "ar": "21 أكتوبر"
+ },
+ {
+  "key": "ins.art2.title",
+  "page": "ins",
+  "en": "Targeted Glycogen Depletion: Nutrition Timing for Twice-Daily Training Sessions",
+  "ar": "استنفاد الجليكوجين المستهدف: توقيت التغذية لجلسات التدريب مرتين يوميًا"
+ },
+ {
+  "key": "ins.art2.desc",
+  "page": "ins",
+  "en": "Calculating intra-workout high molecular-weight cyclic dextrin dosages to ensure maximal glycogen re-synthesis within a restricted 4-hour window between high-strain blocks.",
+  "ar": "حساب جرعات الدكسترين الحلقي عالي الوزن الجزيئي أثناء التمرين لضمان أقصى إعادة تخليق للجليكوجين خلال نافذة 4 ساعات بين كتل الإجهاد العالي."
+ },
+ {
+  "key": "ins.art2.read",
+  "page": "ins",
+  "en": "5 MIN READ",
+  "ar": "5 دقائق قراءة"
+ },
+ {
+  "key": "ins.art2.line",
+  "page": "ins",
+  "en": "BIOCHEMICAL CELL",
+  "ar": "خلية كيميائية حيوية"
+ },
+ {
+  "key": "ins.art2.author",
+  "page": "ins",
+  "en": "Sarah Lin, RD",
+  "ar": "سارة لين، RD"
+ },
+ {
+  "key": "ins.art3.tag",
+  "page": "ins",
+  "en": "RECOVERY PROTOCOLS",
+  "ar": "بروتوكولات التعافي"
+ },
+ {
+  "key": "ins.art3.date",
+  "page": "ins",
+  "en": "OCTOBER 18",
+  "ar": "18 أكتوبر"
+ },
+ {
+  "key": "ins.art3.title",
+  "page": "ins",
+  "en": "Cryo Pods vs. Infrared Contrast Therapy: What the Nervous System Says",
+  "ar": "كبسولات التبريد مقابل العلاج بالأشعة تحت الحمراء المتباين: ماذا يقول الجهاز العصبي"
+ },
+ {
+  "key": "ins.art3.desc",
+  "page": "ins",
+  "en": "Examining cutaneous vasoconstriction and sympathetic nervous discharge: which modality truly accelerates systemic autonomic recovery without halting muscular adaptation?",
+  "ar": "فحص تضييق الأوعية الجلدية والتفريغ العصبي الودي: أي وسيلة تُسرّع فعلاً التعافي اللاإرادي الجهازي دون إيقاف التكيّف العضلي؟"
+ },
+ {
+  "key": "ins.art3.read",
+  "page": "ins",
+  "en": "7 MIN READ",
+  "ar": "7 دقائق قراءة"
+ },
+ {
+  "key": "ins.art3.line",
+  "page": "ins",
+  "en": "NEURAL REPAIR",
+  "ar": "إصلاح عصبي"
+ },
+ {
+  "key": "ins.art3.author",
+  "page": "ins",
+  "en": "Julian Thorne",
+  "ar": "جوليان ثورن"
+ },
+ {
+  "key": "ins.art4.tag",
+  "page": "ins",
+  "en": "TRAINING SCIENCE",
+  "ar": "علم التدريب"
+ },
+ {
+  "key": "ins.art4.date",
+  "page": "ins",
+  "en": "OCTOBER 15",
+  "ar": "15 أكتوبر"
+ },
+ {
+  "key": "ins.art4.title",
+  "page": "ins",
+  "en": "Neural Fatigue Index: Tracking Grip Dynamometer Readings Before Heavy Deadlifts",
+  "ar": "مؤشر التعب العصبي: تتبع قراءات مقياس قوة القبضة قبل الديدليفت الثقيل"
+ },
+ {
+  "key": "ins.art4.desc",
+  "page": "ins",
+  "en": "Why a 5% drop in max isometric grip force predicts instantaneous central motor unit failure and hamstring avulsion risk during maximal axial pulling sessions.",
+  "ar": "لماذا يتنبأ انخفاض بنسبة 5% في أقصى قوة قبضة أيزومترية بالفشل الفوري للوحدة الحركية المركزية وخطر تمزق العضلة الخلفية خلال جلسات السحب المحوري الأقصى."
+ },
+ {
+  "key": "ins.art4.read",
+  "page": "ins",
+  "en": "6 MIN READ",
+  "ar": "6 دقائق قراءة"
+ },
+ {
+  "key": "ins.art4.line",
+  "page": "ins",
+  "en": "NEUROMUSCULAR",
+  "ar": "عصبي عضلي"
+ },
+ {
+  "key": "ins.art4.author",
+  "page": "ins",
+  "en": "D. Rossi, PT",
+  "ar": "د. روسي، PT"
+ },
+ {
+  "key": "ins.art5.tag",
+  "page": "ins",
+  "en": "MOVEMENT // VECTORS",
+  "ar": "الحركة // المتجهات"
+ },
+ {
+  "key": "ins.art5.date",
+  "page": "ins",
+  "en": "OCTOBER 11",
+  "ar": "11 أكتوبر"
+ },
+ {
+  "key": "ins.art5.title",
+  "page": "ins",
+  "en": "The 3D Biomechanics of the Low-Bar Squat: Cable Vector Adjustments",
+  "ar": "الميكانيكا الحيوية ثلاثية الأبعاد للسكوات منخفض البار: تعديلات متجه الكابل"
+ },
+ {
+  "key": "ins.art5.desc",
+  "page": "ins",
+  "en": "Calculating moment arm differentials across varying femur-to-torso ratios to adjust auxiliary hip abduction work and eliminate spinal lumbar flexion shearing.",
+  "ar": "حساب فروق ذراع العزم عبر نسب الفخذ إلى الجذع المتغيرة لتعديل عمل إبعاد الورك المساعد وإزالة قص الانحناء القطني الشوكي."
+ },
+ {
+  "key": "ins.art5.read",
+  "page": "ins",
+  "en": "9 MIN READ",
+  "ar": "9 دقائق قراءة"
+ },
+ {
+  "key": "ins.art5.line",
+  "page": "ins",
+  "en": "KINEMATICS",
+  "ar": "حركية"
+ },
+ {
+  "key": "ins.art5.author",
+  "page": "ins",
+  "en": "Dr. Elias Vance",
+  "ar": "د. إلياس فانس"
+ },
+ {
+  "key": "ins.arch.eyebrow",
+  "page": "ins",
+  "en": "SYSTEM DISPATCH ARCHIVE",
+  "ar": "أرشيف إرسال النظام"
+ },
+ {
+  "key": "ins.arch.title",
+  "page": "ins",
+  "en": "EXPLORE CLINICAL PROTOCOLS",
+  "ar": "استكشف البروتوكولات السريرية"
+ },
+ {
+  "key": "ins.arch.toolGrid",
+  "page": "ins",
+  "en": "Grid view",
+  "ar": "عرض شبكي"
+ },
+ {
+  "key": "ins.arch.toolList",
+  "page": "ins",
+  "en": "List view",
+  "ar": "عرض قائمة"
+ },
+ {
+  "key": "ins.card.read",
+  "page": "ins",
+  "en": "READ ENTRY",
+  "ar": "اقرأ المدخل"
+ },
+ {
+  "key": "ins.news.label",
+  "page": "ins",
+  "en": "DIRECT LAB ACCESS",
+  "ar": "وصول مختبري مباشر"
+ },
+ {
+  "key": "ins.news.title",
+  "page": "ins",
+  "en": "TELEMETRY DISPATCH",
+  "ar": "إرسال القياسات"
+ },
+ {
+  "key": "ins.news.desc",
+  "page": "ins",
+  "en": "Receive clinical strength diagnostics, meal periodization sheets, and unreleased case studies directly to your terminal every Sunday at 06:00 EST.",
+  "ar": "استقبل تشخيصات القوة السريرية وجداول دورية الوجبات ودراسات الحالة غير المنشورة مباشرة على جهازك كل يوم أحد الساعة 06:00 بتوقيت شرق أمريكا."
+ },
+ {
+  "key": "ins.news.ph",
+  "page": "ins",
+  "en": "ATHLETE@DOMAIN.COM",
+  "ar": "athlete@domain.com"
+ },
+ {
+  "key": "ins.news.checkbox",
+  "page": "ins",
+  "en": "INCLUDE RAW DATA SETS (CSV)",
+  "ar": "تضمين مجموعات البيانات الخام (CSV)"
+ },
+ {
+  "key": "ins.news.cta",
+  "page": "ins",
+  "en": "SUBSCRIBE TO DISPATCH",
+  "ar": "اشترك في الإرسال"
+ },
+ {
+  "key": "ins.news.success",
+  "page": "ins",
+  "en": "FREQUENCY LOCKED. FIRST DOSSIER ARRIVING FRIDAY.",
+  "ar": "تم تثبيت التردد. أول ملف يصل الجمعة."
+ },
+ {
+  "key": "ins.news.footLeft",
+  "page": "ins",
+  "en": "NO SPAM. ZERO NONSENSE.",
+  "ar": "لا رسائل مزعجة. بلا حماقات."
+ },
+ {
+  "key": "ins.news.footRight",
+  "page": "ins",
+  "en": "28,400+ ATHLETES",
+  "ar": "28,400+ رياضي"
+ },
+ {
+  "key": "ins.empty.title",
+  "page": "ins",
+  "en": "NO PROTOCOLS FOUND",
+  "ar": "لا توجد بروتوكولات"
+ },
+ {
+  "key": "ins.empty.desc",
+  "page": "ins",
+  "en": "No articles match your search criteria. Try filtering by Training or Biometrics.",
+  "ar": "لا توجد مقالات تطابق معايير البحث. جرّب التصفية حسب التدريب أو القياسات الحيوية."
+ },
+ {
+  "key": "ins.empty.reset",
+  "page": "ins",
+  "en": "RESET ALL FILTERS",
+  "ar": "إعادة تعيين الفلاتر"
+ },
+ {
+  "key": "ins.pag.showing",
+  "page": "ins",
+  "en": "SHOWING",
+  "ar": "عرض"
+ },
+ {
+  "key": "ins.pag.of",
+  "page": "ins",
+  "en": "OF",
+  "ar": "من"
+ },
+ {
+  "key": "ins.pag.total",
+  "page": "ins",
+  "en": "RESEARCH PROTOCOLS",
+  "ar": "بروتوكول بحثي"
+ },
+ {
+  "key": "ins.pag.prev",
+  "page": "ins",
+  "en": "PREV ENTRIES",
+  "ar": "المدخلات السابقة"
+ },
+ {
+  "key": "ins.pag.next",
+  "page": "ins",
+  "en": "NEXT ENTRIES",
+  "ar": "المدخلات التالية"
+ },
+ {
+  "key": "ins.tax.label",
+  "page": "ins",
+  "en": "LAB INDEX SEARCH TAGS",
+  "ar": "وسوم البحث المختبري"
+ },
+ {
+  "key": "ins.tax.title",
+  "page": "ins",
+  "en": "INDEXED TELEMETRY VECTORS",
+  "ar": "متجهات القياس المفهرسة"
+ },
+ {
+  "key": "ins.tax.t1",
+  "page": "ins",
+  "en": "#ELECTROMYOGRAPHY",
+  "ar": "#تخطيط_عضلي"
+ },
+ {
+  "key": "ins.tax.t2",
+  "page": "ins",
+  "en": "#RATE-OF-FORCE-DEVELOPMENT",
+  "ar": "#معدل_تطور_القوة"
+ },
+ {
+  "key": "ins.tax.t3",
+  "page": "ins",
+  "en": "#HYPERTROPHY-SIGNALING",
+  "ar": "#إشارات_التضخم"
+ },
+ {
+  "key": "ins.tax.t4",
+  "page": "ins",
+  "en": "#GLYCOGEN-SUPERCOMPENSATION",
+  "ar": "#تعويض_الجليكوجين"
+ },
+ {
+  "key": "ins.tax.t5",
+  "page": "ins",
+  "en": "#CRYO-NEUROMUSCULAR",
+  "ar": "#تبريد_عصبي_عضلي"
+ },
+ {
+  "key": "ins.tax.t6",
+  "page": "ins",
+  "en": "#VBT-CUTOFFS",
+  "ar": "#حدود_VBT"
+ },
+ {
+  "key": "ins.cta.eyebrow",
+  "page": "ins",
+  "en": "READY TO DEPLOY YOUR OWN PROTOCOL?",
+  "ar": "مستعد لنشر بروتوكولك الخاص؟"
+ },
+ {
+  "key": "ins.cta.h2a",
+  "page": "ins",
+  "en": "START WITH A",
+  "ar": "ابدأ بخط"
+ },
+ {
+  "key": "ins.cta.h2b",
+  "page": "ins",
+  "en": "BIOMETRIC BASELINE.",
+  "ar": "أساس حيوي."
+ },
+ {
+  "key": "ins.cta.desc",
+  "page": "ins",
+  "en": "Free 30-minute consultation and metabolic snapshot. If our protocols aren't right for you, you walk away owing nothing.",
+  "ar": "استشارة مجانية 30 دقيقة ولقطة أيضية. إذا لم تكن بروتوكولاتنا مناسبة لك، تغادر دون أي التزام."
+ },
+ {
+  "key": "ins.cta.btn",
+  "page": "ins",
+  "en": "BOOK FREE CONSULT",
+  "ar": "احجز استشارة مجانية"
+ },
+ {
+  "key": "ins.tab.home",
+  "page": "ins",
+  "en": "HOME",
+  "ar": "الرئيسية"
+ },
+ {
+  "key": "ins.tab.facilities",
+  "page": "ins",
+  "en": "FACILITIES",
+  "ar": "المرافق"
+ },
+ {
+  "key": "ins.tab.services",
+  "page": "ins",
+  "en": "SERVICES",
+  "ar": "الخدمات"
+ },
+ {
+  "key": "ins.tab.join",
+  "page": "ins",
+  "en": "JOIN NOW",
+  "ar": "انضم الآن"
+ },
+ {
+  "key": "fac.boot",
+  "page": "fac",
+  "en": "CALIBRATING TELEMETRY GRID",
+  "ar": "معايرة شبكة القياس"
+ },
+ {
+  "key": "fac.kicker",
+  "page": "fac",
+  "en": "BIOMETRIC TELEMETRY // LIVE OPERATIONS GRID",
+  "ar": "القياس الحيوي // شبكة العمليات المباشرة"
+ },
+ {
+  "key": "fac.hero.l1",
+  "page": "fac",
+  "en": "ELITE",
+  "ar": "بيئات"
+ },
+ {
+  "key": "fac.hero.l2",
+  "page": "fac",
+  "en": "ENVIRONMENTS",
+  "ar": "نخبوية"
+ },
+ {
+  "key": "fac.hero.lede",
+  "page": "fac",
+  "en": "Engineered spaces fine-tuned for kinetic output, metabolic conditioning, and elite recovery. Track real-time occupancy load, environmental telemetry, and active training slots across all sectors.",
+  "ar": "مساحات مُهندسة ومضبوطة لمخرجات الحركة والتكييف الأيضي والتعافي النخبوي. تتبع حمل الإشغال الفوري والقياسات البيئية وفتحات التدريب النشطة عبر جميع القطاعات."
+ },
+ {
+  "key": "fac.hero.cta1",
+  "page": "fac",
+  "en": "EXPLORE FLOOR PLAN",
+  "ar": "استكشف مخطط الأرضية"
+ },
+ {
+  "key": "fac.hero.cta2",
+  "page": "fac",
+  "en": "VIEW TELEMETRY",
+  "ar": "عرض القياسات"
+ },
+ {
+  "key": "fac.cap.title",
+  "page": "fac",
+  "en": "CAMPUS CAPACITY",
+  "ar": "سعة الحرم"
+ },
+ {
+  "key": "fac.cap.detail",
+  "page": "fac",
+  "en": "Athletes Checked In",
+  "ar": "رياضي مسجّل"
+ },
+ {
+  "key": "fac.cap.status",
+  "page": "fac",
+  "en": "PEAK VELOCITY WINDOW",
+  "ar": "نافذة ذروة السرعة"
+ },
+ {
+  "key": "fac.cap.load",
+  "page": "fac",
+  "en": "LOAD",
+  "ar": "حمل"
+ },
+ {
+  "key": "fac.belt.aquatics",
+  "page": "fac",
+  "en": "AQUATICS",
+  "ar": "السباحة"
+ },
+ {
+  "key": "fac.belt.combat",
+  "page": "fac",
+  "en": "COMBAT",
+  "ar": "القتال"
+ },
+ {
+  "key": "fac.belt.courts",
+  "page": "fac",
+  "en": "COURTS",
+  "ar": "الملاعب"
+ },
+ {
+  "key": "fac.belt.recovery",
+  "page": "fac",
+  "en": "RECOVERY",
+  "ar": "التعافي"
+ },
+ {
+  "key": "fac.belt.strength",
+  "page": "fac",
+  "en": "STRENGTH",
+  "ar": "القوة"
+ },
+ {
+  "key": "fac.belt.volley",
+  "page": "fac",
+  "en": "VOLLEYBALL",
+  "ar": "الكرة الطائرة"
+ },
+ {
+  "key": "fac.belt.open",
+  "page": "fac",
+  "en": "OPEN 24/7",
+  "ar": "مفتوح 24/7"
+ },
+ {
+  "key": "fac.stag",
+  "page": "fac",
+  "en": "LIVE AVAILABILITY",
+  "ar": "التوفر المباشر"
+ },
+ {
+  "key": "fac.title",
+  "page": "fac",
+  "en": "CHOOSE YOUR ARENA",
+  "ar": "اختر ساحتك"
+ },
+ {
+  "key": "fac.sub",
+  "page": "fac",
+  "en": "Every sector reports live occupancy, environment readings and next open slots. Pick one — booking syncs straight to your biometric profile.",
+  "ar": "كل قطاع يعرض الإشغال الفوري وقراءات البيئة والفتحات المتاحة التالية. اختر واحدًا — الحجز يتزامن مباشرة مع ملفك الحيوي."
+ },
+ {
+  "key": "fac.f.all",
+  "page": "fac",
+  "en": "ALL ARENAS",
+  "ar": "جميع الساحات"
+ },
+ {
+  "key": "fac.f.aquatics",
+  "page": "fac",
+  "en": "AQUATICS",
+  "ar": "السباحة"
+ },
+ {
+  "key": "fac.f.combat",
+  "page": "fac",
+  "en": "COMBAT",
+  "ar": "القتال"
+ },
+ {
+  "key": "fac.f.courts",
+  "page": "fac",
+  "en": "COURTS",
+  "ar": "الملاعب"
+ },
+ {
+  "key": "fac.f.recovery",
+  "page": "fac",
+  "en": "RECOVERY",
+  "ar": "التعافي"
+ },
+ {
+  "key": "fac.f.strength",
+  "page": "fac",
+  "en": "STRENGTH",
+  "ar": "القوة"
+ },
+ {
+  "key": "fac.c1.sector",
+  "page": "fac",
+  "en": "Sector 01",
+  "ar": "قطاع 01"
+ },
+ {
+  "key": "fac.c1.location",
+  "page": "fac",
+  "en": "50M Hydro Arena",
+  "ar": "حوض 50م المائي"
+ },
+ {
+  "key": "fac.c1.title",
+  "page": "fac",
+  "en": "Olympic Swimming Pool",
+  "ar": "مسبح أولمبي"
+ },
+ {
+  "key": "fac.c1.tag",
+  "page": "fac",
+  "en": "HYDRO-PERFORMANCE",
+  "ar": "أداء مائي"
+ },
+ {
+  "key": "fac.c1.status",
+  "page": "fac",
+  "en": "OPEN",
+  "ar": "مفتوح"
+ },
+ {
+  "key": "fac.c1.desc",
+  "page": "fac",
+  "en": "Precision 8-lane racing reservoir with automated lap telemetry cameras, ozone purification, and anti-turbulence lane dividers.",
+  "ar": "حوض سباق دقيق بثمانية مسارات مع كاميرات قياس تلقائية لللفات وتنقية بالأوزون وفواصل مسارات مضادة للاضطراب."
+ },
+ {
+  "key": "fac.c1.m1k",
+  "page": "fac",
+  "en": "LANES",
+  "ar": "المسارات"
+ },
+ {
+  "key": "fac.c1.m1v",
+  "page": "fac",
+  "en": "6/8",
+  "ar": "6/8"
+ },
+ {
+  "key": "fac.c1.m1s",
+  "page": "fac",
+  "en": "ACT",
+  "ar": "نشط"
+ },
+ {
+  "key": "fac.c1.m2k",
+  "page": "fac",
+  "en": "TEMP",
+  "ar": "الحرارة"
+ },
+ {
+  "key": "fac.c1.m2v",
+  "page": "fac",
+  "en": "26°C",
+  "ar": "26°م"
+ },
+ {
+  "key": "fac.c1.m3k",
+  "page": "fac",
+  "en": "PURITY",
+  "ar": "النقاء"
+ },
+ {
+  "key": "fac.c1.m3v",
+  "page": "fac",
+  "en": "99.8%",
+  "ar": "99.8%"
+ },
+ {
+  "key": "fac.c1.cta",
+  "page": "fac",
+  "en": "BOOK A LANE",
+  "ar": "احجز مسارًا"
+ },
+ {
+  "key": "fac.c2.sector",
+  "page": "fac",
+  "en": "Sector 02",
+  "ar": "قطاع 02"
+ },
+ {
+  "key": "fac.c2.location",
+  "page": "fac",
+  "en": "FIBA Hardwood",
+  "ar": "أرضية FIBA"
+ },
+ {
+  "key": "fac.c2.title",
+  "page": "fac",
+  "en": "Pro Basketball Court",
+  "ar": "ملعب كرة سلة احترافي"
+ },
+ {
+  "key": "fac.c2.tag",
+  "page": "fac",
+  "en": "HARDCOURT AGILITY",
+  "ar": "رشاقة الأرضية"
+ },
+ {
+  "key": "fac.c2.status",
+  "page": "fac",
+  "en": "DROP-IN ACTIVE",
+  "ar": "نشاط حر نشط"
+ },
+ {
+  "key": "fac.c2.desc",
+  "page": "fac",
+  "en": "Northern hard maple cushioned flooring with 4K ceiling trajectory cameras, automated shot-tracking analytics, and NBA breakaway rims.",
+  "ar": "أرضية صلبة من القيقب الشمالي مع كاميرات مسار 4K بالسقف وتحليلات تتبع التسديد التلقائية وحلقات NBA."
+ },
+ {
+  "key": "fac.c2.m1k",
+  "page": "fac",
+  "en": "ACTIVE",
+  "ar": "نشط"
+ },
+ {
+  "key": "fac.c2.m1v",
+  "page": "fac",
+  "en": "14/20",
+  "ar": "14/20"
+ },
+ {
+  "key": "fac.c2.m2k",
+  "page": "fac",
+  "en": "SENSORS",
+  "ar": "الحساسات"
+ },
+ {
+  "key": "fac.c2.m2v",
+  "page": "fac",
+  "en": "12 CAM",
+  "ar": "12 كام"
+ },
+ {
+  "key": "fac.c2.m3k",
+  "page": "fac",
+  "en": "NEXT SLOT",
+  "ar": "الفتحة التالية"
+ },
+ {
+  "key": "fac.c2.m3v",
+  "page": "fac",
+  "en": "18:00",
+  "ar": "18:00"
+ },
+ {
+  "key": "fac.c2.cta",
+  "page": "fac",
+  "en": "RESERVE HALF-COURT",
+  "ar": "احجز نصف الملعب"
+ },
+ {
+  "key": "fac.c3.sector",
+  "page": "fac",
+  "en": "Sector 03",
+  "ar": "قطاع 03"
+ },
+ {
+  "key": "fac.c3.location",
+  "page": "fac",
+  "en": "The Pit",
+  "ar": "الحفرة"
+ },
+ {
+  "key": "fac.c3.title",
+  "page": "fac",
+  "en": "Combat & Boxing Pit",
+  "ar": "حفرة القتال والملاكمة"
+ },
+ {
+  "key": "fac.c3.tag",
+  "page": "fac",
+  "en": "FIGHT CONDITIONING",
+  "ar": "تكييف قتالي"
+ },
+ {
+  "key": "fac.c3.status",
+  "page": "fac",
+  "en": "SPARRING OPEN",
+  "ar": "السبرنغ مفتوح"
+ },
+ {
+  "key": "fac.c3.desc",
+  "page": "fac",
+  "en": "Full regulation competition Octagon cage, 16 force-sensor heavy bags, speed bag clusters, and tatami grappling mats for MMA conditioning.",
+  "ar": "قفص أوكتاغون تنظيمي كامل، 16 كيسًا ثقيلًا بحساسات قوة، مجموعات أكياس سرعة، وحصائر تاتامي لتدريب MMA."
+ },
+ {
+  "key": "fac.c3.m1k",
+  "page": "fac",
+  "en": "BAGS",
+  "ar": "الأكياس"
+ },
+ {
+  "key": "fac.c3.m1v",
+  "page": "fac",
+  "en": "11/16",
+  "ar": "11/16"
+ },
+ {
+  "key": "fac.c3.m2k",
+  "page": "fac",
+  "en": "CAGE",
+  "ar": "القفص"
+ },
+ {
+  "key": "fac.c3.m2v",
+  "page": "fac",
+  "en": "ACTIVE",
+  "ar": "نشط"
+ },
+ {
+  "key": "fac.c3.m3k",
+  "page": "fac",
+  "en": "COACH",
+  "ar": "المدرب"
+ },
+ {
+  "key": "fac.c3.m3v",
+  "page": "fac",
+  "en": "ON-SITE",
+  "ar": "في الموقع"
+ },
+ {
+  "key": "fac.c3.cta",
+  "page": "fac",
+  "en": "JOIN CLASS",
+  "ar": "انضم للحصة"
+ },
+ {
+  "key": "fac.c4.sector",
+  "page": "fac",
+  "en": "Sector 04",
+  "ar": "قطاع 04"
+ },
+ {
+  "key": "fac.c4.location",
+  "page": "fac",
+  "en": "Bio-Recovery Pods",
+  "ar": "كبسولات التعافي الحيوي"
+ },
+ {
+  "key": "fac.c4.title",
+  "page": "fac",
+  "en": "Steam & Cryo Recovery",
+  "ar": "بخار وتبريد للتعافي"
+ },
+ {
+  "key": "fac.c4.tag",
+  "page": "fac",
+  "en": "BIOMETRIC THERMAL",
+  "ar": "حراري حيوي"
+ },
+ {
+  "key": "fac.c4.status",
+  "page": "fac",
+  "en": "AVAILABLE",
+  "ar": "متاح"
+ },
+ {
+  "key": "fac.c4.desc",
+  "page": "fac",
+  "en": "Eucalyptus vapor thermal suites, −110°C full-body electric cryotherapy chambers, contrast baths, and pneumatic compression lounges.",
+  "ar": "أجنحة بخار الكافور وغرف تبريد كهربائية −110°م للجسم بأكمله وأحواض تباين وصالات ضغط هوائي."
+ },
+ {
+  "key": "fac.c4.m1k",
+  "page": "fac",
+  "en": "STEAM",
+  "ar": "البخار"
+ },
+ {
+  "key": "fac.c4.m1v",
+  "page": "fac",
+  "en": "45°C",
+  "ar": "45°م"
+ },
+ {
+  "key": "fac.c4.m2k",
+  "page": "fac",
+  "en": "CRYO",
+  "ar": "التبريد"
+ },
+ {
+  "key": "fac.c4.m2v",
+  "page": "fac",
+  "en": "-110°C",
+  "ar": "-110°م"
+ },
+ {
+  "key": "fac.c4.m3k",
+  "page": "fac",
+  "en": "PLUNGE",
+  "ar": "الحوض"
+ },
+ {
+  "key": "fac.c4.m3v",
+  "page": "fac",
+  "en": "4°C",
+  "ar": "4°م"
+ },
+ {
+  "key": "fac.c4.cta",
+  "page": "fac",
+  "en": "BOOK SESSION",
+  "ar": "احجز جلسة"
+ },
+ {
+  "key": "fac.c5.sector",
+  "page": "fac",
+  "en": "Sector 05",
+  "ar": "قطاع 05"
+ },
+ {
+  "key": "fac.c5.location",
+  "page": "fac",
+  "en": "Pro Court",
+  "ar": "الملعب الاحترافي"
+ },
+ {
+  "key": "fac.c5.title",
+  "page": "fac",
+  "en": "Volleyball Arena",
+  "ar": "ساحة الكرة الطائرة"
+ },
+ {
+  "key": "fac.c5.tag",
+  "page": "fac",
+  "en": "LEAGUE PLAY",
+  "ar": "دوري"
+ },
+ {
+  "key": "fac.c5.status",
+  "page": "fac",
+  "en": "LEAGUE PLAY",
+  "ar": "دوري"
+ },
+ {
+  "key": "fac.c5.desc",
+  "page": "fac",
+  "en": "Impact-dissipating synthetic sports flooring with quick-tension carbon posts, anti-glare overhead diffuse LED arrays, and jump force sensors.",
+  "ar": "أرضية رياضية صناعية ماصّة للصدمات مع أعمدة كربون سريعة الشد ومصفوفات LED منتشرة مضادة للوهج وحساسات قوة القفز."
+ },
+ {
+  "key": "fac.c5.m1k",
+  "page": "fac",
+  "en": "MATCH",
+  "ar": "المباراة"
+ },
+ {
+  "key": "fac.c5.m1v",
+  "page": "fac",
+  "en": "SET 2",
+  "ar": "المجموعة 2"
+ },
+ {
+  "key": "fac.c5.m2k",
+  "page": "fac",
+  "en": "FLOOR",
+  "ar": "الأرضية"
+ },
+ {
+  "key": "fac.c5.m2v",
+  "page": "fac",
+  "en": "SYNTH",
+  "ar": "صناعية"
+ },
+ {
+  "key": "fac.c5.m3k",
+  "page": "fac",
+  "en": "OPEN AT",
+  "ar": "تفتح عند"
+ },
+ {
+  "key": "fac.c5.m3v",
+  "page": "fac",
+  "en": "19:30",
+  "ar": "19:30"
+ },
+ {
+  "key": "fac.c5.cta",
+  "page": "fac",
+  "en": "VIEW SCHEDULE",
+  "ar": "عرض الجدول"
+ },
+ {
+  "key": "fac.c6.sector",
+  "page": "fac",
+  "en": "Sector 06",
+  "ar": "قطاع 06"
+ },
+ {
+  "key": "fac.c6.location",
+  "page": "fac",
+  "en": "Iron Sanctuary",
+  "ar": "معبد الحديد"
+ },
+ {
+  "key": "fac.c6.title",
+  "page": "fac",
+  "en": "Heavy Iron Arena",
+  "ar": "ساحة الحديد الثقيل"
+ },
+ {
+  "key": "fac.c6.tag",
+  "page": "fac",
+  "en": "HEAVY LOAD",
+  "ar": "حمل ثقيل"
+ },
+ {
+  "key": "fac.c6.status",
+  "page": "fac",
+  "en": "OPEN ACCESS",
+  "ar": "دخول مفتوح"
+ },
+ {
+  "key": "fac.c6.desc",
+  "page": "fac",
+  "en": "18 competition power cages, Eleiko calibrated steel bumpers, acoustic deadlift drop zones, and automated velocity-based training sensors.",
+  "ar": "18 قفص قوة تنافسي، أقراص فولاذية معايرة Eleiko، مناطق إسقاط ديدليفت صوتية، وحساسات تدريب تلقائية قائمة على السرعة."
+ },
+ {
+  "key": "fac.c6.m1k",
+  "page": "fac",
+  "en": "RACKS",
+  "ar": "الرفوف"
+ },
+ {
+  "key": "fac.c6.m1v",
+  "page": "fac",
+  "en": "15/18",
+  "ar": "15/18"
+ },
+ {
+  "key": "fac.c6.m2k",
+  "page": "fac",
+  "en": "MAX LOAD",
+  "ar": "أقصى حمل"
+ },
+ {
+  "key": "fac.c6.m2v",
+  "page": "fac",
+  "en": "CALIB",
+  "ar": "معاير"
+ },
+ {
+  "key": "fac.c6.m3k",
+  "page": "fac",
+  "en": "VBT GRID",
+  "ar": "شبكة VBT"
+ },
+ {
+  "key": "fac.c6.m3v",
+  "page": "fac",
+  "en": "SYNC",
+  "ar": "مزامن"
+ },
+ {
+  "key": "fac.c6.cta",
+  "page": "fac",
+  "en": "RESERVE PLATFORM",
+  "ar": "احجز منصة"
+ },
+ {
+  "key": "fac.card.load",
+  "page": "fac",
+  "en": "LIVE LOAD",
+  "ar": "الحمل المباشر"
+ },
+ {
+  "key": "fac.card.openNow",
+  "page": "fac",
+  "en": "OPEN NOW ·",
+  "ar": "مفتوح الآن ·"
+ },
+ {
+  "key": "fac.card.walkin",
+  "page": "fac",
+  "en": "WALK-IN INSTANT",
+  "ar": "دخول فوري"
+ },
+ {
+  "key": "fac.card.nextPre",
+  "page": "fac",
+  "en": "NEXT SLOT",
+  "ar": "الفتحة التالية"
+ },
+ {
+  "key": "fac.card.nextMid",
+  "page": "fac",
+  "en": "· IN",
+  "ar": "· بعد"
+ },
+ {
+  "key": "fac.tel.label",
+  "page": "fac",
+  "en": "SMART GYM SENSOR GRID v4.2",
+  "ar": "شبكة مستشعرات سمارت جيم v4.2"
+ },
+ {
+  "key": "fac.tel.title",
+  "page": "fac",
+  "en": "Automated Access & Environmental Telemetry",
+  "ar": "الدخول الآلي والقياسات البيئية"
+ },
+ {
+  "key": "fac.tel.desc",
+  "page": "fac",
+  "en": "All sectors sync with your biometric member passcode key. Locker allocation, air filtration rates, and target training logs sync in real time.",
+  "ar": "جميع القطاعات تتزامن مع مفتاح العضوية الحيوي الخاص بك. تخصيص الخزائن ومعدلات ترشيح الهواء وسجلات التدريب تتزامن فوريًا."
+ },
+ {
+  "key": "fac.tel.stat1",
+  "page": "fac",
+  "en": "SYNC LATENCY",
+  "ar": "زمن المزامنة"
+ },
+ {
+  "key": "fac.tel.stat2",
+  "page": "fac",
+  "en": "AIR QUALITY",
+  "ar": "جودة الهواء"
+ },
+ {
+  "key": "fac.tel.cta",
+  "page": "fac",
+  "en": "GET BIOMETRIC ACCESS",
+  "ar": "احصل على الدخول الحيوي"
+ },
+ {
+  "key": "fac.tab.home",
+  "page": "fac",
+  "en": "HOME",
+  "ar": "الرئيسية"
+ },
+ {
+  "key": "fac.tab.facilities",
+  "page": "fac",
+  "en": "FACILITIES",
+  "ar": "المرافق"
+ },
+ {
+  "key": "fac.tab.services",
+  "page": "fac",
+  "en": "SERVICES",
+  "ar": "الخدمات"
+ },
+ {
+  "key": "fac.tab.join",
+  "page": "fac",
+  "en": "JOIN NOW",
+  "ar": "انضم الآن"
+ },
+ {
+  "key": "ct.boot",
+  "page": "ct",
+  "en": "CALIBRATING TELEMETRY GRID",
+  "ar": "معايرة شبكة القياس"
+ },
+ {
+  "key": "ct.dot.hero",
+  "page": "ct",
+  "en": "UPLINK",
+  "ar": "الاتصال"
+ },
+ {
+  "key": "ct.dot.grid",
+  "page": "ct",
+  "en": "DISPATCH",
+  "ar": "الإرسال"
+ },
+ {
+  "key": "ct.dot.quick",
+  "page": "ct",
+  "en": "ACTIONS",
+  "ar": "الإجراءات"
+ },
+ {
+  "key": "ct.dot.hubs",
+  "page": "ct",
+  "en": "HUBS",
+  "ar": "المراكز"
+ },
+ {
+  "key": "ct.dot.faq",
+  "page": "ct",
+  "en": "FAQ",
+  "ar": "الأسئلة"
+ },
+ {
+  "key": "ct.dot.cta",
+  "page": "ct",
+  "en": "PASS",
+  "ar": "التصريح"
+ },
+ {
+  "key": "ct.kicker",
+  "page": "ct",
+  "en": "TERMINAL 06 // COMM UPLINK",
+  "ar": "المحطة 06 // وصلة الاتصال"
+ },
+ {
+  "key": "ct.hero.l1",
+  "page": "ct",
+  "en": "COMMAND",
+  "ar": "منشأة"
+ },
+ {
+  "key": "ct.hero.l2",
+  "page": "ct",
+  "en": "FACILITY &",
+  "ar": "القيادة و"
+ },
+ {
+  "key": "ct.hero.l3",
+  "page": "ct",
+  "en": "ATHLETE SUPPORT",
+  "ar": "دعم الرياضيين"
+ },
+ {
+  "key": "ct.hero.lede",
+  "page": "ct",
+  "en": "Have questions about biometric passes, corporate allocations, or Olympic arena schedules? Connect directly with our operations team.",
+  "ar": "هل لديك أسئلة حول التصاريح الحيوية أو التخصيصات المؤسسية أو جداول الساحة الأولمبية؟ تواصل مباشرة مع فريق العمليات."
+ },
+ {
+  "key": "ct.hero.pill1.lab",
+  "page": "ct",
+  "en": "SYSTEM STATUS",
+  "ar": "حالة النظام"
+ },
+ {
+  "key": "ct.hero.pill1.val",
+  "page": "ct",
+  "en": "TELEMETRY ACTIVE",
+  "ar": "القياس نشط"
+ },
+ {
+  "key": "ct.hero.pill2.lab",
+  "page": "ct",
+  "en": "MEDIAN REPLY",
+  "ar": "متوسط الرد"
+ },
+ {
+  "key": "ct.hero.pill2.v1",
+  "page": "ct",
+  "en": "14 MINUTES",
+  "ar": "14 دقيقة"
+ },
+ {
+  "key": "ct.hero.pill2.v2",
+  "page": "ct",
+  "en": "FAST TRACK",
+  "ar": "مسار سريع"
+ },
+ {
+  "key": "ct.hero.scroll",
+  "page": "ct",
+  "en": "SCROLL",
+  "ar": "اسحب"
+ },
+ {
+  "key": "ct.belt.1",
+  "page": "ct",
+  "en": "HQ OPEN 24/7",
+  "ar": "المقر مفتوح 24/7"
+ },
+ {
+  "key": "ct.belt.2",
+  "page": "ct",
+  "en": "DIRECT DISPATCH",
+  "ar": "إرسال مباشر"
+ },
+ {
+  "key": "ct.belt.3",
+  "page": "ct",
+  "en": "14 MIN RESPONSE",
+  "ar": "رد في 14 دقيقة"
+ },
+ {
+  "key": "ct.belt.4",
+  "page": "ct",
+  "en": "DISTRICT 01",
+  "ar": "المنطقة 01"
+ },
+ {
+  "key": "ct.belt.5",
+  "page": "ct",
+  "en": "BIOMETRIC DESK",
+  "ar": "مكتب الحيوية"
+ },
+ {
+  "key": "ct.belt.6",
+  "page": "ct",
+  "en": "SUPPORT",
+  "ar": "الدعم"
+ },
+ {
+  "key": "ct.form.eyebrow",
+  "page": "ct",
+  "en": "TRANSMIT REQUEST",
+  "ar": "إرسال الطلب"
+ },
+ {
+  "key": "ct.form.title",
+  "page": "ct",
+  "en": "DIRECT OPERATIONS INQUIRY",
+  "ar": "استفسار مباشر للعمليات"
+ },
+ {
+  "key": "ct.form.tag",
+  "page": "ct",
+  "en": "PROTOCOL SEC-256",
+  "ar": "بروتوكول SEC-256"
+ },
+ {
+  "key": "ct.f.domain",
+  "page": "ct",
+  "en": "INQUIRY DOMAIN / DEPARTMENT",
+  "ar": "مجال الاستفسار / القسم"
+ },
+ {
+  "key": "ct.f.subtopic",
+  "page": "ct",
+  "en": "SUB-TOPIC",
+  "ar": "الموضوع الفرعي"
+ },
+ {
+  "key": "ct.f.name",
+  "page": "ct",
+  "en": "ATHLETE NAME",
+  "ar": "اسم الرياضي"
+ },
+ {
+  "key": "ct.f.namePh",
+  "page": "ct",
+  "en": "e.g. Marcus Vance",
+  "ar": "مثال: ماركوس فانس"
+ },
+ {
+  "key": "ct.f.phone",
+  "page": "ct",
+  "en": "ATHLETE PHONE",
+  "ar": "هاتف الرياضي"
+ },
+ {
+  "key": "ct.f.optional",
+  "page": "ct",
+  "en": "(Optional)",
+  "ar": "(اختياري)"
+ },
+ {
+  "key": "ct.f.phonePh",
+  "page": "ct",
+  "en": "+1 (555) 019-2831",
+  "ar": "+966 55 019 2831"
+ },
+ {
+  "key": "ct.f.email",
+  "page": "ct",
+  "en": "BIOMETRIC / SYNC EMAIL",
+  "ar": "البريد الحيوي / المزامن"
+ },
+ {
+  "key": "ct.f.emailPh",
+  "page": "ct",
+  "en": "athlete.access@smartgym.internal",
+  "ar": "athlete.access@smartgym.internal"
+ },
+ {
+  "key": "ct.f.msg",
+  "page": "ct",
+  "en": "TELEMETRY LOG / DETAILED INQUIRY",
+  "ar": "سجل القياس / استفسار مفصل"
+ },
+ {
+  "key": "ct.f.msgPh",
+  "page": "ct",
+  "en": "Detail hardware serials, desired arena slots, or corporate biometric requirements...",
+  "ar": "اذكر الأرقام التسلسلية للأجهزة، أو فتحات الساحة المرغوبة، أو متطلبات الحيوية المؤسسية..."
+ },
+ {
+  "key": "ct.f.attachTitle",
+  "page": "ct",
+  "en": "Attach Diagnostics or Roster CSV",
+  "ar": "أرفق التشخيصات أو قائمة CSV"
+ },
+ {
+  "key": "ct.f.attachSub",
+  "page": "ct",
+  "en": "PDF, PNG, LOG, CSV (Up to 25MB)",
+  "ar": "PDF, PNG, LOG, CSV (حتى 25 ميجا)"
+ },
+ {
+  "key": "ct.f.browse",
+  "page": "ct",
+  "en": "BROWSE FILES",
+  "ar": "تصفح الملفات"
+ },
+ {
+  "key": "ct.f.remove",
+  "page": "ct",
+  "en": "REMOVE",
+  "ar": "إزالة"
+ },
+ {
+  "key": "ct.f.slaDefault",
+  "page": "ct",
+  "en": "GUARANTEED RESPONSE: < 2 HOURS",
+  "ar": "رد مضمون: أقل من ساعتين"
+ },
+ {
+  "key": "ct.f.slaUrgent",
+  "page": "ct",
+  "en": "EXPRESS RESPONSE: < 30 MIN",
+  "ar": "رد سريع: أقل من 30 دقيقة"
+ },
+ {
+  "key": "ct.f.priority",
+  "page": "ct",
+  "en": "PRIORITY DISPATCH",
+  "ar": "إرسال بأولوية"
+ },
+ {
+  "key": "ct.f.submit",
+  "page": "ct",
+  "en": "DISPATCH INQUIRY",
+  "ar": "أرسل الاستفسار"
+ },
+ {
+  "key": "ct.f.sent",
+  "page": "ct",
+  "en": "DISPATCHED",
+  "ar": "تم الإرسال"
+ },
+ {
+  "key": "ct.f.sentLog",
+  "page": "ct",
+  "en": "INQUIRY DISPATCHED • HQ TICKET #8942 OPENED",
+  "ar": "تم إرسال الاستفسار • فُتحت تذكرة المقر #8942"
+ },
+ {
+  "key": "ct.cat.membership",
+  "page": "ct",
+  "en": "MEMBERSHIP",
+  "ar": "العضوية"
+ },
+ {
+  "key": "ct.cat.biometrics",
+  "page": "ct",
+  "en": "BIOMETRICS",
+  "ar": "القياسات الحيوية"
+ },
+ {
+  "key": "ct.cat.coach",
+  "page": "ct",
+  "en": "PRIVATE COACH",
+  "ar": "مدرب خاص"
+ },
+ {
+  "key": "ct.cat.billing",
+  "page": "ct",
+  "en": "BILLING & OPS",
+  "ar": "الفواتير والعمليات"
+ },
+ {
+  "key": "ct.sub.m1",
+  "page": "ct",
+  "en": "Tiers & Upgrades",
+  "ar": "الفئات والترقيات"
+ },
+ {
+  "key": "ct.sub.m2",
+  "page": "ct",
+  "en": "Freezes & Travel Holds",
+  "ar": "التجميد والإيقاف للسفر"
+ },
+ {
+  "key": "ct.sub.m3",
+  "page": "ct",
+  "en": "Guest Passes",
+  "ar": "تصاريح الضيوف"
+ },
+ {
+  "key": "ct.sub.m4",
+  "page": "ct",
+  "en": "Corporate Fleet Licensing",
+  "ar": "ترخيص الشركات"
+ },
+ {
+  "key": "ct.sub.b1",
+  "page": "ct",
+  "en": "Sensor Pairing",
+  "ar": "إقران المستشعر"
+ },
+ {
+  "key": "ct.sub.b2",
+  "page": "ct",
+  "en": "Pass / Iris Issues",
+  "ar": "مشاكل التصريح / القزحية"
+ },
+ {
+  "key": "ct.sub.b3",
+  "page": "ct",
+  "en": "Telemetry Data Export",
+  "ar": "تصدير بيانات القياس"
+ },
+ {
+  "key": "ct.sub.b4",
+  "page": "ct",
+  "en": "Hardware Serials",
+  "ar": "الأرقام التسلسلية"
+ },
+ {
+  "key": "ct.sub.c1",
+  "page": "ct",
+  "en": "Private Coaching Match",
+  "ar": "مطابقة التدريب الخاص"
+ },
+ {
+  "key": "ct.sub.c2",
+  "page": "ct",
+  "en": "Program Audit",
+  "ar": "تدقيق البرنامج"
+ },
+ {
+  "key": "ct.sub.c3",
+  "page": "ct",
+  "en": "Small Group Sessions",
+  "ar": "جلسات المجموعات الصغيرة"
+ },
+ {
+  "key": "ct.sub.o1",
+  "page": "ct",
+  "en": "Invoice Query",
+  "ar": "استفسار الفاتورة"
+ },
+ {
+  "key": "ct.sub.o2",
+  "page": "ct",
+  "en": "Payment Methods",
+  "ar": "طرق الدفع"
+ },
+ {
+  "key": "ct.sub.o3",
+  "page": "ct",
+  "en": "Refund Status",
+  "ar": "حالة الاسترداد"
+ },
+ {
+  "key": "ct.sub.o4",
+  "page": "ct",
+  "en": "Arena Slot Billing",
+  "ar": "فواتير فتحات الساحة"
+ },
+ {
+  "key": "ct.rail.node",
+  "page": "ct",
+  "en": "FACILITY NODE // 01",
+  "ar": "عقدة المرافق // 01"
+ },
+ {
+  "key": "ct.rail.open",
+  "page": "ct",
+  "en": "OPEN NOW (04:00 - 24:00)",
+  "ar": "مفتوح الآن (04:00 - 24:00)"
+ },
+ {
+  "key": "ct.rail.title",
+  "page": "ct",
+  "en": "GLOBAL ATHLETICS COMMAND",
+  "ar": "قيادة الرياضيين العالمية"
+ },
+ {
+  "key": "ct.rail.addr",
+  "page": "ct",
+  "en": "Smart Gym HQ // Monolith District 01, Precision Boulevard, Olympic Corridor, Sector Alpha",
+  "ar": "المقر الرئيسي سمارت جيم // مونوليث المنطقة 01، شارع الدقة، ممر الأولمبياد، قطاع ألفا"
+ },
+ {
+  "key": "ct.rail.desk",
+  "page": "ct",
+  "en": "ATHLETE DESK",
+  "ar": "مكتب الرياضيين"
+ },
+ {
+  "key": "ct.rail.wa",
+  "page": "ct",
+  "en": "WHATSAPP",
+  "ar": "واتساب"
+ },
+ {
+  "key": "ct.rail.gps",
+  "page": "ct",
+  "en": "GET GPS",
+  "ar": "الملاحة"
+ },
+ {
+  "key": "ct.rail.cap",
+  "page": "ct",
+  "en": "CURRENT FLOOR CAPACITY",
+  "ar": "سعة الأرضية الحالية"
+ },
+ {
+  "key": "ct.rail.queue",
+  "page": "ct",
+  "en": "DESK QUEUE",
+  "ar": "طابور المكتب"
+ },
+ {
+  "key": "ct.rail.queue0",
+  "page": "ct",
+  "en": "0 Mins",
+  "ar": "0 دقيقة"
+ },
+ {
+  "key": "ct.rail.queue6",
+  "page": "ct",
+  "en": "6 Mins",
+  "ar": "6 دقائق"
+ },
+ {
+  "key": "ct.rail.avg",
+  "page": "ct",
+  "en": "AVG RESPONSE",
+  "ar": "متوسط الرد"
+ },
+ {
+  "key": "ct.rail.avgV",
+  "page": "ct",
+  "en": "14 Mins",
+  "ar": "14 دقيقة"
+ },
+ {
+  "key": "ct.map.label",
+  "page": "ct",
+  "en": "TACTICAL CAMPUS GRID",
+  "ar": "شبكة الحرم التكتيكية"
+ },
+ {
+  "key": "ct.map.tag1",
+  "page": "ct",
+  "en": "GATE 01 BIOMETRIC TURNSTILES",
+  "ar": "بوابة 01 البوابات الحيوية"
+ },
+ {
+  "key": "ct.map.tag2",
+  "page": "ct",
+  "en": "SUBWAY TERMINAL EXT 4",
+  "ar": "محطة المترو 4"
+ },
+ {
+  "key": "ct.map.portal",
+  "page": "ct",
+  "en": "ARENA HQ PORTAL",
+  "ar": "بوابة الساحة الرئيسية"
+ },
+ {
+  "key": "ct.map.foot",
+  "page": "ct",
+  "en": "BIOMETRIC PARKING DECK ACTIVE // LEVEL P1 - P4",
+  "ar": "موقف الحيوية نشط // طوابق P1 - P4"
+ },
+ {
+  "key": "ct.map.expand",
+  "page": "ct",
+  "en": "EXPAND VIEW",
+  "ar": "توسيع العرض"
+ },
+ {
+  "key": "ct.qa.call",
+  "page": "ct",
+  "en": "DIRECT CALL",
+  "ar": "اتصال مباشر"
+ },
+ {
+  "key": "ct.qa.callSub",
+  "page": "ct",
+  "en": "Desk Available",
+  "ar": "المكتب متاح"
+ },
+ {
+  "key": "ct.qa.callMeta",
+  "page": "ct",
+  "en": "PRIORITY",
+  "ar": "أولوية"
+ },
+ {
+  "key": "ct.qa.wa",
+  "page": "ct",
+  "en": "WHATSAPP",
+  "ar": "واتساب"
+ },
+ {
+  "key": "ct.qa.waSub",
+  "page": "ct",
+  "en": "Instant Response",
+  "ar": "رد فوري"
+ },
+ {
+  "key": "ct.qa.waMeta",
+  "page": "ct",
+  "en": "LIVE",
+  "ar": "مباشر"
+ },
+ {
+  "key": "ct.qa.gps",
+  "page": "ct",
+  "en": "GPS ROUTE",
+  "ar": "طريق GPS"
+ },
+ {
+  "key": "ct.qa.gpsSub",
+  "page": "ct",
+  "en": "Monolith HQ",
+  "ar": "مقر مونوليث"
+ },
+ {
+  "key": "ct.qa.gpsMeta",
+  "page": "ct",
+  "en": "DISTRICT 01",
+  "ar": "المنطقة 01"
+ },
+ {
+  "key": "ct.qa.mail",
+  "page": "ct",
+  "en": "HQ INQUIRY",
+  "ar": "استفسار المقر"
+ },
+ {
+  "key": "ct.qa.mailSub",
+  "page": "ct",
+  "en": "Digital Dispatch",
+  "ar": "إرسال رقمي"
+ },
+ {
+  "key": "ct.qa.mailMeta",
+  "page": "ct",
+  "en": "< 1 HR",
+  "ar": "< 1 ساعة"
+ },
+ {
+  "key": "ct.hubs.eyebrow",
+  "page": "ct",
+  "en": "PHYSICAL MONOLITHS",
+  "ar": "الهياكل المادية"
+ },
+ {
+  "key": "ct.hubs.title",
+  "page": "ct",
+  "en": "CAMPUS OPERATIONS & ARENA SUPPORT HUBS",
+  "ar": "عمليات الحرم ومراكز دعم الساحة"
+ },
+ {
+  "key": "ct.hubs.desc",
+  "page": "ct",
+  "en": "Explore direct physical intake centers engineered for rapid access, telemetry calibration, and dedicated athlete concierge services.",
+  "ar": "استكشف مراكز الاستقبال المادية المصممة للوصول السريع ومعايرة القياسات وخدمات الكونسيرج المخصصة للرياضيين."
+ },
+ {
+  "key": "ct.hub.1.n",
+  "page": "ct",
+  "en": "DESK 01",
+  "ar": "مكتب 01"
+ },
+ {
+  "key": "ct.hub.1.t",
+  "page": "ct",
+  "en": "Biometric Intake Desk",
+  "ar": "مكتب الاستقبال الحيوي"
+ },
+ {
+  "key": "ct.hub.1.d",
+  "page": "ct",
+  "en": "Instant NFC band sync, vascular vein mapping registration, and digital key provisioning.",
+  "ar": "مزامنة فورية لشريط NFC، تسجيل خرائط الأوردة الدموية، وتسليم مفتاح رقمي."
+ },
+ {
+  "key": "ct.hub.2.n",
+  "page": "ct",
+  "en": "LAB 02",
+  "ar": "مختبر 02"
+ },
+ {
+  "key": "ct.hub.2.t",
+  "page": "ct",
+  "en": "Diagnostic Calibration Lab",
+  "ar": "مختبر المعايرة التشخيصية"
+ },
+ {
+  "key": "ct.hub.2.d",
+  "page": "ct",
+  "en": "Direct VO2 max analysis, force-plate assessments, and barbell velocity sensor calibration.",
+  "ar": "تحليل مباشر لـ VO2 الأقصى، تقييمات لوح القوة، ومعايرة مستشعر سرعة البار."
+ },
+ {
+  "key": "ct.hub.3.n",
+  "page": "ct",
+  "en": "ZONE 03",
+  "ar": "منطقة 03"
+ },
+ {
+  "key": "ct.hub.3.t",
+  "page": "ct",
+  "en": "Concierge Recovery Quarter",
+  "ar": "حي التعافي بالكونسيرج"
+ },
+ {
+  "key": "ct.hub.3.d",
+  "page": "ct",
+  "en": "Rapid check-in for hyperbaric hyper-oxygenation chambers, cold plunge tubs, and private physiotherapists.",
+  "ar": "تسجيل سريع في غرف الأكسجة الفائقة وأحواض الغمر الباردة وأخصائيي العلاج الطبيعي الخاص."
+ },
+ {
+  "key": "ct.faq.eyebrow",
+  "page": "ct",
+  "en": "SYSTEM INTELLIGENCE BASE",
+  "ar": "قاعدة ذكاء النظام"
+ },
+ {
+  "key": "ct.faq.title",
+  "page": "ct",
+  "en": "FREQUENTLY DISPATCHED PROTOCOLS",
+  "ar": "البروتوكولات المُرسَلة بشكل متكرر"
+ },
+ {
+  "key": "ct.faq.desc",
+  "page": "ct",
+  "en": "Essential guidelines covering biometric identification keys, Olympic equipment telemetry, and trial access rules.",
+  "ar": "إرشادات أساسية تغطي مفاتيح الهوية الحيوية وقياسات المعدات الأولمبية وقواعد الوصول التجريبي."
+ },
+ {
+  "key": "ct.faq.1.q",
+  "page": "ct",
+  "en": "WHAT ARE THE 24/7 BIOMETRIC ENTRY HOURS?",
+  "ar": "ما هي ساعات الدخول الحيوي 24/7؟"
+ },
+ {
+  "key": "ct.faq.1.a",
+  "page": "ct",
+  "en": "Black Tier members possess 24/7 keyless biometric iris and app-based entry into the Monolith Campus. Standard members have floor privileges between 04:00 and 24:00 daily including holidays.",
+  "ar": "أعضاء الفئة السوداء لديهم دخول حيوي بلا مفاتيح عبر قزحية العين وتطبيق الجوال لحرم مونوليث على مدار الساعة. الأعضاء العاديون لديهم صلاحيات الأرضية بين 04:00 و24:00 يوميًا بما في ذلك العطلات."
+ },
+ {
+  "key": "ct.faq.2.q",
+  "page": "ct",
+  "en": "HOW DO I BOOK A PRIVATE RECOVERY LAB SUITE?",
+  "ar": "كيف أحجز جناح التعافي الخاص؟"
+ },
+ {
+  "key": "ct.faq.2.a",
+  "page": "ct",
+  "en": "Cryo-chambers, infrared recovery pods, and cold plunge baths can be scheduled with 15-minute lead times via the app's Services section or directly with the Front Desk Concierge upon entry.",
+  "ar": "يمكن حجز غرف التبريد وكبسولات التعافي بالأشعة تحت الحمراء وأحواض الغمر الباردة بفترة تحضير 15 دقيقة عبر قسم الخدمات في التطبيق أو مباشرة مع كونسيرج الاستقبال عند الدخول."
+ },
+ {
+  "key": "ct.faq.3.q",
+  "page": "ct",
+  "en": "CAN GUESTS ACCESS THE STRENGTH SANCTUARY?",
+  "ar": "هل يمكن للضيوف الوصول إلى معبد الحديد؟"
+ },
+ {
+  "key": "ct.faq.3.a",
+  "page": "ct",
+  "en": "Each active athlete receives 2 VIP Guest Day-Passes per month. All guests must complete telemetry and digital waiver processing at the concierge kiosk before equipment access is authorized.",
+  "ar": "كل رياضي نشط يحصل على تصريحين يوميين لضيوف VIP شهريًا. يجب على جميع الضيوف إكمال معالجة القياسات والتوقيع الرقمي في كشك الكونسيرج قبل تصريح الوصول إلى المعدات."
+ },
+ {
+  "key": "ct.faq.4.q",
+  "page": "ct",
+  "en": "HOW DO BILLING PAUSES & TRAVEL FREEZES WORK?",
+  "ar": "كيف تعمل إيقافات الفواتير وتجميدات السفر؟"
+ },
+ {
+  "key": "ct.faq.4.a",
+  "page": "ct",
+  "en": "Members can pause their active billing cycles for up to 60 calendar days per year through the Athlete Portal or by submitting a ticket under the 'Billing & Ops' category above.",
+  "ar": "يمكن للأعضاء إيقاف دورات الفواتير النشطة لمدة تصل إلى 60 يومًا تقويميًا سنويًا من خلال بوابة الرياضي أو عن طريق تقديم تذكرة تحت فئة \"الفواتير والعمليات\" أعلاه."
+ },
+ {
+  "key": "ct.safety.title",
+  "page": "ct",
+  "en": "STAFF SAFETY DESK",
+  "ar": "مكتب سلامة الطاقم"
+ },
+ {
+  "key": "ct.safety.sub",
+  "page": "ct",
+  "en": "Dedicated on-site first responders",
+  "ar": "مسعفون مخصصون في الموقع"
+ },
+ {
+  "key": "ct.safety.cta",
+  "page": "ct",
+  "en": "URGENT",
+  "ar": "عاجل"
+ },
+ {
+  "key": "ct.cta.eyebrow",
+  "page": "ct",
+  "en": "READY TO ENTER THE ARENA?",
+  "ar": "مستعد لدخول الساحة؟"
+ },
+ {
+  "key": "ct.cta.h2a",
+  "page": "ct",
+  "en": "BOOK YOUR",
+  "ar": "احصل على"
+ },
+ {
+  "key": "ct.cta.h2b",
+  "page": "ct",
+  "en": "7-DAY ACCESS PASS.",
+  "ar": "تصريح وصول 7 أيام."
+ },
+ {
+  "key": "ct.cta.desc",
+  "page": "ct",
+  "en": "Free biometric baseline, full floor access and one coached session. If we're not your gym, you walk away owing nothing.",
+  "ar": "خط أساس حيوي مجاني، دخول كامل للأرضية، وجلسة تدريب واحدة. إذا لم نكن ناديك، تغادر دون أي التزام."
+ },
+ {
+  "key": "ct.cta.btn",
+  "page": "ct",
+  "en": "START FREE WEEK",
+  "ar": "ابدأ أسبوعًا مجانيًا"
+ },
+ {
+  "key": "ct.cta.ghost",
+  "page": "ct",
+  "en": "CONTACT",
+  "ar": "تواصل"
+ },
+ {
+  "key": "ct.tab.home",
+  "page": "ct",
+  "en": "HOME",
+  "ar": "الرئيسية"
+ },
+ {
+  "key": "ct.tab.facilities",
+  "page": "ct",
+  "en": "FACILITIES",
+  "ar": "المرافق"
+ },
+ {
+  "key": "ct.tab.services",
+  "page": "ct",
+  "en": "SERVICES",
+  "ar": "الخدمات"
+ },
+ {
+  "key": "ct.tab.join",
+  "page": "ct",
+  "en": "JOIN NOW",
+  "ar": "انضم الآن"
+ },
+ {
+  "key": "en.photo.title",
+  "page": "en",
+  "en": "PROFILE PHOTO",
+  "ar": "صورة الملف الشخصي"
+ },
+ {
+  "key": "en.photo.hint",
+  "page": "en",
+  "en": "Optional — used for gym entry verification",
+  "ar": "اختياري — تُستخدم للتحقق عند دخول النادي"
+ },
+ {
+  "key": "en.photo.upload",
+  "page": "en",
+  "en": "UPLOAD PHOTO",
+  "ar": "ارفع صورة"
+ },
+ {
+  "key": "en.photo.change",
+  "page": "en",
+  "en": "CHANGE PHOTO",
+  "ar": "تغيير الصورة"
+ },
+ {
+  "key": "en.photo.errorType",
+  "page": "en",
+  "en": "Photo must be an image file.",
+  "ar": "يجب أن تكون الصورة ملف صورة."
+ },
+ {
+  "key": "en.photo.errorSize",
+  "page": "en",
+  "en": "Photo must be under 5 MB.",
+  "ar": "يجب أن تكون الصورة أقل من 5 ميجا."
+ },
+ {
+  "key": "en.field.iqama",
+  "page": "en",
+  "en": "IQAMA NUMBER",
+  "ar": "رقم الإقامة"
+ },
+ {
+  "key": "en.field.age",
+  "page": "en",
+  "en": "AGE",
+  "ar": "العمر"
+ },
+ {
+  "key": "en.field.gender",
+  "page": "en",
+  "en": "GENDER",
+  "ar": "الجنس"
+ },
+ {
+  "key": "en.field.address",
+  "page": "en",
+  "en": "ADDRESS",
+  "ar": "العنوان"
+ },
+ {
+  "key": "en.field.password",
+  "page": "en",
+  "en": "PASSWORD",
+  "ar": "كلمة المرور"
+ },
+ {
+  "key": "en.field.password2",
+  "page": "en",
+  "en": "CONFIRM PASSWORD",
+  "ar": "تأكيد كلمة المرور"
+ },
+ {
+  "key": "en.field.duration",
+  "page": "en",
+  "en": "DURATION (months)",
+  "ar": "المدة (بالأشهر)"
+ },
+ {
+  "key": "en.field.months",
+  "page": "en",
+  "en": "MO",
+  "ar": "شهر"
+ },
+ {
+  "key": "en.err.iqama",
+  "page": "en",
+  "en": "ENTER IQAMA #",
+  "ar": "أدخل رقم الإقامة"
+ },
+ {
+  "key": "en.err.age",
+  "page": "en",
+  "en": "VALID AGE (12–100)",
+  "ar": "عمر صالح (12–100)"
+ },
+ {
+  "key": "en.err.password",
+  "page": "en",
+  "en": "MIN 8 CHARACTERS",
+  "ar": "8 أحرف على الأقل"
+ },
+ {
+  "key": "en.err.password2",
+  "page": "en",
+  "en": "PASSWORDS DO NOT MATCH",
+  "ar": "كلمتا المرور غير متطابقتين"
+ },
+ {
+  "key": "en.err.api",
+  "page": "en",
+  "en": "SUBMISSION FAILED — TRY AGAIN",
+  "ar": "فشل الإرسال — حاول مرة أخرى"
+ },
+ {
+  "key": "en.ok.pendingTitle",
+  "page": "en",
+  "en": "REGISTRATION RECEIVED",
+  "ar": "تم استلام التسجيل"
+ },
+ {
+  "key": "en.ok.pendingSub",
+  "page": "en",
+  "en": "Your request is pending admin approval. You'll receive an email once it's activated.",
+  "ar": "طلبك قيد موافقة الإدارة. ستصلك رسالة بريد عند التفعيل."
+ },
+ {
+  "key": "en.ok.statusPending",
+  "page": "en",
+  "en": "PENDING",
+  "ar": "قيد المراجعة"
+ },
+ {
+  "key": "en.ok.statusPaid",
+  "page": "en",
+  "en": "PAID",
+  "ar": "مدفوع"
+ },
+ {
+  "key": "en.ok.backHome",
+  "page": "en",
+  "en": "BACK TO HOME",
+  "ar": "العودة للرئيسية"
+ },
+ {
+  "key": "en.ok.confirmSent",
+  "page": "en",
+  "en": "Confirmation sent to",
+  "ar": "تم إرسال تأكيد إلى"
+ },
+ {
+  "key": "en.ok.iqamaNote",
+  "page": "en",
+  "en": "Keep your Iqama number safe — you will use it at gym entry.",
+  "ar": "احتفظ برقم الإقامة — ستستخدمه عند دخول النادي."
+ },
+ {
+  "key": "en.ok.reference",
+  "page": "en",
+  "en": "Reference",
+  "ar": "المرجع"
+ },
+ {
+  "key": "en.plan.loading",
+  "page": "en",
+  "en": "Loading plans…",
+  "ar": "جارٍ تحميل الخطط…"
+ },
+ {
+  "key": "en.plan.loadError",
+  "page": "en",
+  "en": "Could not load plans from server.",
+  "ar": "تعذّر تحميل الخطط من الخادم."
+ },
+ {
+  "key": "en.plan.noFeatures",
+  "page": "en",
+  "en": "No features listed.",
+  "ar": "لا مزايا مدرجة."
+ }
+]

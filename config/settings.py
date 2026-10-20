@@ -57,6 +57,7 @@ INSTALLED_APPS = [
     'apps.attendance',
     'apps.dashboard',
     'apps.public_api',
+    'apps.site_content',
 ]
 
 MIDDLEWARE = [
@@ -231,6 +232,10 @@ REST_FRAMEWORK = {
     ),
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 20,
+    # Only views that opt in are throttled (e.g. the public contact form).
+    'DEFAULT_THROTTLE_RATES': {
+        'contact': config('CONTACT_THROTTLE_RATE', default='5/hour'),
+    },
     'DEFAULT_RENDERER_CLASSES': (
         'rest_framework.renderers.JSONRenderer',
     ),
@@ -283,6 +288,8 @@ CORS_ALLOW_HEADERS = [
 # CUSTOM SETTINGS
 # ============================================
 FRONTEND_URL = config('FRONTEND_URL', default='http://localhost:5173')
+# Where new public contact-form messages are emailed (optional; they're always in the admin inbox).
+CONTACT_NOTIFY_EMAIL = config('CONTACT_NOTIFY_EMAIL', default='')
 
 
 # ============================================

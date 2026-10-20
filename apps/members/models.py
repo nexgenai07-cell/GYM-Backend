@@ -12,18 +12,17 @@ import uuid
 # ============================================================
 class MembershipPlan(models.Model):
     """Available membership tiers. Edited by admin, displayed on public site."""
-    TIER_CHOICES = [
-        ('basic', 'Basic'),
-        ('pro', 'Pro'),
-        ('black', 'Black Elite'),
-    ]
-
-    name = models.CharField(max_length=50, choices=TIER_CHOICES, unique=True)
+    # Short unique code ("basic", "pro", "black" were the originals; admins can add more).
+    name = models.CharField(max_length=50, unique=True)
     display_name = models.CharField(max_length=100)
     description = models.TextField(blank=True)
     price_monthly = models.DecimalField(max_digits=8, decimal_places=2)
     price_annual = models.DecimalField(max_digits=8, decimal_places=2)
     features = models.JSONField(default=list, blank=True)
+    # Arabic copy for the public site (db defaults so pre-deploy code can still insert plans).
+    display_name_ar = models.CharField(max_length=100, blank=True, db_default='')
+    description_ar = models.TextField(blank=True, db_default='')
+    features_ar = models.JSONField(default=list, blank=True, null=True)
     # Max length of one gym visit; empty = unlimited.
     session_limit_minutes = models.PositiveIntegerField(
         null=True, blank=True, help_text='Max minutes per visit. Leave empty for unlimited.',

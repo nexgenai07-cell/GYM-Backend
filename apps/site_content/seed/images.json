@@ -98,48 +98,6 @@
   "default_url": "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=1920&q=80"
  },
  {
-  "key": "fac.pool",
-  "page": "fac",
-  "const": "IMG",
-  "prop": "pool",
-  "default_url": "https://images.unsplash.com/photo-1530549387789-4c1017266635?auto=format&fit=crop&w=1400&q=80"
- },
- {
-  "key": "fac.basketball",
-  "page": "fac",
-  "const": "IMG",
-  "prop": "basketball",
-  "default_url": "https://images.unsplash.com/photo-1546519638-68e109498ffc?auto=format&fit=crop&w=1400&q=80"
- },
- {
-  "key": "fac.combat",
-  "page": "fac",
-  "const": "IMG",
-  "prop": "combat",
-  "default_url": "https://images.unsplash.com/photo-1549476464-37392f717541?auto=format&fit=crop&w=1400&q=80"
- },
- {
-  "key": "fac.recovery",
-  "page": "fac",
-  "const": "IMG",
-  "prop": "recovery",
-  "default_url": "https://images.unsplash.com/photo-1571902943202-507ec2618e8f?auto=format&fit=crop&w=1400&q=80"
- },
- {
-  "key": "fac.volleyball",
-  "page": "fac",
-  "const": "IMG",
-  "prop": "volleyball",
-  "default_url": "https://images.unsplash.com/photo-1612872087720-bb876e2e67d1?auto=format&fit=crop&w=1400&q=80"
- },
- {
-  "key": "fac.strength",
-  "page": "fac",
-  "const": "IMG",
-  "prop": "strength",
-  "default_url": "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=1400&q=80"
- },
- {
   "key": "svc.heroBg",
   "page": "svc",
   "const": "IMG",
@@ -194,41 +152,6 @@
   "const": "IMG",
   "prop": "featured",
   "default_url": "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=1600&q=80"
- },
- {
-  "key": "ins.vo2",
-  "page": "ins",
-  "const": "IMG",
-  "prop": "vo2",
-  "default_url": "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?auto=format&fit=crop&w=900&q=80"
- },
- {
-  "key": "ins.nutrition",
-  "page": "ins",
-  "const": "IMG",
-  "prop": "nutrition",
-  "default_url": "https://images.unsplash.com/photo-1490645935967-10de6ba17061?auto=format&fit=crop&w=900&q=80"
- },
- {
-  "key": "ins.cryo",
-  "page": "ins",
-  "const": "IMG",
-  "prop": "cryo",
-  "default_url": "https://images.unsplash.com/photo-1571902943202-507ec2618e8f?auto=format&fit=crop&w=900&q=80"
- },
- {
-  "key": "ins.grip",
-  "page": "ins",
-  "const": "IMG",
-  "prop": "grip",
-  "default_url": "https://images.unsplash.com/photo-1526506118085-60ce8714f8c5?auto=format&fit=crop&w=900&q=80"
- },
- {
-  "key": "ins.squat",
-  "page": "ins",
-  "const": "IMG",
-  "prop": "squat",
-  "default_url": "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=900&q=80"
  },
  {
   "key": "ct.heroBg",

@@ -4,7 +4,9 @@ from django.conf import settings
 from django.core.mail import send_mail
 from django.db import transaction
 from django.db.models import Count, F, Max, Q
+from django.http import Http404
 from django.shortcuts import get_object_or_404
+from django.utils.text import slugify
 from rest_framework import status
 from rest_framework.decorators import api_view, parser_classes, permission_classes, throttle_classes
 from rest_framework.parsers import FormParser, JSONParser, MultiPartParser
@@ -13,11 +15,13 @@ from rest_framework.response import Response
 from rest_framework.throttling import SimpleRateThrottle
 
 from apps.admin_api.permissions import IsAdminUser
+from apps.members.models import MembershipPlan
 
-from .models import PAGES, ContactMessage, SiteImage, SiteText
+from .collections import COLLECTIONS, CollectionError, clean_data, make_slug, schema_for
+from .models import PAGES, ContactMessage, SiteImage, SiteItem, SiteText
 from .serializers import (
-    ContactCreateSerializer, ContactMessageSerializer, SiteImageSerializer,
-    SiteImageUploadSerializer, SiteTextSerializer,
+    AdminPlanSerializer, ContactCreateSerializer, ContactMessageSerializer, SiteImageSerializer,
+    SiteImageUploadSerializer, SiteItemSerializer, SiteTextSerializer, public_item,
 )
 
 logger = logging.getLogger(__name__)
@@ -216,6 +220,195 @@ def _delete_file(storage, name):
         storage.delete(name)
     except Exception:
         logger.exception('Could not delete replaced site image %s', name)
+
+
+# ============================================================
+# COLLECTIONS (admin-managed lists: facilities, articles, …)
+# ============================================================
+def _collection_or_404(name):
+    schema = schema_for(name)
+    if schema is None:
+        raise Http404('Unknown collection.')
+    return schema
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def public_collection(request, name):
+    """GET /api/public/collections/<name>/ — active items in display order (no article bodies)."""
+    schema = _collection_or_404(name)
+    listed = [fd['name'] for fd in schema['fields'] if fd['name'] != 'body']
+    items = SiteItem.objects.filter(collection=name, is_active=True)
+    response = Response([public_item(i, include=listed) for i in items])
+    response['Cache-Control'] = 'public, max-age=60, stale-while-revalidate=300'
+    return response
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def public_collection_item(request, name, slug):
+    """GET /api/public/collections/<name>/<slug>/ — one active item, full data (article page)."""
+    _collection_or_404(name)
+    item = get_object_or_404(SiteItem, collection=name, slug=slug, is_active=True)
+    response = Response(public_item(item))
+    response['Cache-Control'] = 'public, max-age=60, stale-while-revalidate=300'
+    return response
+
+
+@api_view(['GET'])
+@permission_classes([IsAdminUser])
+def admin_collections(request):
+    """GET /api/admin/site-content/collections/ — schemas (for building forms) + item counts."""
+    counts = dict(SiteItem.objects.values_list('collection').annotate(n=Count('id')))
+    return Response([{'name': name, **schema, 'count': counts.get(name, 0)} for name, schema in COLLECTIONS.items()])
+
+
+@api_view(['GET', 'POST'])
+@permission_classes([IsAdminUser])
+def admin_collection_items(request, name):
+    """
+    GET  /api/admin/site-content/collections/<name>/items/ — all items, incl. hidden
+    POST /api/admin/site-content/collections/<name>/items/  {data, is_active?} — create (added last)
+    """
+    schema = _collection_or_404(name)
+    if request.method == 'GET':
+        items = SiteItem.objects.filter(collection=name).select_related('updated_by')
+        return Response(SiteItemSerializer(items, many=True).data)
+    try:
+        data = clean_data(name, request.data.get('data', {}))
+    except CollectionError as exc:
+        return Response({'data': exc.errors}, status=status.HTTP_400_BAD_REQUEST)
+    last = SiteItem.objects.filter(collection=name).aggregate(m=Max('order'))['m'] or 0
+    item = SiteItem(collection=name, data=data, order=last + 1, updated_by=request.user,
+                    is_active=_as_bool(request.data.get('is_active', True)))
+    if schema['has_slug']:
+        item.slug = make_slug(SiteItem, name, data)
+    item.save()
+    return Response(SiteItemSerializer(item).data, status=status.HTTP_201_CREATED)
+
+
+@api_view(['PATCH', 'DELETE'])
+@permission_classes([IsAdminUser])
+def admin_collection_item(request, name, pk):
+    """
+    PATCH  …/collections/<name>/items/<id>/  {data? (only the fields sent), is_active?, slug?}
+    DELETE …/collections/<name>/items/<id>/  (also deletes its uploaded image)
+    """
+    schema = _collection_or_404(name)
+    item = get_object_or_404(SiteItem, collection=name, pk=pk)
+    if request.method == 'DELETE':
+        storage, file_name = (item.image.storage, item.image.name) if item.image else (None, None)
+        item.delete()
+        if file_name:
+            _delete_file(storage, file_name)
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    if 'data' in request.data:
+        try:
+            item.data = clean_data(name, request.data['data'], partial=True, existing=item.data)
+        except CollectionError as exc:
+            return Response({'data': exc.errors}, status=status.HTTP_400_BAD_REQUEST)
+    if 'is_active' in request.data:
+        item.is_active = _as_bool(request.data['is_active'])
+    if 'slug' in request.data and schema['has_slug']:
+        slug = slugify(str(request.data['slug']))[:100]
+        if not slug:
+            return Response({'slug': 'Use letters, numbers and dashes.'}, status=status.HTTP_400_BAD_REQUEST)
+        if SiteItem.objects.filter(collection=name, slug=slug).exclude(pk=item.pk).exists():
+            return Response({'slug': 'Already used by another item.'}, status=status.HTTP_400_BAD_REQUEST)
+        item.slug = slug
+    item.updated_by = request.user
+    item.save()
+    return Response(SiteItemSerializer(item).data)
+
+
+@api_view(['POST'])
+@permission_classes([IsAdminUser])
+@parser_classes([MultiPartParser, FormParser])
+def admin_collection_item_image(request, name, pk):
+    """POST …/collections/<name>/items/<id>/image/  multipart {image} — upload/replace."""
+    schema = _collection_or_404(name)
+    if not schema['has_image']:
+        raise Http404('This collection has no images.')
+    item = get_object_or_404(SiteItem, collection=name, pk=pk)
+    ser = SiteImageUploadSerializer(data=request.data)
+    ser.is_valid(raise_exception=True)
+    if 'image' not in ser.validated_data:
+        return Response({'image': ['Choose an image to upload.']}, status=status.HTTP_400_BAD_REQUEST)
+    old = item.image.name if item.image else None
+    item.image = ser.validated_data['image']
+    item.updated_by = request.user
+    item.save()
+    if old and old != item.image.name:
+        _delete_file(item.image.storage, old)
+    return Response(SiteItemSerializer(item).data)
+
+
+@api_view(['POST'])
+@permission_classes([IsAdminUser])
+def admin_collection_item_image_reset(request, name, pk):
+    """POST …/collections/<name>/items/<id>/image/reset/ — back to the seeded image (or none)."""
+    _collection_or_404(name)
+    item = get_object_or_404(SiteItem, collection=name, pk=pk)
+    if item.image:
+        storage, file_name = item.image.storage, item.image.name
+        item.image = None
+        item.updated_by = request.user
+        item.save()
+        _delete_file(storage, file_name)
+    return Response(SiteItemSerializer(item).data)
+
+
+@api_view(['POST'])
+@permission_classes([IsAdminUser])
+def admin_collection_reorder(request, name):
+    """POST …/collections/<name>/reorder/  {ids: [3, 1, 2, …]} — every item id, in the new order."""
+    _collection_or_404(name)
+    ids = request.data.get('ids')
+    existing = set(SiteItem.objects.filter(collection=name).values_list('id', flat=True))
+    if not isinstance(ids, list) or set(ids) != existing or len(ids) != len(existing):
+        return Response({'ids': 'Send every item id of this collection exactly once.'},
+                        status=status.HTTP_400_BAD_REQUEST)
+    with transaction.atomic():
+        for position, pk in enumerate(ids, 1):
+            SiteItem.objects.filter(pk=pk).update(order=position)
+    items = SiteItem.objects.filter(collection=name)
+    return Response(SiteItemSerializer(items, many=True).data)
+
+
+def _as_bool(value):
+    return value if isinstance(value, bool) else str(value).lower() in ('1', 'true', 'yes', 'on')
+
+
+# ============================================================
+# ADMIN — membership plans (shown on the public site + signup)
+# ============================================================
+@api_view(['GET', 'POST'])
+@permission_classes([IsAdminUser])
+def admin_plans(request):
+    """GET all plans (incl. inactive) · POST create — /api/admin/site-content/plans/"""
+    if request.method == 'GET':
+        plans = MembershipPlan.objects.all().order_by('price_monthly')
+        return Response(AdminPlanSerializer(plans, many=True).data)
+    ser = AdminPlanSerializer(data=request.data)
+    ser.is_valid(raise_exception=True)
+    ser.save()
+    return Response(ser.data, status=status.HTTP_201_CREATED)
+
+
+@api_view(['PATCH'])
+@permission_classes([IsAdminUser])
+def admin_plan(request, pk):
+    """
+    PATCH /api/admin/site-content/plans/<id>/
+    No delete: signups and memberships point at plans; set is_active=false to
+    take a plan off the site instead. Price changes apply to new signups only.
+    """
+    plan = get_object_or_404(MembershipPlan, pk=pk)
+    ser = AdminPlanSerializer(plan, data=request.data, partial=True)
+    ser.is_valid(raise_exception=True)
+    ser.save()
+    return Response(ser.data)
 
 
 # ============================================================

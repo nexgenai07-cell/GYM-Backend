@@ -57,3 +57,25 @@ def seed(SiteText, SiteImage):
             obj.save(update_fields=['default_url'])
             stats['images_refreshed'] += 1
     return stats
+
+
+def seed_collections(SiteItem, only_empty=True):
+    """
+    Create the shipped facilities/articles from seed/collections.json. By default
+    only for collections that have no items yet, so deleted items don't come back.
+    """
+    from .collections import make_slug, schema_for
+
+    rows = json.loads((SEED_DIR / 'collections.json').read_text(encoding='utf-8'))
+    created = 0
+    for name in {r['collection'] for r in rows}:
+        if only_empty and SiteItem.objects.filter(collection=name).exists():
+            continue
+        for row in (r for r in rows if r['collection'] == name):
+            item = SiteItem(collection=name, order=row['order'], data=row['data'],
+                            default_image_url=row.get('default_image_url', ''))
+            if schema_for(name)['has_slug']:
+                item.slug = make_slug(SiteItem, name, row['data'])
+            item.save()
+            created += 1
+    return created

@@ -1,0 +1,445 @@
+[
+ {
+  "collection": "facilities",
+  "order": 1,
+  "data": {
+   "title": {
+    "en": "Olympic Swimming Pool",
+    "ar": "مسبح أولمبي"
+   },
+   "category": "aquatics",
+   "sector": {
+    "en": "Sector 01",
+    "ar": "قطاع 01"
+   },
+   "location": {
+    "en": "50M Hydro Arena",
+    "ar": "حوض 50م المائي"
+   },
+   "tag": {
+    "en": "HYDRO-PERFORMANCE",
+    "ar": "أداء مائي"
+   },
+   "status": {
+    "en": "OPEN",
+    "ar": "مفتوح"
+   },
+   "status_tone": "ok",
+   "description": {
+    "en": "Precision 8-lane racing reservoir with automated lap telemetry cameras, ozone purification, and anti-turbulence lane dividers.",
+    "ar": "حوض سباق دقيق بثمانية مسارات مع كاميرات قياس تلقائية لللفات وتنقية بالأوزون وفواصل مسارات مضادة للاضطراب."
+   },
+   "stat1_label": {
+    "en": "LANES",
+    "ar": "المسارات"
+   },
+   "stat1_value": "6/8",
+   "stat2_label": {
+    "en": "TEMP",
+    "ar": "الحرارة"
+   },
+   "stat2_value": "26°C",
+   "stat3_label": {
+    "en": "PURITY",
+    "ar": "النقاء"
+   },
+   "stat3_value": "99.8%"
+  },
+  "default_image_url": "https://images.unsplash.com/photo-1530549387789-4c1017266635?auto=format&fit=crop&w=1400&q=80"
+ },
+ {
+  "collection": "facilities",
+  "order": 2,
+  "data": {
+   "title": {
+    "en": "Pro Basketball Court",
+    "ar": "ملعب كرة سلة احترافي"
+   },
+   "category": "courts",
+   "sector": {
+    "en": "Sector 02",
+    "ar": "قطاع 02"
+   },
+   "location": {
+    "en": "FIBA Hardwood",
+    "ar": "أرضية FIBA"
+   },
+   "tag": {
+    "en": "HARDCOURT AGILITY",
+    "ar": "رشاقة الأرضية"
+   },
+   "status": {
+    "en": "DROP-IN ACTIVE",
+    "ar": "نشاط حر نشط"
+   },
+   "status_tone": "busy",
+   "description": {
+    "en": "Northern hard maple cushioned flooring with 4K ceiling trajectory cameras, automated shot-tracking analytics, and NBA breakaway rims.",
+    "ar": "أرضية صلبة من القيقب الشمالي مع كاميرات مسار 4K بالسقف وتحليلات تتبع التسديد التلقائية وحلقات NBA."
+   },
+   "stat1_label": {
+    "en": "ACTIVE",
+    "ar": "نشط"
+   },
+   "stat1_value": "14/20",
+   "stat2_label": {
+    "en": "SENSORS",
+    "ar": "الحساسات"
+   },
+   "stat2_value": "12 CAM",
+   "stat3_label": {
+    "en": "NEXT SLOT",
+    "ar": "الفتحة التالية"
+   },
+   "stat3_value": "18:00"
+  },
+  "default_image_url": "https://images.unsplash.com/photo-1546519638-68e109498ffc?auto=format&fit=crop&w=1400&q=80"
+ },
+ {
+  "collection": "facilities",
+  "order": 3,
+  "data": {
+   "title": {
+    "en": "Combat & Boxing Pit",
+    "ar": "حفرة القتال والملاكمة"
+   },
+   "category": "combat",
+   "sector": {
+    "en": "Sector 03",
+    "ar": "قطاع 03"
+   },
+   "location": {
+    "en": "The Pit",
+    "ar": "الحفرة"
+   },
+   "tag": {
+    "en": "FIGHT CONDITIONING",
+    "ar": "تكييف قتالي"
+   },
+   "status": {
+    "en": "SPARRING OPEN",
+    "ar": "السبرنغ مفتوح"
+   },
+   "status_tone": "busy",
+   "description": {
+    "en": "Full regulation competition Octagon cage, 16 force-sensor heavy bags, speed bag clusters, and tatami grappling mats for MMA conditioning.",
+    "ar": "قفص أوكتاغون تنظيمي كامل، 16 كيسًا ثقيلًا بحساسات قوة، مجموعات أكياس سرعة، وحصائر تاتامي لتدريب MMA."
+   },
+   "stat1_label": {
+    "en": "BAGS",
+    "ar": "الأكياس"
+   },
+   "stat1_value": "11/16",
+   "stat2_label": {
+    "en": "CAGE",
+    "ar": "القفص"
+   },
+   "stat2_value": "ACTIVE",
+   "stat3_label": {
+    "en": "COACH",
+    "ar": "المدرب"
+   },
+   "stat3_value": "ON-SITE"
+  },
+  "default_image_url": "https://images.unsplash.com/photo-1549476464-37392f717541?auto=format&fit=crop&w=1400&q=80"
+ },
+ {
+  "collection": "facilities",
+  "order": 4,
+  "data": {
+   "title": {
+    "en": "Steam & Cryo Recovery",
+    "ar": "بخار وتبريد للتعافي"
+   },
+   "category": "recovery",
+   "sector": {
+    "en": "Sector 04",
+    "ar": "قطاع 04"
+   },
+   "location": {
+    "en": "Bio-Recovery Pods",
+    "ar": "كبسولات التعافي الحيوي"
+   },
+   "tag": {
+    "en": "BIOMETRIC THERMAL",
+    "ar": "حراري حيوي"
+   },
+   "status": {
+    "en": "AVAILABLE",
+    "ar": "متاح"
+   },
+   "status_tone": "ok",
+   "description": {
+    "en": "Eucalyptus vapor thermal suites, −110°C full-body electric cryotherapy chambers, contrast baths, and pneumatic compression lounges.",
+    "ar": "أجنحة بخار الكافور وغرف تبريد كهربائية −110°م للجسم بأكمله وأحواض تباين وصالات ضغط هوائي."
+   },
+   "stat1_label": {
+    "en": "STEAM",
+    "ar": "البخار"
+   },
+   "stat1_value": "45°C",
+   "stat2_label": {
+    "en": "CRYO",
+    "ar": "التبريد"
+   },
+   "stat2_value": "-110°C",
+   "stat3_label": {
+    "en": "PLUNGE",
+    "ar": "الحوض"
+   },
+   "stat3_value": "4°C"
+  },
+  "default_image_url": "https://images.unsplash.com/photo-1571902943202-507ec2618e8f?auto=format&fit=crop&w=1400&q=80"
+ },
+ {
+  "collection": "facilities",
+  "order": 5,
+  "data": {
+   "title": {
+    "en": "Volleyball Arena",
+    "ar": "ساحة الكرة الطائرة"
+   },
+   "category": "courts",
+   "sector": {
+    "en": "Sector 05",
+    "ar": "قطاع 05"
+   },
+   "location": {
+    "en": "Pro Court",
+    "ar": "الملعب الاحترافي"
+   },
+   "tag": {
+    "en": "LEAGUE PLAY",
+    "ar": "دوري"
+   },
+   "status": {
+    "en": "LEAGUE PLAY",
+    "ar": "دوري"
+   },
+   "status_tone": "ok",
+   "description": {
+    "en": "Impact-dissipating synthetic sports flooring with quick-tension carbon posts, anti-glare overhead diffuse LED arrays, and jump force sensors.",
+    "ar": "أرضية رياضية صناعية ماصّة للصدمات مع أعمدة كربون سريعة الشد ومصفوفات LED منتشرة مضادة للوهج وحساسات قوة القفز."
+   },
+   "stat1_label": {
+    "en": "MATCH",
+    "ar": "المباراة"
+   },
+   "stat1_value": "SET 2",
+   "stat2_label": {
+    "en": "FLOOR",
+    "ar": "الأرضية"
+   },
+   "stat2_value": "SYNTH",
+   "stat3_label": {
+    "en": "OPEN AT",
+    "ar": "تفتح عند"
+   },
+   "stat3_value": "19:30"
+  },
+  "default_image_url": "https://images.unsplash.com/photo-1612872087720-bb876e2e67d1?auto=format&fit=crop&w=1400&q=80"
+ },
+ {
+  "collection": "facilities",
+  "order": 6,
+  "data": {
+   "title": {
+    "en": "Heavy Iron Arena",
+    "ar": "ساحة الحديد الثقيل"
+   },
+   "category": "strength",
+   "sector": {
+    "en": "Sector 06",
+    "ar": "قطاع 06"
+   },
+   "location": {
+    "en": "Iron Sanctuary",
+    "ar": "معبد الحديد"
+   },
+   "tag": {
+    "en": "HEAVY LOAD",
+    "ar": "حمل ثقيل"
+   },
+   "status": {
+    "en": "OPEN ACCESS",
+    "ar": "دخول مفتوح"
+   },
+   "status_tone": "ok",
+   "description": {
+    "en": "18 competition power cages, Eleiko calibrated steel bumpers, acoustic deadlift drop zones, and automated velocity-based training sensors.",
+    "ar": "18 قفص قوة تنافسي، أقراص فولاذية معايرة Eleiko، مناطق إسقاط ديدليفت صوتية، وحساسات تدريب تلقائية قائمة على السرعة."
+   },
+   "stat1_label": {
+    "en": "RACKS",
+    "ar": "الرفوف"
+   },
+   "stat1_value": "15/18",
+   "stat2_label": {
+    "en": "MAX LOAD",
+    "ar": "أقصى حمل"
+   },
+   "stat2_value": "CALIB",
+   "stat3_label": {
+    "en": "VBT GRID",
+    "ar": "شبكة VBT"
+   },
+   "stat3_value": "SYNC"
+  },
+  "default_image_url": "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=1400&q=80"
+ },
+ {
+  "collection": "articles",
+  "order": 1,
+  "data": {
+   "title": {
+    "en": "Zone 2 vs. Anaerobic Thresholds: Decoding VO2 Max for Hypertrophy Lifters",
+    "ar": "المنطقة 2 مقابل العتبات اللاهوائية: فك شيفرة VO2 الأقصى لرفعي التضخم"
+   },
+   "category": "biometrics",
+   "tag": {
+    "en": "BIOMETRICS // ZONES",
+    "ar": "القياسات الحيوية // المناطق"
+   },
+   "published": "2026-10-24",
+   "read_minutes": 6,
+   "excerpt": {
+    "en": "How low-intensity mitochondrial biogenesis enhances inter-set clearance of metabolic byproducts without blunting the hypertrophic signaling pathways of resistance training.",
+    "ar": "كيف يعزز تكوّن المتقدرات منخفض الشدة تصفية نواتج الأيض بين المجموعات دون إضعاف مسارات الإشارة التضخمية في تدريب المقاومة."
+   },
+   "body": {
+    "en": "",
+    "ar": ""
+   },
+   "author": "Dr. M. Kovacs",
+   "author_line": {
+    "en": "METABOLIC LAB",
+    "ar": "مختبر الأيض"
+   }
+  },
+  "default_image_url": "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?auto=format&fit=crop&w=900&q=80"
+ },
+ {
+  "collection": "articles",
+  "order": 2,
+  "data": {
+   "title": {
+    "en": "Targeted Glycogen Depletion: Nutrition Timing for Twice-Daily Training Sessions",
+    "ar": "استنفاد الجليكوجين المستهدف: توقيت التغذية لجلسات التدريب مرتين يوميًا"
+   },
+   "category": "nutrition",
+   "tag": {
+    "en": "NUTRITION & MACROS",
+    "ar": "التغذية والماكروز"
+   },
+   "published": "2026-10-21",
+   "read_minutes": 5,
+   "excerpt": {
+    "en": "Calculating intra-workout high molecular-weight cyclic dextrin dosages to ensure maximal glycogen re-synthesis within a restricted 4-hour window between high-strain blocks.",
+    "ar": "حساب جرعات الدكسترين الحلقي عالي الوزن الجزيئي أثناء التمرين لضمان أقصى إعادة تخليق للجليكوجين خلال نافذة 4 ساعات بين كتل الإجهاد العالي."
+   },
+   "body": {
+    "en": "",
+    "ar": ""
+   },
+   "author": "Sarah Lin, RD",
+   "author_line": {
+    "en": "BIOCHEMICAL CELL",
+    "ar": "خلية كيميائية حيوية"
+   }
+  },
+  "default_image_url": "https://images.unsplash.com/photo-1490645935967-10de6ba17061?auto=format&fit=crop&w=900&q=80"
+ },
+ {
+  "collection": "articles",
+  "order": 3,
+  "data": {
+   "title": {
+    "en": "Cryo Pods vs. Infrared Contrast Therapy: What the Nervous System Says",
+    "ar": "كبسولات التبريد مقابل العلاج بالأشعة تحت الحمراء المتباين: ماذا يقول الجهاز العصبي"
+   },
+   "category": "recovery",
+   "tag": {
+    "en": "RECOVERY PROTOCOLS",
+    "ar": "بروتوكولات التعافي"
+   },
+   "published": "2026-10-18",
+   "read_minutes": 7,
+   "excerpt": {
+    "en": "Examining cutaneous vasoconstriction and sympathetic nervous discharge: which modality truly accelerates systemic autonomic recovery without halting muscular adaptation?",
+    "ar": "فحص تضييق الأوعية الجلدية والتفريغ العصبي الودي: أي وسيلة تُسرّع فعلاً التعافي اللاإرادي الجهازي دون إيقاف التكيّف العضلي؟"
+   },
+   "body": {
+    "en": "",
+    "ar": ""
+   },
+   "author": "Julian Thorne",
+   "author_line": {
+    "en": "NEURAL REPAIR",
+    "ar": "إصلاح عصبي"
+   }
+  },
+  "default_image_url": "https://images.unsplash.com/photo-1571902943202-507ec2618e8f?auto=format&fit=crop&w=900&q=80"
+ },
+ {
+  "collection": "articles",
+  "order": 4,
+  "data": {
+   "title": {
+    "en": "Neural Fatigue Index: Tracking Grip Dynamometer Readings Before Heavy Deadlifts",
+    "ar": "مؤشر التعب العصبي: تتبع قراءات مقياس قوة القبضة قبل الديدليفت الثقيل"
+   },
+   "category": "training",
+   "tag": {
+    "en": "TRAINING SCIENCE",
+    "ar": "علم التدريب"
+   },
+   "published": "2026-10-15",
+   "read_minutes": 6,
+   "excerpt": {
+    "en": "Why a 5% drop in max isometric grip force predicts instantaneous central motor unit failure and hamstring avulsion risk during maximal axial pulling sessions.",
+    "ar": "لماذا يتنبأ انخفاض بنسبة 5% في أقصى قوة قبضة أيزومترية بالفشل الفوري للوحدة الحركية المركزية وخطر تمزق العضلة الخلفية خلال جلسات السحب المحوري الأقصى."
+   },
+   "body": {
+    "en": "",
+    "ar": ""
+   },
+   "author": "D. Rossi, PT",
+   "author_line": {
+    "en": "NEUROMUSCULAR",
+    "ar": "عصبي عضلي"
+   }
+  },
+  "default_image_url": "https://images.unsplash.com/photo-1526506118085-60ce8714f8c5?auto=format&fit=crop&w=900&q=80"
+ },
+ {
+  "collection": "articles",
+  "order": 5,
+  "data": {
+   "title": {
+    "en": "The 3D Biomechanics of the Low-Bar Squat: Cable Vector Adjustments",
+    "ar": "الميكانيكا الحيوية ثلاثية الأبعاد للسكوات منخفض البار: تعديلات متجه الكابل"
+   },
+   "category": "training",
+   "tag": {
+    "en": "MOVEMENT // VECTORS",
+    "ar": "الحركة // المتجهات"
+   },
+   "published": "2026-10-11",
+   "read_minutes": 9,
+   "excerpt": {
+    "en": "Calculating moment arm differentials across varying femur-to-torso ratios to adjust auxiliary hip abduction work and eliminate spinal lumbar flexion shearing.",
+    "ar": "حساب فروق ذراع العزم عبر نسب الفخذ إلى الجذع المتغيرة لتعديل عمل إبعاد الورك المساعد وإزالة قص الانحناء القطني الشوكي."
+   },
+   "body": {
+    "en": "",
+    "ar": ""
+   },
+   "author": "Dr. Elias Vance",
+   "author_line": {
+    "en": "KINEMATICS",
+    "ar": "حركية"
+   }
+  },
+  "default_image_url": "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=900&q=80"
+ }
+]

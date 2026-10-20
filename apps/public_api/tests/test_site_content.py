@@ -40,9 +40,11 @@ class ContentTestBase(APITestCase):
 
 class SeededContentTests(ContentTestBase):
     def test_migration_seeds_every_text_and_image(self):
-        self.assertEqual(SiteText.objects.count(), 982)
-        self.assertEqual(SiteImage.objects.count(), 40)
+        self.assertEqual(SiteText.objects.count(), 868)
+        self.assertEqual(SiteImage.objects.count(), 29)
         self.assertFalse(SiteText.objects.filter(page='bkm').exists())      # booking removed
+        self.assertFalse(SiteText.objects.filter(key__startswith='fac.c1.').exists())   # now a facilities item
+        self.assertFalse(SiteImage.objects.filter(key='ins.vo2').exists())              # now an article image
         nav = SiteText.objects.get(key='nav.home')
         self.assertTrue(nav.en and nav.ar)
         self.assertFalse(nav.is_customized)
@@ -50,9 +52,9 @@ class SeededContentTests(ContentTestBase):
     def test_public_endpoint_returns_all_texts_and_images(self):
         r = self.client.get('/api/public/site-content/')
         self.assertEqual(r.status_code, 200)
-        self.assertEqual(len(r.data['texts']), 982)
+        self.assertEqual(len(r.data['texts']), 868)
         self.assertEqual(set(r.data['texts']['nav.home']), {'en', 'ar'})
-        self.assertTrue(r.data['images']['fac.pool']['url'].startswith('https://'))
+        self.assertTrue(r.data['images']['fac.heroBg']['url'].startswith('https://'))
         self.assertIn('max-age=60', r['Cache-Control'])
 
 
@@ -94,8 +96,8 @@ class TextEditingTests(ContentTestBase):
         self.client.patch(f'{ADMIN}/texts/nav.home/', {'en': 'Changed'}, format='json')
         pages = {p['page']: p for p in self.client.get(f'{ADMIN}/pages/').data}
         self.assertEqual(pages['nav']['texts_customized'], 1)
-        self.assertEqual(pages['fac']['images'], 7)
-        self.assertEqual(sum(p['texts'] for p in pages.values()), 982)
+        self.assertEqual(pages['fac']['images'], 1)       # hero; card images moved to the facilities list
+        self.assertEqual(sum(p['texts'] for p in pages.values()), 868)
 
     def test_unknown_key_is_404(self):
         self.as_admin()
@@ -105,39 +107,39 @@ class TextEditingTests(ContentTestBase):
 class ImageTests(ContentTestBase):
     def test_upload_replaces_the_public_image_and_reset_restores_it(self):
         self.as_admin()
-        default = SiteImage.objects.get(key='fac.pool').default_url
-        r = self.client.post(f'{ADMIN}/images/fac.pool/', {'image': png(), 'alt_en': 'Pool'}, format='multipart')
+        default = SiteImage.objects.get(key='fac.heroBg').default_url
+        r = self.client.post(f'{ADMIN}/images/fac.heroBg/', {'image': png(), 'alt_en': 'Pool'}, format='multipart')
         self.assertEqual(r.status_code, 200, r.data)
         self.assertTrue(r.data['is_customized'])
         self.assertNotEqual(r.data['url'], default)
         self.assertEqual(r.data['alt_en'], 'Pool')
-        public = self.client.get('/api/public/site-content/').data['images']['fac.pool']
+        public = self.client.get('/api/public/site-content/').data['images']['fac.heroBg']
         self.assertEqual(public['url'], r.data['url'])
-        img = SiteImage.objects.get(key='fac.pool')
+        img = SiteImage.objects.get(key='fac.heroBg')
         storage, name = img.image.storage, img.image.name
-        r = self.client.post(f'{ADMIN}/images/fac.pool/reset/')
+        r = self.client.post(f'{ADMIN}/images/fac.heroBg/reset/')
         self.assertEqual(r.data['url'], default)
         self.assertFalse(storage.exists(name))     # uploaded file removed
 
     def test_replacing_deletes_the_previous_upload(self):
         self.as_admin()
-        self.client.post(f'{ADMIN}/images/fac.pool/', {'image': png()}, format='multipart')
-        first = SiteImage.objects.get(key='fac.pool').image
+        self.client.post(f'{ADMIN}/images/fac.heroBg/', {'image': png()}, format='multipart')
+        first = SiteImage.objects.get(key='fac.heroBg').image
         storage, first_name = first.storage, first.name
-        self.client.post(f'{ADMIN}/images/fac.pool/', {'image': png((16, 16))}, format='multipart')
+        self.client.post(f'{ADMIN}/images/fac.heroBg/', {'image': png((16, 16))}, format='multipart')
         self.assertFalse(storage.exists(first_name))
 
     def test_alt_text_only(self):
         self.as_admin()
-        r = self.client.patch(f'{ADMIN}/images/fac.pool/', {'alt_ar': 'مسبح'}, format='json')
+        r = self.client.patch(f'{ADMIN}/images/fac.heroBg/', {'alt_ar': 'مسبح'}, format='json')
         self.assertEqual(r.data['alt_ar'], 'مسبح')
         self.assertFalse(r.data['is_customized'])
 
     def test_rejects_non_images_and_missing_file(self):
         self.as_admin()
         txt = SimpleUploadedFile('x.txt', b'hello', content_type='text/plain')
-        self.assertEqual(self.client.post(f'{ADMIN}/images/fac.pool/', {'image': txt}, format='multipart').status_code, 400)
-        self.assertEqual(self.client.post(f'{ADMIN}/images/fac.pool/', {}, format='multipart').status_code, 400)
+        self.assertEqual(self.client.post(f'{ADMIN}/images/fac.heroBg/', {'image': txt}, format='multipart').status_code, 400)
+        self.assertEqual(self.client.post(f'{ADMIN}/images/fac.heroBg/', {}, format='multipart').status_code, 400)
 
 
 class PermissionTests(ContentTestBase):

@@ -76,6 +76,39 @@ class SiteImage(models.Model):
         return bool(self.image)
 
 
+class SiteItem(models.Model):
+    """One entry of an admin-managed list (see apps.site_content.collections)."""
+    collection = models.CharField(max_length=40, db_index=True)   # "facilities", "articles", …
+    slug = models.SlugField(max_length=100, blank=True)            # collections with detail pages
+    order = models.PositiveIntegerField(default=0)
+    is_active = models.BooleanField(default=True)                  # hidden from the site when False
+    data = models.JSONField(default=dict)                          # field values, i18n as {"en","ar"}
+    image = models.ImageField(upload_to='site/items/', blank=True, null=True)
+    default_image_url = models.URLField(max_length=1000, blank=True)   # seeded image
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    updated_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name='+',
+    )
+
+    class Meta:
+        db_table = 'site_items'
+        ordering = ['collection', 'order', 'id']
+        constraints = [
+            models.UniqueConstraint(
+                fields=['collection', 'slug'], condition=~models.Q(slug=''), name='uniq_item_slug_per_collection',
+            ),
+        ]
+
+    def __str__(self):
+        title = (self.data.get('title') or {}).get('en', '')
+        return f'{self.collection}: {title or self.pk}'
+
+    @property
+    def image_url(self):
+        return self.image.url if self.image else self.default_image_url
+
+
 class ContactMessage(models.Model):
     STATUS_NEW, STATUS_READ, STATUS_ARCHIVED = 'new', 'read', 'archived'
     STATUS = [(STATUS_NEW, 'New'), (STATUS_READ, 'Read'), (STATUS_ARCHIVED, 'Archived')]

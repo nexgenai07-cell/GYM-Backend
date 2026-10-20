@@ -1,6 +1,9 @@
+from django.utils.text import slugify
 from rest_framework import serializers
 
-from .models import ContactMessage, SiteImage, SiteText
+from apps.members.models import MembershipPlan
+
+from .models import ContactMessage, SiteImage, SiteItem, SiteText
 
 MAX_IMAGE_BYTES = 4 * 1024 * 1024        # Vercel rejects request bodies over 4.5 MB
 IMAGE_TYPES = {'image/jpeg', 'image/png', 'image/webp'}
@@ -46,6 +49,28 @@ class SiteImageUploadSerializer(serializers.Serializer):
         return value
 
 
+class SiteItemSerializer(serializers.ModelSerializer):
+    """Admin view of a collection item."""
+    image_url = serializers.CharField(read_only=True)
+    uploaded_image_url = serializers.SerializerMethodField()
+    updated_by_email = serializers.EmailField(source='updated_by.email', read_only=True, allow_null=True)
+
+    class Meta:
+        model = SiteItem
+        fields = ['id', 'collection', 'slug', 'order', 'is_active', 'data', 'image_url',
+                  'uploaded_image_url', 'default_image_url', 'created_at', 'updated_at', 'updated_by_email']
+        read_only_fields = fields
+
+    def get_uploaded_image_url(self, obj):
+        return obj.image.url if obj.image else None
+
+
+def public_item(item, include=None):
+    """Public shape of an item; `include` limits the data fields returned."""
+    data = item.data if include is None else {k: v for k, v in item.data.items() if k in include}
+    return {'id': item.id, 'slug': item.slug, 'data': data, 'image_url': item.image_url}
+
+
 class ContactCreateSerializer(serializers.ModelSerializer):
     website = serializers.CharField(required=False, allow_blank=True, write_only=True)   # honeypot
 
@@ -65,3 +90,38 @@ class ContactMessageSerializer(serializers.ModelSerializer):
         model = ContactMessage
         fields = ['id', 'name', 'email', 'phone', 'topic', 'subtopic', 'message', 'lang', 'status', 'created_at']
         read_only_fields = ['id', 'name', 'email', 'phone', 'topic', 'subtopic', 'message', 'lang', 'created_at']
+
+
+class AdminPlanSerializer(serializers.ModelSerializer):
+    """Membership plans as edited from the admin portal (public pricing + signup)."""
+    registrations = serializers.IntegerField(source='registrations.count', read_only=True)
+
+    class Meta:
+        model = MembershipPlan
+        fields = ['id', 'name', 'display_name', 'display_name_ar', 'description', 'description_ar',
+                  'price_monthly', 'price_annual', 'features', 'features_ar', 'session_limit_minutes',
+                  'is_active', 'registrations', 'created_at']
+        read_only_fields = ['id', 'registrations', 'created_at']
+
+    def validate_name(self, value):
+        value = slugify(value)
+        if not value:
+            raise serializers.ValidationError('Use letters, numbers and dashes.')
+        return value
+
+    def _validate_features(self, value):
+        value = value or []
+        if not isinstance(value, list) or not all(isinstance(v, str) for v in value):
+            raise serializers.ValidationError('A list of short texts.')
+        if len(value) > 20:
+            raise serializers.ValidationError('At most 20 features.')
+        return [v.strip()[:120] for v in value if v.strip()]
+
+    validate_features = _validate_features
+    validate_features_ar = _validate_features
+
+    def validate(self, attrs):
+        for field in ('price_monthly', 'price_annual'):
+            if field in attrs and attrs[field] <= 0:
+                raise serializers.ValidationError({field: 'Must be more than 0.'})
+        return attrs

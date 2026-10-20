@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import ContactMessage, SiteImage, SiteText
+from .models import ContactMessage, SiteImage, SiteItem, SiteText
 
 
 @admin.register(SiteText)
@@ -24,3 +24,10 @@ class ContactMessageAdmin(admin.ModelAdmin):
     list_display = ['created_at', 'name', 'email', 'topic', 'status']
     list_filter = ['status', 'topic']
     search_fields = ['name', 'email', 'message']
+
+
+@admin.register(SiteItem)
+class SiteItemAdmin(admin.ModelAdmin):
+    list_display = ['__str__', 'collection', 'order', 'is_active', 'updated_at']
+    list_filter = ['collection', 'is_active']
+    readonly_fields = ['created_at', 'updated_at', 'updated_by']

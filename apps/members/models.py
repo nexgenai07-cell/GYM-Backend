@@ -3,6 +3,7 @@ from django.conf import settings
 from django.utils import timezone
 from datetime import date
 from decimal import Decimal, ROUND_HALF_UP
+from dateutil.relativedelta import relativedelta
 import uuid
 
 
@@ -98,6 +99,32 @@ class Membership(models.Model):
     def days_remaining(self):
         delta = self.expiry_date - date.today()
         return max(0, delta.days)
+
+    @property
+    def time_remaining(self):
+        """
+        Membership countdown, which starts on start_date (= the day the
+        registration was approved). Calendar months + leftover days, so it
+        matches how the plan was sold: a 3-month plan approved today shows
+        {"months": 3, "days": 0}. Also the plan's total length and how much is used.
+        """
+        today = date.today()
+        total_days = max(0, (self.expiry_date - self.start_date).days)
+        if self.expiry_date <= today:
+            months = days = left = 0
+        else:
+            rd = relativedelta(self.expiry_date, max(today, self.start_date))
+            months, days = rd.years * 12 + rd.months, rd.days
+            left = (self.expiry_date - today).days
+        used = min(total_days, max(0, (today - self.start_date).days))
+        return {
+            'months': months,
+            'days': days,
+            'total_days_remaining': left,
+            'plan_total_days': total_days,
+            'percent_used': round(100 * used / total_days) if total_days else 100,
+            'expired': self.expiry_date <= today,
+        }
 
     ENTRY_STATUSES = ('active', 'expiring')   # "expiring soon" is still paid up
 

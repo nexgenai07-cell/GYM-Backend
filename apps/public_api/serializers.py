@@ -175,6 +175,7 @@ class AdminRegistrationSerializer(serializers.ModelSerializer):
     photo_url = serializers.SerializerMethodField()
     approved_by_email = serializers.EmailField(source='approved_by.email', read_only=True, allow_null=True)
     created_user_email = serializers.EmailField(source='created_user.email', read_only=True, allow_null=True)
+    membership = serializers.SerializerMethodField()
 
     class Meta:
         model = MembershipRegistration
@@ -188,8 +189,20 @@ class AdminRegistrationSerializer(serializers.ModelSerializer):
             'moyasar_payment_id', 'payment_failure_reason',
             'status', 'submitted_at', 'approved_at',
             'approved_by_email', 'rejection_reason',
-            'created_user_email',
+            'created_user_email', 'membership',
         ]
+
+    def get_membership(self, obj):
+        """For approved signups: the membership period that started at approval."""
+        m = getattr(obj.created_user, 'membership', None) if obj.created_user_id else None
+        if m is None:
+            return None
+        return {
+            'start_date': m.start_date,
+            'expiry_date': m.expiry_date,
+            'status': m.status,
+            'time_remaining': m.time_remaining,
+        }
 
     def get_photo_url(self, obj):
         if not obj.photo:

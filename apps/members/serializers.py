@@ -16,6 +16,8 @@ class MembershipSerializer(serializers.ModelSerializer):
     plan = MembershipPlanSerializer(read_only=True)
     member_name = serializers.SerializerMethodField()
     days_remaining = serializers.IntegerField(read_only=True)
+    # {months, days, total_days_remaining, plan_total_days, percent_used, expired} — counted from approval
+    time_remaining = serializers.DictField(read_only=True)
 
     class Meta:
         model = Membership
@@ -24,7 +26,7 @@ class MembershipSerializer(serializers.ModelSerializer):
             'auto_renew', 'is_frozen', 'frozen_until',
             'pass_id', 'nfc_token',
             'lifetime_value', 'total_check_ins',
-            'days_remaining', 'member_name',
+            'days_remaining', 'time_remaining', 'member_name',
             'created_at', 'updated_at',
         ]
 

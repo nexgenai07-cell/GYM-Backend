@@ -246,7 +246,7 @@ def admin_registrations(request):
     """
     GET /api/admin/registrations/?status=pending&search=&today=true
     """
-    qs = MembershipRegistration.objects.select_related('plan', 'approved_by', 'created_user')
+    qs = MembershipRegistration.objects.select_related('plan', 'approved_by', 'created_user__membership')
 
     st = request.query_params.get('status')
     if st and st != 'all':
@@ -276,7 +276,7 @@ def admin_registrations(request):
 def admin_registration_detail(request, reg_id):
     """GET /api/admin/registrations/<id>/"""
     reg = get_object_or_404(
-        MembershipRegistration.objects.select_related('plan', 'approved_by', 'created_user'),
+        MembershipRegistration.objects.select_related('plan', 'approved_by', 'created_user__membership'),
         id=reg_id,
     )
     return Response(AdminRegistrationSerializer(reg, context={'request': request}).data)

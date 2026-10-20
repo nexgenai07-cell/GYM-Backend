@@ -85,8 +85,10 @@ def dashboard(request):
                 'tier': m.plan.name,
             },
             'status': m.status,
+            'start_date': m.start_date.isoformat(),   # = the day the registration was approved
             'expiry_date': m.expiry_date.isoformat(),
             'days_remaining': m.days_remaining,
+            'time_remaining': m.time_remaining,       # months + days left, % of plan used
             'auto_renew': m.auto_renew,
         }
     except Membership.DoesNotExist:

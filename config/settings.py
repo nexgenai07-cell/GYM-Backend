@@ -140,8 +140,26 @@ STATIC_ROOT = BASE_DIR / 'staticfiles_build' / 'static'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
-# Media uploads (registration photos): local disk by default; Cloudflare R2
-# only when R2_ACCESS_KEY_ID is set.
+# Media uploads (registration photos, avatars), first match wins:
+#   1. Cloudinary  — when CLOUDINARY_CLOUD_NAME is set (apps/core/storage.py)
+#   2. Cloudflare R2 — when R2_ACCESS_KEY_ID is set
+#   3. local disk  — ./media (on Vercel: /tmp, lost on cold start)
+CLOUDINARY_CLOUD_NAME    = config('CLOUDINARY_CLOUD_NAME', default='')
+CLOUDINARY_API_KEY       = config('CLOUDINARY_API_KEY', default='')
+CLOUDINARY_API_SECRET    = config('CLOUDINARY_API_SECRET', default='')
+CLOUDINARY_FOLDER        = config('CLOUDINARY_FOLDER', default='smart-gym')
+# "authenticated" = private, served only through signed URLs; "upload" = public
+CLOUDINARY_DELIVERY_TYPE = config('CLOUDINARY_DELIVERY_TYPE', default='authenticated')
+USE_CLOUDINARY = bool(CLOUDINARY_CLOUD_NAME)
+
+if USE_CLOUDINARY and not all([CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET]):
+    raise ImproperlyConfigured(
+        'CLOUDINARY_CLOUD_NAME is set, so CLOUDINARY_API_KEY and CLOUDINARY_API_SECRET '
+        'must be set too (or unset CLOUDINARY_CLOUD_NAME).'
+    )
+if CLOUDINARY_DELIVERY_TYPE not in ('authenticated', 'upload'):
+    raise ImproperlyConfigured("CLOUDINARY_DELIVERY_TYPE must be 'authenticated' or 'upload'.")
+
 R2_ACCESS_KEY_ID     = config('R2_ACCESS_KEY_ID', default='')
 R2_SECRET_ACCESS_KEY = config('R2_SECRET_ACCESS_KEY', default='')
 R2_BUCKET_NAME       = config('R2_BUCKET_NAME', default='')
@@ -154,15 +172,17 @@ if USE_R2 and not all([R2_SECRET_ACCESS_KEY, R2_BUCKET_NAME, R2_ENDPOINT_URL]):
         'R2_ENDPOINT_URL must be set too (or unset R2_ACCESS_KEY_ID to use local storage).'
     )
 
-if not USE_R2 and os.environ.get('VERCEL'):
+if not (USE_CLOUDINARY or USE_R2) and os.environ.get('VERCEL'):
     # Vercel's deployment dir is read-only; /tmp is writable but wiped on cold
     # start and not shared between instances — uploads there are temporary.
     MEDIA_ROOT = Path('/tmp/media')
     # warnings, not logging — LOGGING isn't configured yet while settings load.
     import warnings
-    warnings.warn('R2 not configured on Vercel: media uploads go to /tmp and will be lost.')
+    warnings.warn('No media storage configured on Vercel (Cloudinary/R2): uploads go to /tmp and will be lost.')
 
-if USE_R2:
+if USE_CLOUDINARY:
+    DEFAULT_STORAGE = {"BACKEND": "apps.core.storage.CloudinaryMediaStorage"}
+elif USE_R2:
     DEFAULT_STORAGE = {
         "BACKEND": "storages.backends.s3.S3Storage",
         "OPTIONS": {

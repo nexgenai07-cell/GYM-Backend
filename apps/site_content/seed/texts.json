@@ -1116,12 +1116,6 @@
   "ar": "تأسس 2016 — نادي الأداء"
  },
  {
-  "key": "home.hero.scroll",
-  "page": "home",
-  "en": "SCROLL",
-  "ar": "اسحب"
- },
- {
   "key": "home.hero.cue",
   "page": "home",
   "en": "SCROLL",
@@ -1732,198 +1726,6 @@
   "page": "home",
   "en": "KEEP SCROLLING",
   "ar": "واصل السحب"
- },
- {
-  "key": "home.fc.s1.t",
-  "page": "home",
-  "en": "Olympic Swimming Pool",
-  "ar": "مسبح أولمبي"
- },
- {
-  "key": "home.fc.s1.tag",
-  "page": "home",
-  "en": "HYDRO-PERFORMANCE",
-  "ar": "أداء مائي"
- },
- {
-  "key": "home.fc.s1.b",
-  "page": "home",
-  "en": "STATUS: OPEN",
-  "ar": "الحالة: مفتوح"
- },
- {
-  "key": "home.fc.s1.d",
-  "page": "home",
-  "en": "Precision 8-lane racing reservoir with automated lap telemetry and ozone purification.",
-  "ar": "حوض سباق دقيق بثمانية مسارات مع قياس تلقائي لللفات وتنقية بالأوزون."
- },
- {
-  "key": "home.fc.s1.m1k",
-  "page": "home",
-  "en": "LANES",
-  "ar": "المسارات"
- },
- {
-  "key": "home.fc.s1.m2k",
-  "page": "home",
-  "en": "TEMP",
-  "ar": "الحرارة"
- },
- {
-  "key": "home.fc.s1.m3k",
-  "page": "home",
-  "en": "PURITY",
-  "ar": "النقاء"
- },
- {
-  "key": "home.fc.s1.cta",
-  "page": "home",
-  "en": "BOOK A LANE",
-  "ar": "احجز مسارًا"
- },
- {
-  "key": "home.fc.s2.t",
-  "page": "home",
-  "en": "Combat & Boxing Pit",
-  "ar": "حفرة القتال والملاكمة"
- },
- {
-  "key": "home.fc.s2.tag",
-  "page": "home",
-  "en": "FIGHT CONDITIONING",
-  "ar": "تكييف قتالي"
- },
- {
-  "key": "home.fc.s2.b",
-  "page": "home",
-  "en": "SPARRING OPEN",
-  "ar": "السبرنغ مفتوح"
- },
- {
-  "key": "home.fc.s2.d",
-  "page": "home",
-  "en": "Full regulation octagon, force-sensor heavy bags and tatami grappling mats for MMA work.",
-  "ar": "أوكتاغون تنظيمي كامل وأكياس ثقيلة بحساسات قوة وحصائر تاتامي لتدريب MMA."
- },
- {
-  "key": "home.fc.s2.m1k",
-  "page": "home",
-  "en": "BAGS",
-  "ar": "الأكياس"
- },
- {
-  "key": "home.fc.s2.m2k",
-  "page": "home",
-  "en": "CAGE",
-  "ar": "القفص"
- },
- {
-  "key": "home.fc.s2.m3k",
-  "page": "home",
-  "en": "COACH",
-  "ar": "المدرب"
- },
- {
-  "key": "home.fc.s2.cta",
-  "page": "home",
-  "en": "JOIN CLASS",
-  "ar": "انضم للحصة"
- },
- {
-  "key": "home.fc.s3.t",
-  "page": "home",
-  "en": "Steam & Cryo Recovery",
-  "ar": "بخار وتبريد للتعافي"
- },
- {
-  "key": "home.fc.s3.tag",
-  "page": "home",
-  "en": "BIO-RECOVERY PODS",
-  "ar": "كبسولات التعافي الحيوي"
- },
- {
-  "key": "home.fc.s3.b",
-  "page": "home",
-  "en": "AVAILABLE",
-  "ar": "متاح"
- },
- {
-  "key": "home.fc.s3.d",
-  "page": "home",
-  "en": "Eucalyptus vapor thermal suites, −110°C cryo chambers, contrast baths and compression lounges.",
-  "ar": "أجنحة بخار الكافور وغرف تبريد −110°م وأحواض تباين وصالات ضغط."
- },
- {
-  "key": "home.fc.s3.m1k",
-  "page": "home",
-  "en": "SAUNA",
-  "ar": "ساونا"
- },
- {
-  "key": "home.fc.s3.m2k",
-  "page": "home",
-  "en": "CRYO",
-  "ar": "تبريد"
- },
- {
-  "key": "home.fc.s3.m3k",
-  "page": "home",
-  "en": "PLUNGE",
-  "ar": "حوض بارد"
- },
- {
-  "key": "home.fc.s3.cta",
-  "page": "home",
-  "en": "BOOK SESSION",
-  "ar": "احجز جلسة"
- },
- {
-  "key": "home.fc.s4.t",
-  "page": "home",
-  "en": "Heavy Iron Arena",
-  "ar": "ساحة الحديد الثقيل"
- },
- {
-  "key": "home.fc.s4.tag",
-  "page": "home",
-  "en": "STRENGTH FLOOR",
-  "ar": "أرضية القوة"
- },
- {
-  "key": "home.fc.s4.b",
-  "page": "home",
-  "en": "OPEN ACCESS",
-  "ar": "دخول مفتوح"
- },
- {
-  "key": "home.fc.s4.d",
-  "page": "home",
-  "en": "18 competition power racks, Eleiko-calibrated steel, acoustic deadlift zones and velocity sensors.",
-  "ar": "18 رف قوة تنافسي، صلب معاير Eleiko، مناطق ديدليفت صوتية، وحساسات سرعة."
- },
- {
-  "key": "home.fc.s4.m1k",
-  "page": "home",
-  "en": "RACKS",
-  "ar": "الرفوف"
- },
- {
-  "key": "home.fc.s4.m2k",
-  "page": "home",
-  "en": "LOAD",
-  "ar": "الحمل"
- },
- {
-  "key": "home.fc.s4.m3k",
-  "page": "home",
-  "en": "VELOCITY",
-  "ar": "السرعة"
- },
- {
-  "key": "home.fc.s4.cta",
-  "page": "home",
-  "en": "RESERVE PLATFORM",
-  "ar": "احجز منصة"
  },
  {
   "key": "home.tel.eyebrow",
@@ -2586,24 +2388,6 @@
   "ar": "افتح للمراجعة — أكمل حقول الخطوة 01 للدفع"
  },
  {
-  "key": "en.progress.step1",
-  "page": "en",
-  "en": "STEP 1 OF 2: ATHLETE DOSSIER",
-  "ar": "الخطوة 1 من 2: ملف الرياضي"
- },
- {
-  "key": "en.progress.step2",
-  "page": "en",
-  "en": "STEP 2 OF 2: SECURE CHECKOUT",
-  "ar": "الخطوة 2 من 2: الدفع الآمن"
- },
- {
-  "key": "en.progress.pct",
-  "page": "en",
-  "en": "% COMPLETE",
-  "ar": "% مكتمل"
- },
- {
   "key": "en.hud.pct",
   "page": "en",
   "en": "ENROLLED",
@@ -2656,12 +2440,6 @@
   "page": "en",
   "en": "+1 (555) 890-4412",
   "ar": "+966 55 890 4412"
- },
- {
-  "key": "en.p1.node",
-  "page": "en",
-  "en": "HOME PERFORMANCE TERMINAL",
-  "ar": "محطة الأداء الرئيسية"
  },
  {
   "key": "en.p1.vecHead",
@@ -2790,78 +2568,6 @@
   "ar": "بروتوكول ميداني · 02/02"
  },
  {
-  "key": "en.p2.reqLabel",
-  "page": "en",
-  "en": "STEP 01 REQUIRED FIRST",
-  "ar": "الخطوة 01 مطلوبة أولاً"
- },
- {
-  "key": "en.p2.expressLabel",
-  "page": "en",
-  "en": "INSTANT EXPRESS CHECKOUT",
-  "ar": "دفع فوري سريع"
- },
- {
-  "key": "en.p2.apple",
-  "page": "en",
-  "en": "PAY WITH APPLE",
-  "ar": "الدفع عبر Apple"
- },
- {
-  "key": "en.p2.google",
-  "page": "en",
-  "en": "GOOGLE PAY",
-  "ar": "Google Pay"
- },
- {
-  "key": "en.p2.divider",
-  "page": "en",
-  "en": "OR VAULT ENCRYPTED CREDIT CARD",
-  "ar": "أو البطاقة الائتمانية المشفرة"
- },
- {
-  "key": "en.p2.num",
-  "page": "en",
-  "en": "CARD NUMBER",
-  "ar": "رقم البطاقة"
- },
- {
-  "key": "en.p2.exp",
-  "page": "en",
-  "en": "EXPIRY",
-  "ar": "تاريخ الانتهاء"
- },
- {
-  "key": "en.p2.cvc",
-  "page": "en",
-  "en": "CVC / CVV",
-  "ar": "CVC / CVV"
- },
- {
-  "key": "en.p2.zip",
-  "page": "en",
-  "en": "POSTAL / ZIP",
-  "ar": "الرمز البريدي"
- },
- {
-  "key": "en.p2.autoB",
-  "page": "en",
-  "en": "Auto-Renew Protocol Enabled",
-  "ar": "بروتوكول التجديد التلقائي مُفعّل"
- },
- {
-  "key": "en.p2.autoI.pre",
-  "page": "en",
-  "en": "Maintain seamless terminal access without interruption. Billed ",
-  "ar": "حافظ على وصول سلس إلى المحطات بلا انقطاع. يتم الخصم "
- },
- {
-  "key": "en.p2.autoI.post",
-  "page": "en",
-  "en": " on the 1st of each calendar month. Cancel anytime with tap.",
-  "ar": " في الأول من كل شهر ميلادي. إلغاء متى شئت بلمسة."
- },
- {
   "key": "en.p2.agreeB",
   "page": "en",
   "en": "Conditioning Protocol Agreement & Biometric Enclave Waiver",
@@ -2874,82 +2580,10 @@
   "ar": "أوافق على شروط التدريب، ومزامنة البيانات الحيوية، ومعايرة مستشعر سرعة البار المشفرة، ومزامنة القياسات المشفرة على الجهاز أولاً."
  },
  {
-  "key": "en.p2.tokenAes",
-  "page": "en",
-  "en": "AES-256 TOKENIZATION",
-  "ar": "ترميز AES-256"
- },
- {
-  "key": "en.p2.tokenVault",
-  "page": "en",
-  "en": "SECURE VAULT",
-  "ar": "الخزنة الآمنة"
- },
- {
-  "key": "en.p2.submit",
-  "page": "en",
-  "en": "COMPLETE ENROLLMENT & ACTIVATE PASS",
-  "ar": "أكمل التسجيل وفعّل التصريح"
- },
- {
-  "key": "en.p2.submitApple",
-  "page": "en",
-  "en": "ACTIVATE VIA APPLE PAY",
-  "ar": "فعّل عبر Apple Pay"
- },
- {
-  "key": "en.p2.submitGoogle",
-  "page": "en",
-  "en": "ACTIVATE VIA GOOGLE PAY",
-  "ar": "فعّل عبر Google Pay"
- },
- {
   "key": "en.p2.processing",
   "page": "en",
   "en": "PROVISIONING PASS",
   "ar": "جارٍ تجهيز التصريح"
- },
- {
-  "key": "en.p2.secure",
-  "page": "en",
-  "en": "ENCRYPTED VIA 256-BIT AES TOKENIZATION · INSTANT PASS DELIVERY TO PHONE",
-  "ar": "مشفّر بترميز AES 256 بت · تسليم فوري للتصريح على جوالك"
- },
- {
-  "key": "en.cp.brand",
-  "page": "en",
-  "en": "SMART PAY",
-  "ar": "SMART PAY"
- },
- {
-  "key": "en.cp.holder",
-  "page": "en",
-  "en": "CARD HOLDER",
-  "ar": "حامل البطاقة"
- },
- {
-  "key": "en.cp.namePh",
-  "page": "en",
-  "en": "ATHLETE NAME",
-  "ar": "اسم الرياضي"
- },
- {
-  "key": "en.cp.expires",
-  "page": "en",
-  "en": "EXPIRES",
-  "ar": "تنتهي في"
- },
- {
-  "key": "en.cp.expPh",
-  "page": "en",
-  "en": "MM/YY",
-  "ar": "MM/YY"
- },
- {
-  "key": "en.cp.cvcNote",
-  "page": "en",
-  "en": "CVC — 3-DIGIT ENCRYPTION TOKEN",
-  "ar": "CVC — رمز تشفير مكوّن من 3 أرقام"
  },
  {
   "key": "en.err.name",
@@ -2970,142 +2604,10 @@
   "ar": "أدخل رقمًا صحيحًا"
  },
  {
-  "key": "en.err.vec",
-  "page": "en",
-  "en": "SELECT AT LEAST ONE VECTOR",
-  "ar": "اختر متجهًا واحدًا على الأقل"
- },
- {
-  "key": "en.err.num",
-  "page": "en",
-  "en": "16 DIGITS REQUIRED",
-  "ar": "16 رقمًا مطلوبة"
- },
- {
-  "key": "en.err.exp",
-  "page": "en",
-  "en": "MM/YY",
-  "ar": "MM/YY"
- },
- {
-  "key": "en.err.cvc",
-  "page": "en",
-  "en": "3–4 DIGITS",
-  "ar": "3–4 أرقام"
- },
- {
-  "key": "en.err.zip",
-  "page": "en",
-  "en": "REQUIRED",
-  "ar": "مطلوب"
- },
- {
   "key": "en.err.agree",
   "page": "en",
   "en": "REQUIRED TO ACTIVATE PASS",
   "ar": "مطلوب لتفعيل التصريح"
- },
- {
-  "key": "en.err.chipName",
-  "page": "en",
-  "en": "FULL NAME",
-  "ar": "الاسم الكامل"
- },
- {
-  "key": "en.err.chipEmail",
-  "page": "en",
-  "en": "EMAIL",
-  "ar": "البريد"
- },
- {
-  "key": "en.err.chipPhone",
-  "page": "en",
-  "en": "PHONE",
-  "ar": "الهاتف"
- },
- {
-  "key": "en.err.chipVector",
-  "page": "en",
-  "en": "VECTOR",
-  "ar": "المتجه"
- },
- {
-  "key": "en.ok.title",
-  "page": "en",
-  "en": "ENROLLMENT COMPLETE",
-  "ar": "اكتمل التسجيل"
- },
- {
-  "key": "en.ok.pass",
-  "page": "en",
-  "en": "SMART KEY ACTIVATED — SHOW PASS AT ANY TURNSTILE",
-  "ar": "تم تفعيل المفتاح الذكي — أظهر التصريح عند أي بوابة"
- },
- {
-  "key": "en.ok.tier",
-  "page": "en",
-  "en": "TIER",
-  "ar": "الفئة"
- },
- {
-  "key": "en.ok.memberId",
-  "page": "en",
-  "en": "MEMBER ID",
-  "ar": "معرف العضو"
- },
- {
-  "key": "en.ok.homeNode",
-  "page": "en",
-  "en": "HOME NODE",
-  "ar": "الفرع الرئيسي"
- },
- {
-  "key": "en.ok.status",
-  "page": "en",
-  "en": "STATUS",
-  "ar": "الحالة"
- },
- {
-  "key": "en.ok.active",
-  "page": "en",
-  "en": "ACTIVE",
-  "ar": "نشط"
- },
- {
-  "key": "en.ok.nfc",
-  "page": "en",
-  "en": "HOLD NEAR TURNSTILE",
-  "ar": "ضعه قرب البوابة"
- },
- {
-  "key": "en.ok.appleWallet",
-  "page": "en",
-  "en": "ADD TO APPLE WALLET",
-  "ar": "أضف إلى Apple Wallet"
- },
- {
-  "key": "en.ok.simTurn",
-  "page": "en",
-  "en": "SIMULATE TURNSTILE",
-  "ar": "محاكاة البوابة"
- },
- {
-  "key": "en.ok.notePre",
-  "page": "en",
-  "en": "Confirmation payload sent to ",
-  "ar": "تم إرسال تأكيد إلى "
- },
- {
-  "key": "en.ok.notePost",
-  "page": "en",
-  "en": ". Your pass activates instantly at any terminal — no key cards, no check-in desks.",
-  "ar": ". يتم تفعيل تصريحك فورًا في أي محطة — بلا بطاقات، بلا مكاتب تسجيل."
- },
- {
-  "key": "en.ok.athlete",
-  "page": "en",
-  "en": "ATHLETE",
-  "ar": "الرياضي"
  },
  {
   "key": "en.sum.order",
@@ -3150,12 +2652,6 @@
   "ar": "إلغاء متى شئت"
  },
  {
-  "key": "en.sum.occ",
-  "page": "en",
-  "en": "TERMINAL 01 LIVE OCCUPANCY: ",
-  "ar": "إشغال المحطة 01 المباشر: "
- },
- {
   "key": "en.sum.mediaCap",
   "page": "en",
   "en": "DIRECT HIGH-VELOCITY FACILITY ACCESS",
@@ -3166,42 +2662,6 @@
   "page": "en",
   "en": "INCLUDED PERFORMANCE EQUIPMENT & INFRASTRUCTURE",
   "ar": "معدات وبنية أداء مشمولة"
- },
- {
-  "key": "en.sum.line1",
-  "page": "en",
-  "en": " Membership (First Month)",
-  "ar": " عضوية (الشهر الأول)"
- },
- {
-  "key": "en.sum.line2",
-  "page": "en",
-  "en": "Biometric Smart Key Setup",
-  "ar": "إعداد المفتاح الحيوي الذكي"
- },
- {
-  "key": "en.sum.line3",
-  "page": "en",
-  "en": "Digital Telemetry Integration",
-  "ar": "تكامل القياسات الرقمية"
- },
- {
-  "key": "en.sum.line4",
-  "page": "en",
-  "en": "Facility State Surcharge & Tax",
-  "ar": "ضريبة الولاية ورسوم المرافق"
- },
- {
-  "key": "en.sum.waived",
-  "page": "en",
-  "en": "WAIVED",
-  "ar": "معفى"
- },
- {
-  "key": "en.sum.promo",
-  "page": "en",
-  "en": "PROMO",
-  "ar": "عرض"
  },
  {
   "key": "en.sum.total",
@@ -3274,150 +2734,6 @@
   "page": "en",
   "en": "INQUIRE",
   "ar": "استفسر"
- },
- {
-  "key": "en.plan.base.short",
-  "page": "en",
-  "en": "BASE",
-  "ar": "أساسي"
- },
- {
-  "key": "en.plan.base.name",
-  "page": "en",
-  "en": "SMART BASE TIER",
-  "ar": "الفئة الأساسية سمارت"
- },
- {
-  "key": "en.plan.base.desc",
-  "page": "en",
-  "en": "Core Industrial Access · Standard Machine Telemetry",
-  "ar": "وصول صناعي أساسي · قياسات معيارية للآلات"
- },
- {
-  "key": "en.plan.base.p1",
-  "page": "en",
-  "en": "24/7 Keyless Turnstile Entry (Apple / Google Pass)",
-  "ar": "دخول بلا مفاتيح 24/7 (Apple / Google Pass)"
- },
- {
-  "key": "en.plan.base.p2",
-  "page": "en",
-  "en": "QR Machine Telemetry Sync & Progress Ledger",
-  "ar": "مزامنة قياسات الآلة عبر QR وسجل التقدم"
- },
- {
-  "key": "en.plan.base.p3",
-  "page": "en",
-  "en": "Strength Floor, Cardio Deck & Velocity Track",
-  "ar": "أرضية القوة وسطح الكارديو ومسار السرعة"
- },
- {
-  "key": "en.plan.base.p4",
-  "page": "en",
-  "en": "Infrared Sauna — 2 Sessions / Week",
-  "ar": "ساونا الأشعة — جلستان أسبوعيًا"
- },
- {
-  "key": "en.plan.base.p5",
-  "page": "en",
-  "en": "Member App, Class Booking & Biometric ID",
-  "ar": "تطبيق العضو وحجز الحصص والهوية الحيوية"
- },
- {
-  "key": "en.plan.pro.short",
-  "page": "en",
-  "en": "PRO",
-  "ar": "برو"
- },
- {
-  "key": "en.plan.pro.name",
-  "page": "en",
-  "en": "SMART PRO TIER",
-  "ar": "فئة سمارت برو"
- },
- {
-  "key": "en.plan.pro.desc",
-  "page": "en",
-  "en": "Full Industrial Access · Unlimited Biometric Telemetry",
-  "ar": "وصول صناعي كامل · قياسات حيوية غير محدودة"
- },
- {
-  "key": "en.plan.pro.p1",
-  "page": "en",
-  "en": "24/7 Biometric Turnstile & Keyless Apple/Google Pass Entry",
-  "ar": "بوابة حيوية 24/7 ودخول بلا مفاتيح عبر Apple/Google"
- },
- {
-  "key": "en.plan.pro.p2",
-  "page": "en",
-  "en": "Smart QR Machine Telemetry Sync & Barbell Velocity Sensors",
-  "ar": "مزامنة قياسات QR الذكية ومستشعرات سرعة البار"
- },
- {
-  "key": "en.plan.pro.p3",
-  "page": "en",
-  "en": "Full Olympic Pool, Velocity Track & Combat Pit Access",
-  "ar": "دخول كامل للمسبح الأولمبي ومسار السرعة وحفرة القتال"
- },
- {
-  "key": "en.plan.pro.p4",
-  "page": "en",
-  "en": "Unlimited Hydro-Massage, Infrared Sauna & Cryo Pod Access",
-  "ar": "وصول غير محدود للتدليك المائي وساونا الأشعة وكبسولة التبريد"
- },
- {
-  "key": "en.plan.pro.p5",
-  "page": "en",
-  "en": "2 Guest Biometric Access Day Passes / Month",
-  "ar": "تصريحان يوميان لضيوف شهريًا بوصول حيوي"
- },
- {
-  "key": "en.plan.elite.short",
-  "page": "en",
-  "en": "ELITE",
-  "ar": "نخبة"
- },
- {
-  "key": "en.plan.elite.name",
-  "page": "en",
-  "en": "ELITE APEX TIER",
-  "ar": "فئة القمة نخبة"
- },
- {
-  "key": "en.plan.elite.desc",
-  "page": "en",
-  "en": "Apex Access · Coaching Credits & Priority Recovery",
-  "ar": "وصول القمة · أرصدة تدريب وأولوية تعافٍ"
- },
- {
-  "key": "en.plan.elite.p1",
-  "page": "en",
-  "en": "Everything in Smart Pro Tier",
-  "ar": "كل ما في فئة سمارت برو"
- },
- {
-  "key": "en.plan.elite.p2",
-  "page": "en",
-  "en": "2× 45-min Elite Coaching Screens / Month",
-  "ar": "جلستان × 45 دقيقة فحص تدريبي نخبوي شهريًا"
- },
- {
-  "key": "en.plan.elite.p3",
-  "page": "en",
-  "en": "Priority Cryo Pod & Hydro-Massage Reservations",
-  "ar": "أولوية حجز كبسولة التبريد والتدليك المائي"
- },
- {
-  "key": "en.plan.elite.p4",
-  "page": "en",
-  "en": "Combat Pit Open Mat + 4 Guest Passes / Month",
-  "ar": "حصيرة القتال المفتوحة + 4 تصاريح ضيوف شهريًا"
- },
- {
-  "key": "en.plan.elite.p5",
-  "page": "en",
-  "en": "Quarterly DEXA Scan & Movement Audit",
-  "ar": "مسح DEXA ومراجعة حركة ربع سنوية"
  },
  {
   "key": "en.trust.1.t",
@@ -3636,52 +2952,10 @@
   "ar": "إرسال مختبري // VBT-09"
  },
  {
-  "key": "ins.feat.sparkLab",
-  "page": "ins",
-  "en": "BAR SPEED",
-  "ar": "سرعة البار"
- },
- {
-  "key": "ins.feat.tag",
-  "page": "ins",
-  "en": "FEATURED PROTOCOL // TRAINING SCIENCE",
-  "ar": "بروتوكول مميز // علم التدريب"
- },
- {
   "key": "ins.feat.certified",
   "page": "ins",
   "en": "LAB CERTIFIED",
   "ar": "معتمد مختبريًا"
- },
- {
-  "key": "ins.feat.title",
-  "page": "ins",
-  "en": "The Velocity-Based Training (VBT) Protocol: How Real-Time Sensors Eliminate Recovery Plateaus",
-  "ar": "بروتوكول التدريب القائم على السرعة (VBT): كيف تُلغي المستشعرات الفورية هضبات التعافي"
- },
- {
-  "key": "ins.feat.desc",
-  "page": "ins",
-  "en": "Transitioning from arbitrary percentage-based one-rep maxes to linear position transducers and real-time velocity loss cutoffs preserves the central nervous system while targeting concentric force curves.",
-  "ar": "الانتقال من النسب الاعتباطية بناءً على الحد الأقصى للتكرار الواحد إلى محوّلات الموضع الخطية وحدود فقدان السرعة الفورية يحافظ على الجهاز العصبي المركزي مع استهداف منحنيات القوة المركزة."
- },
- {
-  "key": "ins.feat.author",
-  "page": "ins",
-  "en": "Dr. Elias Vance, PhD, CSCS",
-  "ar": "د. إلياس فانس، دكتوراه، CSCS"
- },
- {
-  "key": "ins.feat.authorMeta",
-  "page": "ins",
-  "en": "Director of Biomechanics • 8 Min Read",
-  "ar": "مدير الميكانيكا الحيوية • 8 دقائق قراءة"
- },
- {
-  "key": "ins.feat.date",
-  "page": "ins",
-  "en": "Yesterday",
-  "ar": "أمس"
  },
  {
   "key": "ins.feat.cta",
@@ -4014,30 +3288,6 @@
   "ar": "عرض القياسات"
  },
  {
-  "key": "fac.cap.title",
-  "page": "fac",
-  "en": "CAMPUS CAPACITY",
-  "ar": "سعة الحرم"
- },
- {
-  "key": "fac.cap.detail",
-  "page": "fac",
-  "en": "Athletes Checked In",
-  "ar": "رياضي مسجّل"
- },
- {
-  "key": "fac.cap.status",
-  "page": "fac",
-  "en": "PEAK VELOCITY WINDOW",
-  "ar": "نافذة ذروة السرعة"
- },
- {
-  "key": "fac.cap.load",
-  "page": "fac",
-  "en": "LOAD",
-  "ar": "حمل"
- },
- {
   "key": "fac.belt.aquatics",
   "page": "fac",
   "en": "AQUATICS",
@@ -4134,36 +3384,6 @@
   "ar": "القوة"
  },
  {
-  "key": "fac.card.load",
-  "page": "fac",
-  "en": "LIVE LOAD",
-  "ar": "الحمل المباشر"
- },
- {
-  "key": "fac.card.openNow",
-  "page": "fac",
-  "en": "OPEN NOW ·",
-  "ar": "مفتوح الآن ·"
- },
- {
-  "key": "fac.card.walkin",
-  "page": "fac",
-  "en": "WALK-IN INSTANT",
-  "ar": "دخول فوري"
- },
- {
-  "key": "fac.card.nextPre",
-  "page": "fac",
-  "en": "NEXT SLOT",
-  "ar": "الفتحة التالية"
- },
- {
-  "key": "fac.card.nextMid",
-  "page": "fac",
-  "en": "· IN",
-  "ar": "· بعد"
- },
- {
   "key": "fac.tel.label",
   "page": "fac",
   "en": "SMART GYM SENSOR GRID v4.2",
@@ -4192,6 +3412,48 @@
   "page": "fac",
   "en": "AIR QUALITY",
   "ar": "جودة الهواء"
+ },
+ {
+  "key": "fac.tel.stat1v",
+  "page": "fac",
+  "en": "0.04s",
+  "ar": "0.04 ث"
+ },
+ {
+  "key": "fac.tel.stat2v",
+  "page": "fac",
+  "en": "HEPA 14",
+  "ar": "HEPA 14"
+ },
+ {
+  "key": "fac.card.status",
+  "page": "fac",
+  "en": "STATUS:",
+  "ar": "الحالة:"
+ },
+ {
+  "key": "fac.card.cta",
+  "page": "fac",
+  "en": "JOIN TO ACCESS",
+  "ar": "انضم للدخول"
+ },
+ {
+  "key": "fac.loading",
+  "page": "fac",
+  "en": "Loading facilities…",
+  "ar": "جارٍ تحميل المرافق…"
+ },
+ {
+  "key": "fac.empty",
+  "page": "fac",
+  "en": "No facilities to show yet.",
+  "ar": "لا توجد مرافق لعرضها بعد."
+ },
+ {
+  "key": "fac.error",
+  "page": "fac",
+  "en": "Facilities could not be loaded. Please refresh the page.",
+  "ar": "تعذّر تحميل المرافق. يرجى تحديث الصفحة."
  },
  {
   "key": "fac.tel.cta",
@@ -4452,30 +3714,6 @@
   "ar": "اذكر الأرقام التسلسلية للأجهزة، أو فتحات الساحة المرغوبة، أو متطلبات الحيوية المؤسسية..."
  },
  {
-  "key": "ct.f.attachTitle",
-  "page": "ct",
-  "en": "Attach Diagnostics or Roster CSV",
-  "ar": "أرفق التشخيصات أو قائمة CSV"
- },
- {
-  "key": "ct.f.attachSub",
-  "page": "ct",
-  "en": "PDF, PNG, LOG, CSV (Up to 25MB)",
-  "ar": "PDF, PNG, LOG, CSV (حتى 25 ميجا)"
- },
- {
-  "key": "ct.f.browse",
-  "page": "ct",
-  "en": "BROWSE FILES",
-  "ar": "تصفح الملفات"
- },
- {
-  "key": "ct.f.remove",
-  "page": "ct",
-  "en": "REMOVE",
-  "ar": "إزالة"
- },
- {
   "key": "ct.f.slaDefault",
   "page": "ct",
   "en": "GUARANTEED RESPONSE: < 2 HOURS",
@@ -4666,42 +3904,6 @@
   "page": "ct",
   "en": "GET GPS",
   "ar": "الملاحة"
- },
- {
-  "key": "ct.rail.cap",
-  "page": "ct",
-  "en": "CURRENT FLOOR CAPACITY",
-  "ar": "سعة الأرضية الحالية"
- },
- {
-  "key": "ct.rail.queue",
-  "page": "ct",
-  "en": "DESK QUEUE",
-  "ar": "طابور المكتب"
- },
- {
-  "key": "ct.rail.queue0",
-  "page": "ct",
-  "en": "0 Mins",
-  "ar": "0 دقيقة"
- },
- {
-  "key": "ct.rail.queue6",
-  "page": "ct",
-  "en": "6 Mins",
-  "ar": "6 دقائق"
- },
- {
-  "key": "ct.rail.avg",
-  "page": "ct",
-  "en": "AVG RESPONSE",
-  "ar": "متوسط الرد"
- },
- {
-  "key": "ct.rail.avgV",
-  "page": "ct",
-  "en": "14 Mins",
-  "ar": "14 دقيقة"
  },
  {
   "key": "ct.map.label",
@@ -5028,42 +4230,6 @@
   "ar": "انضم الآن"
  },
  {
-  "key": "en.photo.title",
-  "page": "en",
-  "en": "PROFILE PHOTO",
-  "ar": "صورة الملف الشخصي"
- },
- {
-  "key": "en.photo.hint",
-  "page": "en",
-  "en": "Optional — used for gym entry verification",
-  "ar": "اختياري — تُستخدم للتحقق عند دخول النادي"
- },
- {
-  "key": "en.photo.upload",
-  "page": "en",
-  "en": "UPLOAD PHOTO",
-  "ar": "ارفع صورة"
- },
- {
-  "key": "en.photo.change",
-  "page": "en",
-  "en": "CHANGE PHOTO",
-  "ar": "تغيير الصورة"
- },
- {
-  "key": "en.photo.errorType",
-  "page": "en",
-  "en": "Photo must be an image file.",
-  "ar": "يجب أن تكون الصورة ملف صورة."
- },
- {
-  "key": "en.photo.errorSize",
-  "page": "en",
-  "en": "Photo must be under 5 MB.",
-  "ar": "يجب أن تكون الصورة أقل من 5 ميجا."
- },
- {
   "key": "en.field.iqama",
   "page": "en",
   "en": "IQAMA NUMBER",
@@ -5136,52 +4302,10 @@
   "ar": "كلمتا المرور غير متطابقتين"
  },
  {
-  "key": "en.err.api",
-  "page": "en",
-  "en": "SUBMISSION FAILED — TRY AGAIN",
-  "ar": "فشل الإرسال — حاول مرة أخرى"
- },
- {
-  "key": "en.ok.pendingTitle",
-  "page": "en",
-  "en": "REGISTRATION RECEIVED",
-  "ar": "تم استلام التسجيل"
- },
- {
-  "key": "en.ok.pendingSub",
-  "page": "en",
-  "en": "Your request is pending admin approval. You'll receive an email once it's activated.",
-  "ar": "طلبك قيد موافقة الإدارة. ستصلك رسالة بريد عند التفعيل."
- },
- {
-  "key": "en.ok.statusPending",
-  "page": "en",
-  "en": "PENDING",
-  "ar": "قيد المراجعة"
- },
- {
-  "key": "en.ok.statusPaid",
-  "page": "en",
-  "en": "PAID",
-  "ar": "مدفوع"
- },
- {
   "key": "en.ok.backHome",
   "page": "en",
   "en": "BACK TO HOME",
   "ar": "العودة للرئيسية"
- },
- {
-  "key": "en.ok.confirmSent",
-  "page": "en",
-  "en": "Confirmation sent to",
-  "ar": "تم إرسال تأكيد إلى"
- },
- {
-  "key": "en.ok.iqamaNote",
-  "page": "en",
-  "en": "Keep your Iqama number safe — you will use it at gym entry.",
-  "ar": "احتفظ برقم الإقامة — ستستخدمه عند دخول النادي."
  },
  {
   "key": "en.ok.reference",
@@ -5206,5 +4330,587 @@
   "page": "en",
   "en": "No features listed.",
   "ar": "لا مزايا مدرجة."
+ },
+ {
+  "key": "meta.description",
+  "page": "meta",
+  "en": "Smart Gym — premium training facilities, coaching and recovery with biometric access.",
+  "ar": "سمارت جيم — مرافق تدريب متميزة وتدريب شخصي وتعافٍ مع دخول بالقياسات الحيوية."
+ },
+ {
+  "key": "home.cl.hrVal",
+  "page": "home",
+  "en": "142",
+  "ar": "142"
+ },
+ {
+  "key": "home.cl.pwrVal",
+  "page": "home",
+  "en": "940",
+  "ar": "940"
+ },
+ {
+  "key": "home.cl.capVal",
+  "page": "home",
+  "en": "82%",
+  "ar": "82%"
+ },
+ {
+  "key": "home.floor.tile1.v",
+  "page": "home",
+  "en": "418",
+  "ar": "418"
+ },
+ {
+  "key": "home.floor.tile2.v",
+  "page": "home",
+  "en": "41,320",
+  "ar": "41,320"
+ },
+ {
+  "key": "home.floor.tile3.v",
+  "page": "home",
+  "en": "386",
+  "ar": "386"
+ },
+ {
+  "key": "home.floor.tile4.v",
+  "page": "home",
+  "en": "0",
+  "ar": "0"
+ },
+ {
+  "key": "home.pf.s1.v",
+  "page": "home",
+  "en": "99.4%",
+  "ar": "99.4%"
+ },
+ {
+  "key": "home.pf.s2.v",
+  "page": "home",
+  "en": "1.4M+",
+  "ar": "1.4M+"
+ },
+ {
+  "key": "home.pf.s3.v",
+  "page": "home",
+  "en": "24/7",
+  "ar": "24/7"
+ },
+ {
+  "key": "home.pf.s4.v",
+  "page": "home",
+  "en": "0.02s",
+  "ar": "0.02s"
+ },
+ {
+  "key": "home.fc.cta",
+  "page": "home",
+  "en": "EXPLORE",
+  "ar": "استكشف"
+ },
+ {
+  "key": "svc.card1.price",
+  "page": "svc",
+  "en": "$120",
+  "ar": "$120"
+ },
+ {
+  "key": "svc.card2.price",
+  "page": "svc",
+  "en": "$160",
+  "ar": "$160"
+ },
+ {
+  "key": "svc.card3.price",
+  "page": "svc",
+  "en": "$95",
+  "ar": "$95"
+ },
+ {
+  "key": "svc.card4.price",
+  "page": "svc",
+  "en": "$140",
+  "ar": "$140"
+ },
+ {
+  "key": "svc.card5.price",
+  "page": "svc",
+  "en": "$85",
+  "ar": "$85"
+ },
+ {
+  "key": "svc.card1.labName",
+  "page": "svc",
+  "en": "KORTEX-V5",
+  "ar": "KORTEX-V5"
+ },
+ {
+  "key": "svc.card2.labName",
+  "page": "svc",
+  "en": "RPE-9 MATRIX",
+  "ar": "RPE-9 MATRIX"
+ },
+ {
+  "key": "svc.card3.labName",
+  "page": "svc",
+  "en": "DEXA 360",
+  "ar": "DEXA 360"
+ },
+ {
+  "key": "svc.card4.labName",
+  "page": "svc",
+  "en": "650 PSI PEAK",
+  "ar": "650 PSI PEAK"
+ },
+ {
+  "key": "svc.card5.labName",
+  "page": "svc",
+  "en": "4X WASHOUT",
+  "ar": "4X WASHOUT"
+ },
+ {
+  "key": "svc.tel.lactateV",
+  "page": "svc",
+  "en": "3.8 mmol/L",
+  "ar": "3.8 مليمول/لتر"
+ },
+ {
+  "key": "svc.tel.maxO2V",
+  "page": "svc",
+  "en": "58.4 ml/kg",
+  "ar": "58.4 مل/كغ"
+ },
+ {
+  "key": "ins.m1.v",
+  "page": "ins",
+  "en": "1,420",
+  "ar": "1,420"
+ },
+ {
+  "key": "ins.m2.v",
+  "page": "ins",
+  "en": "94.2",
+  "ar": "94.2"
+ },
+ {
+  "key": "ins.m3.v",
+  "page": "ins",
+  "en": "3.8L",
+  "ar": "3.8 لتر"
+ },
+ {
+  "key": "ins.m4.v",
+  "page": "ins",
+  "en": "+18.4%",
+  "ar": "+18.4%"
+ },
+ {
+  "key": "ins.card.readMin",
+  "page": "ins",
+  "en": "{{n}} MIN READ",
+  "ar": "{{n}} دقائق قراءة"
+ },
+ {
+  "key": "ins.loading",
+  "page": "ins",
+  "en": "Loading articles…",
+  "ar": "جارٍ تحميل المقالات…"
+ },
+ {
+  "key": "ins.error",
+  "page": "ins",
+  "en": "Articles could not be loaded. Please refresh the page.",
+  "ar": "تعذّر تحميل المقالات. يرجى تحديث الصفحة."
+ },
+ {
+  "key": "ins.news.sending",
+  "page": "ins",
+  "en": "SUBSCRIBING…",
+  "ar": "جارٍ الاشتراك…"
+ },
+ {
+  "key": "ins.news.error",
+  "page": "ins",
+  "en": "Subscription failed. Please try again.",
+  "ar": "فشل الاشتراك. يرجى المحاولة مرة أخرى."
+ },
+ {
+  "key": "ct.phone",
+  "page": "ct",
+  "en": "+1 800 555 9090",
+  "ar": "+1 800 555 9090"
+ },
+ {
+  "key": "ct.whatsapp",
+  "page": "ct",
+  "en": "+1 800 555 9090",
+  "ar": "+1 800 555 9090"
+ },
+ {
+  "key": "ct.map.coords",
+  "page": "ct",
+  "en": "35.6762° N, 139.6503° E",
+  "ar": "35.6762° شمالًا، 139.6503° شرقًا"
+ },
+ {
+  "key": "ct.map.url",
+  "page": "ct",
+  "en": "https://maps.google.com/?q=35.6762,139.6503",
+  "ar": "https://maps.google.com/?q=35.6762,139.6503"
+ },
+ {
+  "key": "ct.f.sending",
+  "page": "ct",
+  "en": "SENDING…",
+  "ar": "جارٍ الإرسال…"
+ },
+ {
+  "key": "ct.f.error",
+  "page": "ct",
+  "en": "Your message could not be sent. Please try again.",
+  "ar": "تعذّر إرسال رسالتك. يرجى المحاولة مرة أخرى."
+ },
+ {
+  "key": "art.back",
+  "page": "art",
+  "en": "All insights",
+  "ar": "كل المقالات"
+ },
+ {
+  "key": "art.loading",
+  "page": "art",
+  "en": "Loading article…",
+  "ar": "جارٍ تحميل المقال…"
+ },
+ {
+  "key": "art.missing.title",
+  "page": "art",
+  "en": "Article not found",
+  "ar": "المقال غير موجود"
+ },
+ {
+  "key": "art.missing.desc",
+  "page": "art",
+  "en": "This article may have been moved or unpublished.",
+  "ar": "ربما نُقل هذا المقال أو أُلغي نشره."
+ },
+ {
+  "key": "art.more",
+  "page": "art",
+  "en": "MORE INSIGHTS",
+  "ar": "المزيد من المقالات"
+ },
+ {
+  "key": "nf.title",
+  "page": "nf",
+  "en": "Page not found",
+  "ar": "الصفحة غير موجودة"
+ },
+ {
+  "key": "nf.desc",
+  "page": "nf",
+  "en": "The page you are looking for does not exist or has moved.",
+  "ar": "الصفحة التي تبحث عنها غير موجودة أو تم نقلها."
+ },
+ {
+  "key": "nf.home",
+  "page": "nf",
+  "en": "BACK TO HOME",
+  "ar": "العودة إلى الرئيسية"
+ },
+ {
+  "key": "en.pass.pending",
+  "page": "en",
+  "en": "PASS #PENDING",
+  "ar": "التصريح #قيد الانتظار"
+ },
+ {
+  "key": "en.gender.male",
+  "page": "en",
+  "en": "Male",
+  "ar": "ذكر"
+ },
+ {
+  "key": "en.gender.female",
+  "page": "en",
+  "en": "Female",
+  "ar": "أنثى"
+ },
+ {
+  "key": "en.gender.other",
+  "page": "en",
+  "en": "Other",
+  "ar": "آخر"
+ },
+ {
+  "key": "en.field.addressPh",
+  "page": "en",
+  "en": "City, Street, Building",
+  "ar": "المدينة، الشارع، المبنى"
+ },
+ {
+  "key": "en.photo.live",
+  "page": "en",
+  "en": "LIVE PHOTO — used to verify your face at the gym entrance",
+  "ar": "صورة مباشرة — تُستخدم للتحقق من وجهك عند مدخل النادي"
+ },
+ {
+  "key": "en.photo.take",
+  "page": "en",
+  "en": "TAKE A PHOTO",
+  "ar": "التقط صورة"
+ },
+ {
+  "key": "en.p2.continuePay",
+  "page": "en",
+  "en": "CONTINUE TO SECURE PAYMENT",
+  "ar": "متابعة إلى الدفع الآمن"
+ },
+ {
+  "key": "en.p2.payAmount",
+  "page": "en",
+  "en": "PAY SAR {{amount}}",
+  "ar": "ادفع {{amount}} ر.س"
+ },
+ {
+  "key": "en.p2.ref",
+  "page": "en",
+  "en": "REF #",
+  "ar": "المرجع #"
+ },
+ {
+  "key": "en.p2.secureNote",
+  "page": "en",
+  "en": "Card and STC Pay details are entered on Moyasar's secure form and never reach our servers.",
+  "ar": "تُدخل بيانات البطاقة و STC Pay في نموذج ميسر الآمن ولا تصل إلى خوادمنا أبدًا."
+ },
+ {
+  "key": "en.sum.tax",
+  "page": "en",
+  "en": "Tax (0%)",
+  "ar": "الضريبة (0%)"
+ },
+ {
+  "key": "pay.title",
+  "page": "pay",
+  "en": "Payment",
+  "ar": "الدفع"
+ },
+ {
+  "key": "pay.verifying.title",
+  "page": "pay",
+  "en": "CONFIRMING PAYMENT",
+  "ar": "جارٍ تأكيد الدفع"
+ },
+ {
+  "key": "pay.verifying.sub",
+  "page": "pay",
+  "en": "Verifying your payment with Moyasar. Please don't close this page.",
+  "ar": "نتحقق من دفعتك مع ميسر. يرجى عدم إغلاق هذه الصفحة."
+ },
+ {
+  "key": "pay.paid.title",
+  "page": "pay",
+  "en": "PAYMENT CONFIRMED",
+  "ar": "تم تأكيد الدفع"
+ },
+ {
+  "key": "pay.paid.sub",
+  "page": "pay",
+  "en": "Your registration is now pending admin approval. You'll receive an email once your membership is activated.",
+  "ar": "تسجيلك الآن بانتظار موافقة الإدارة. ستصلك رسالة بريد إلكتروني عند تفعيل عضويتك."
+ },
+ {
+  "key": "pay.pass.iqama",
+  "page": "pay",
+  "en": "IQAMA #",
+  "ar": "رقم الإقامة"
+ },
+ {
+  "key": "pay.pass.duration",
+  "page": "pay",
+  "en": "DURATION",
+  "ar": "المدة"
+ },
+ {
+  "key": "pay.pass.status",
+  "page": "pay",
+  "en": "STATUS",
+  "ar": "الحالة"
+ },
+ {
+  "key": "pay.pass.pending",
+  "page": "pay",
+  "en": "PENDING APPROVAL",
+  "ar": "بانتظار الموافقة"
+ },
+ {
+  "key": "pay.note.pre",
+  "page": "pay",
+  "en": "Confirmation goes to",
+  "ar": "يُرسل التأكيد إلى"
+ },
+ {
+  "key": "pay.note.iqama",
+  "page": "pay",
+  "en": "Keep your Iqama number —",
+  "ar": "احتفظ برقم إقامتك —"
+ },
+ {
+  "key": "pay.note.post",
+  "page": "pay",
+  "en": "— you'll use it at gym entry.",
+  "ar": "— ستستخدمه عند دخول النادي."
+ },
+ {
+  "key": "pay.pending.title",
+  "page": "pay",
+  "en": "PAYMENT PROCESSING",
+  "ar": "الدفع قيد المعالجة"
+ },
+ {
+  "key": "pay.failed.title",
+  "page": "pay",
+  "en": "PAYMENT NOT COMPLETED",
+  "ar": "لم يكتمل الدفع"
+ },
+ {
+  "key": "pay.failed.note",
+  "page": "pay",
+  "en": "You haven't been charged for this attempt. Your details are saved — go back, retake your photo and try again.",
+  "ar": "لم يتم خصم أي مبلغ في هذه المحاولة. بياناتك محفوظة — عد والتقط صورتك مجددًا ثم حاول مرة أخرى."
+ },
+ {
+  "key": "pay.error.title",
+  "page": "pay",
+  "en": "SOMETHING WENT WRONG",
+  "ar": "حدث خطأ ما"
+ },
+ {
+  "key": "pay.retry",
+  "page": "pay",
+  "en": "TRY AGAIN",
+  "ar": "حاول مرة أخرى"
+ },
+ {
+  "key": "pay.msg.noRef",
+  "page": "pay",
+  "en": "No payment reference was returned.",
+  "ar": "لم يتم إرجاع مرجع للدفع."
+ },
+ {
+  "key": "pay.msg.declined",
+  "page": "pay",
+  "en": "The payment was declined.",
+  "ar": "تم رفض الدفع."
+ },
+ {
+  "key": "pay.msg.review",
+  "page": "pay",
+  "en": "Your payment needs a manual check by our team. We will contact you by email.",
+  "ar": "تحتاج دفعتك إلى مراجعة يدوية من فريقنا. سنتواصل معك عبر البريد الإلكتروني."
+ },
+ {
+  "key": "pay.msg.stillConfirming",
+  "page": "pay",
+  "en": "We are still confirming your payment. You will receive an email once it is confirmed — no need to pay again.",
+  "ar": "ما زلنا نؤكد دفعتك. ستصلك رسالة بريد إلكتروني عند التأكيد — لا حاجة للدفع مرة أخرى."
+ },
+ {
+  "key": "cam.alt",
+  "page": "cam",
+  "en": "Captured face photo",
+  "ar": "صورة الوجه الملتقطة"
+ },
+ {
+  "key": "cam.hint.captured",
+  "page": "cam",
+  "en": "Photo captured. Make sure your whole face is clear and well lit.",
+  "ar": "تم التقاط الصورة. تأكد أن وجهك بالكامل واضح ومضاء جيدًا."
+ },
+ {
+  "key": "cam.hint.live",
+  "page": "cam",
+  "en": "Face the camera in good light, remove sunglasses or caps, and keep your face inside the oval.",
+  "ar": "واجه الكاميرا في إضاءة جيدة، وانزع النظارات الشمسية أو القبعات، وأبقِ وجهك داخل الإطار البيضاوي."
+ },
+ {
+  "key": "cam.open",
+  "page": "cam",
+  "en": "OPEN CAMERA",
+  "ar": "افتح الكاميرا"
+ },
+ {
+  "key": "cam.retry",
+  "page": "cam",
+  "en": "TRY AGAIN",
+  "ar": "حاول مرة أخرى"
+ },
+ {
+  "key": "cam.waiting",
+  "page": "cam",
+  "en": "WAITING FOR CAMERA…",
+  "ar": "بانتظار الكاميرا…"
+ },
+ {
+  "key": "cam.capture",
+  "page": "cam",
+  "en": "CAPTURE PHOTO",
+  "ar": "التقط الصورة"
+ },
+ {
+  "key": "cam.retake",
+  "page": "cam",
+  "en": "RETAKE",
+  "ar": "إعادة الالتقاط"
+ },
+ {
+  "key": "cam.err.insecure",
+  "page": "cam",
+  "en": "Camera needs a secure connection — open the site over https.",
+  "ar": "تحتاج الكاميرا إلى اتصال آمن — افتح الموقع عبر https."
+ },
+ {
+  "key": "cam.err.unsupported",
+  "page": "cam",
+  "en": "This browser does not support camera access. Try the latest Chrome, Edge, Safari or Firefox.",
+  "ar": "هذا المتصفح لا يدعم الوصول إلى الكاميرا. جرّب أحدث إصدار من Chrome أو Edge أو Safari أو Firefox."
+ },
+ {
+  "key": "cam.err.denied",
+  "page": "cam",
+  "en": "Camera permission was denied. Click the camera icon in the address bar, allow access, then try again.",
+  "ar": "تم رفض إذن الكاميرا. انقر على أيقونة الكاميرا في شريط العنوان واسمح بالوصول ثم حاول مرة أخرى."
+ },
+ {
+  "key": "cam.err.notFound",
+  "page": "cam",
+  "en": "No camera was found on this device.",
+  "ar": "لم يتم العثور على كاميرا في هذا الجهاز."
+ },
+ {
+  "key": "cam.err.busy",
+  "page": "cam",
+  "en": "The camera is in use by another app (e.g. Zoom/Teams). Close it and try again.",
+  "ar": "الكاميرا مستخدمة من تطبيق آخر (مثل Zoom أو Teams). أغلقه ثم حاول مرة أخرى."
+ },
+ {
+  "key": "cam.err.generic",
+  "page": "cam",
+  "en": "Could not start the camera.",
+  "ar": "تعذّر تشغيل الكاميرا."
+ },
+ {
+  "key": "cam.err.starting",
+  "page": "cam",
+  "en": "Camera is still starting — wait a moment and try again.",
+  "ar": "الكاميرا ما زالت تبدأ — انتظر لحظة ثم حاول مرة أخرى."
+ },
+ {
+  "key": "cam.err.capture",
+  "page": "cam",
+  "en": "Could not capture the photo. Try again.",
+  "ar": "تعذّر التقاط الصورة. حاول مرة أخرى."
  }
 ]

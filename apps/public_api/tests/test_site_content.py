@@ -40,9 +40,11 @@ class ContentTestBase(APITestCase):
 
 class SeededContentTests(ContentTestBase):
     def test_migration_seeds_every_text_and_image(self):
-        self.assertEqual(SiteText.objects.count(), 868)
-        self.assertEqual(SiteImage.objects.count(), 29)
+        self.assertEqual(SiteText.objects.count(), 819)
+        self.assertEqual(SiteImage.objects.count(), 25)
         self.assertFalse(SiteText.objects.filter(page='bkm').exists())      # booking removed
+        self.assertFalse(SiteImage.objects.filter(key__startswith='home.sectors.').exists())  # home uses the facilities list
+        self.assertTrue(SiteText.objects.filter(key='ct.phone').exists())                     # added in 0005
         self.assertFalse(SiteText.objects.filter(key__startswith='fac.c1.').exists())   # now a facilities item
         self.assertFalse(SiteImage.objects.filter(key='ins.vo2').exists())              # now an article image
         nav = SiteText.objects.get(key='nav.home')
@@ -52,7 +54,7 @@ class SeededContentTests(ContentTestBase):
     def test_public_endpoint_returns_all_texts_and_images(self):
         r = self.client.get('/api/public/site-content/')
         self.assertEqual(r.status_code, 200)
-        self.assertEqual(len(r.data['texts']), 868)
+        self.assertEqual(len(r.data['texts']), 819)
         self.assertEqual(set(r.data['texts']['nav.home']), {'en', 'ar'})
         self.assertTrue(r.data['images']['fac.heroBg']['url'].startswith('https://'))
         self.assertIn('max-age=60', r['Cache-Control'])
@@ -97,7 +99,7 @@ class TextEditingTests(ContentTestBase):
         pages = {p['page']: p for p in self.client.get(f'{ADMIN}/pages/').data}
         self.assertEqual(pages['nav']['texts_customized'], 1)
         self.assertEqual(pages['fac']['images'], 1)       # hero; card images moved to the facilities list
-        self.assertEqual(sum(p['texts'] for p in pages.values()), 868)
+        self.assertEqual(sum(p['texts'] for p in pages.values()), 819)   # every page is listed
 
     def test_unknown_key_is_404(self):
         self.as_admin()

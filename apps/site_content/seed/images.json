@@ -1,33 +1,5 @@
 [
  {
-  "key": "home.sectors.s1",
-  "page": "home",
-  "const": "IMG_SECTORS",
-  "prop": "s1",
-  "default_url": "https://lh3.googleusercontent.com/aida-public/AB6AXuA23dg0PwZOBLQHFc5L3CR2koDzZ1qCtI2wt0JljLuzWtCzeGO68fwgDV7qXQgzKxDWKCiti668_e4ByD5btmEGMpGqu_U8lV5ijrvOn5eAuLUNyUUKLpZWINudKPQcwOTezUIpXEXcTuzGumCpH8Q6pWIRGC7Xj-gg95KfkINm3lxdWhmXlqlMDniXSXc_3ozdnLJ0EyKdjn8axgsuhCVcvwMjVDcpnDrNQS2y7b0wzuYrBuDdsAtqYQ"
- },
- {
-  "key": "home.sectors.s2",
-  "page": "home",
-  "const": "IMG_SECTORS",
-  "prop": "s2",
-  "default_url": "https://lh3.googleusercontent.com/aida-public/AB6AXuDOsUJYZow6PF3XJwRRZJamWbc9ddU024GZW5iYBS5YlX4EO3DDUAI3dHyFQDoMdJvbtf7R38ks3-k6qzgQCZI3O_fh8AlKbR2yz3z-vvjax-8pbzy1dL8MmpX_CBEVnFXLJMN1iYuyI040STPXWEzoFvokbtgqeVqQmgXzQm81YFcKwPRKKxmHZ1rsG5fWLzKw3zV5oN83c3X0ZyTSUA8_9j4e_FdcLtOesXhJpPxFWvFCBOXElsKRMg"
- },
- {
-  "key": "home.sectors.s3",
-  "page": "home",
-  "const": "IMG_SECTORS",
-  "prop": "s3",
-  "default_url": "https://lh3.googleusercontent.com/aida-public/AB6AXuDV3CcgN4obCgXaNL3RUNHyf7x2YtvrhJxgbTM4wNNCyA1usAhn_KDjDwELDf84TfRTpL1XkdyU8ZUtARAGnprs3EKZDEJ51h2jc-2m5hsMpfzYpk2AULO5c1yneYCggtcTjPWXCpT_ps8x8zbPxqZc8l6XR4DVu7nGp631CfhhqejxKIfo186fJTeZMjG5wgJeybWGckIhfiGt5e0LVdjMSYt-kqgWzqX9phNvE5WUmgXR32Thq9fFCA"
- },
- {
-  "key": "home.sectors.s4",
-  "page": "home",
-  "const": "IMG_SECTORS",
-  "prop": "s4",
-  "default_url": "https://lh3.googleusercontent.com/aida-public/AB6AXuDk5Oh9gpB5ucwXqc_fWi5ICkJK3Y4l6P_-ng0_hFqqNi3-XJgiH4Kq3JApvU80yRgokkd7VoIugJmYt1j_iBTZno_W5pcu-kFgsrfJ_6im9GXAwYcdyCHwWPSzAuMnBkiSnFqix318GepuMGsqTRVJQL3xIhRP-bD2EjxntBw8xaBjzmlbETZCo0JHIziPUuTM5ejE2NDZyBjeIWmt8AYVEypg5dWvCPAnQBvlkpjaRpsra11V68EPVg"
- },
- {
   "key": "home.why.r1",
   "page": "home",
   "const": "IMG_WHY",

@@ -20,6 +20,10 @@ PAGES = {
     'ins': 'Insights (blog)',
     'ct': 'Contact',
     'en': 'Membership signup',
+    'cam': 'Signup camera',
+    'pay': 'Payment result',
+    'art': 'Article page',
+    'nf': 'Page not found (404)',
 }
 
 

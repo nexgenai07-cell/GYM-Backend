@@ -96,6 +96,34 @@ def fetch_payment(payment_id):
         raise MoyasarUnavailable('Could not verify the payment with the provider.') from exc
 
 
+def refund_payment(payment_id, amount_halalas):
+    """POST /payments/<id>/refund (secret key). Returns Moyasar's payment; raises MoyasarError."""
+    if not isinstance(payment_id, str) or not payment_id:
+        raise MoyasarError('No Moyasar payment to refund.')
+    auth = base64.b64encode(f'{_secret_key()}:'.encode()).decode()
+    req = urllib.request.Request(
+        f"{settings.MOYASAR_API_URL}/payments/{urllib.parse.quote(payment_id, safe='')}/refund",
+        data=urllib.parse.urlencode({'amount': int(amount_halalas)}).encode(),
+        method='POST',
+        headers={'Authorization': f'Basic {auth}', 'Accept': 'application/json', 'User-Agent': USER_AGENT,
+                 'Content-Type': 'application/x-www-form-urlencoded'},
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=15) as resp:
+            return json.loads(resp.read())
+    except urllib.error.HTTPError as exc:
+        body = exc.read()[:300]
+        logger.error('Moyasar refund %s failed: HTTP %s %s', payment_id, exc.code, body)
+        try:
+            msg = json.loads(body).get('message')
+        except ValueError:
+            msg = None
+        raise MoyasarError(f'Moyasar refused the refund{": " + msg if msg else ""}.') from exc
+    except (urllib.error.URLError, TimeoutError, ValueError) as exc:
+        logger.error('Moyasar refund %s failed: %s', payment_id, exc)
+        raise MoyasarUnavailable('Could not reach Moyasar to refund.') from exc
+
+
 def checkout_params(reg):
     """Everything the frontend needs to initialise the Moyasar form for a registration."""
     return {

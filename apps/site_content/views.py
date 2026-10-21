@@ -239,7 +239,17 @@ def public_collection(request, name):
     schema = _collection_or_404(name)
     listed = [fd['name'] for fd in schema['fields'] if fd['name'] != 'body']
     items = SiteItem.objects.filter(collection=name, is_active=True)
-    response = Response([public_item(i, include=listed) for i in items])
+    data = [public_item(i, include=listed) for i in items]
+    if name == 'facilities':
+        # Facility add-on price (Admin → Facility Pricing) for the signup page.
+        from apps.members.models import FacilityAddon
+        addons = {a.item_id: a for a in FacilityAddon.objects.filter(item__in=items)}
+        for row in data:
+            a = addons.get(row['id'])
+            bookable = bool(a and a.is_bookable and a.monthly_price > 0)
+            row['monthly_price'] = str(a.monthly_price) if bookable else None
+            row['bookable'] = bookable
+    response = Response(data)
     response['Cache-Control'] = 'public, max-age=60, stale-while-revalidate=300'
     return response
 

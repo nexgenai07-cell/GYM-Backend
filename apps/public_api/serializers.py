@@ -58,13 +58,15 @@ class RegistrationCreateSerializer(serializers.ModelSerializer):
     iqama_number = serializers.CharField(max_length=20)
     email = serializers.EmailField(max_length=254)
     photo = serializers.ImageField()
+    # Optional facility add-ons: comma-separated ids of the admin "Facilities" list ("3,7").
+    facilities = serializers.CharField(required=False, allow_blank=True)
 
     class Meta:
         model = MembershipRegistration
         fields = [
             'iqama_number', 'full_name', 'email', 'phone',
             'address', 'age', 'gender', 'photo',
-            'plan', 'duration_months', 'password',
+            'plan', 'duration_months', 'password', 'facilities',
         ]
 
     def validate_iqama_number(self, value):
@@ -82,6 +84,13 @@ class RegistrationCreateSerializer(serializers.ModelSerializer):
         return value
 
     def validate(self, attrs):
+        # Price the facility add-ons now (months = membership length); prices are frozen on the registration.
+        from apps.members.facilities import FacilityError, parse_ids, signup_quote
+        try:
+            attrs['facilities'] = signup_quote(parse_ids(attrs.get('facilities')), attrs.get('duration_months', 1))
+        except FacilityError as exc:
+            raise serializers.ValidationError({'facilities': str(exc)})
+
         by_iqama = MembershipRegistration.objects.filter(iqama_number=attrs['iqama_number']).first()
         by_email = MembershipRegistration.objects.filter(email__iexact=attrs['email']).first()
         existing = by_iqama or by_email
@@ -135,9 +144,10 @@ class RegistrationCreateSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         # Hash now; the real User is created from password_hash on approval.
         validated_data['password_hash'] = make_password(validated_data.pop('password'))
+        from apps.members.facilities import quote_total
         validated_data['payment_amount'] = plan_amount(
             validated_data['plan'], validated_data.get('duration_months', 1),
-        )
+        ) + quote_total(validated_data.get('facilities'))
         validated_data['payment_status'] = 'pending'
         validated_data['payment_failure_reason'] = ''
         validated_data['payment_attempt_token'] = secrets.token_urlsafe(24)  # new attempt
@@ -185,7 +195,7 @@ class AdminRegistrationSerializer(serializers.ModelSerializer):
             'iqama_number', 'full_name', 'email', 'phone',
             'address', 'age', 'gender', 'photo_url',
             'plan', 'plan_name', 'duration_months',
-            'payment_method', 'payment_reference', 'payment_amount',
+            'payment_method', 'payment_reference', 'payment_amount', 'facilities',
             'payment_status', 'payment_paid_at',
             'moyasar_payment_id', 'payment_failure_reason',
             'status', 'submitted_at', 'approved_at',

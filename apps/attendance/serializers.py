@@ -7,6 +7,7 @@ class MilestoneSerializer(serializers.ModelSerializer):
     progress = serializers.SerializerMethodField()
     current_days = serializers.SerializerMethodField()
     days_left = serializers.SerializerMethodField()
+    reward_code = serializers.SerializerMethodField()   # only once claimed
 
     class Meta:
         model = Milestone
@@ -20,7 +21,14 @@ class MilestoneSerializer(serializers.ModelSerializer):
         request = self.context.get('request')
         if not request or not request.user.is_authenticated:
             return None
-        return obj.member_milestones.filter(member=request.user).first()
+        cache = self.context.setdefault('_mm', {})
+        if obj.id not in cache:
+            cache[obj.id] = MemberMilestone.objects.filter(milestone=obj, member=request.user).first()
+        return cache[obj.id]
+
+    def get_reward_code(self, obj):
+        mm = self._get_member_milestone(obj)
+        return obj.reward_code if mm and mm.status == 'claimed' else None
 
     def get_status(self, obj):
         mm = self._get_member_milestone(obj)

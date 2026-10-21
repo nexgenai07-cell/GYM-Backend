@@ -158,7 +158,8 @@ def public_register(request):
 
     reg = serializer.save()
     return Response(
-        {**RegistrationStatusSerializer(reg).data, 'payment': checkout_params(reg)},
+        {**RegistrationStatusSerializer(reg).data, 'amount': str(reg.payment_amount),
+         'facilities': reg.facilities or [], 'payment': checkout_params(reg)},
         status=status.HTTP_201_CREATED,
     )
 
@@ -439,6 +440,8 @@ def admin_member_lookup(request):
         'registration_photo_url': reg_photo_url,
         'is_valid': membership.allows_entry,
         'active_check_in': CheckInSerializer(active).data if active else None,
+        'facilities': [{'name': f.facility_name, 'expires_on': f.expires_on.isoformat()}
+                       for f in member.facility_access.filter(expires_on__gt=today)],
     })
 
 

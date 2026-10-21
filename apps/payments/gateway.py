@@ -36,7 +36,7 @@ logger = logging.getLogger(__name__)
 
 TOPUP_MIN = Decimal('10.00')
 RENEWAL_MONTHS = (1, 3, 6, 12)
-CREDIT_PURPOSES = ('shop_order', 'trainer_session', 'course', 'renewal')
+CREDIT_PURPOSES = ('shop_order', 'trainer_session', 'course', 'renewal', 'facility_addon')
 
 
 class PaymentError(Exception):
@@ -54,6 +54,7 @@ def create_intent(member, purpose, data):
         'trainer_session': _build_session,
         'course': _build_course,
         'renewal': _build_renewal,
+        'facility_addon': _build_facility,
     }
     if purpose not in builders:
         raise PaymentError('Unknown payment purpose.')
@@ -134,6 +135,20 @@ def _build_renewal(member, data):
         raise PaymentError('No membership to renew.')
     return {'amount': plan_amount(plan, months), 'plan': plan, 'months': months,
             'description': f'Membership renewal — {plan.display_name} ({months} mo)'}
+
+
+def _build_facility(member, data):
+    from apps.members.facilities import FacilityError, addon_quote
+    try:
+        item_id = int(data.get('facility_id'))
+    except (TypeError, ValueError):
+        raise PaymentError('Choose a facility.')
+    try:
+        addon, months, amount = addon_quote(member, item_id)
+    except FacilityError as exc:
+        raise PaymentError(str(exc))
+    return {'amount': amount, 'facility_item_id': item_id, 'months': months,
+            'description': f'Facility add-on — {addon.name} ({months} mo)'}
 
 
 def course_is_free_for(member, course):
@@ -257,7 +272,7 @@ def pay_with_credit(intent):
 # 4. FULFIL
 # ============================================================
 TX_TYPE = {'locker_topup': 'topup', 'shop_order': 'retail', 'trainer_session': 'coaching',
-           'course': 'coaching', 'renewal': 'subscription'}
+           'course': 'coaching', 'renewal': 'subscription', 'facility_addon': 'subscription'}
 
 
 def _fulfil(intent, method_label):
@@ -268,6 +283,7 @@ def _fulfil(intent, method_label):
         'trainer_session': _fulfil_session,
         'course': _fulfil_course,
         'renewal': _fulfil_renewal,
+        'facility_addon': _fulfil_facility,
     }[intent.purpose](intent)
 
     now = timezone.now()
@@ -385,3 +401,59 @@ def _fulfil_renewal(intent):
            f'{intent.plan.display_name} is active until {m.expiry_date:%d %b %Y}.', icon='card_membership',
            action_label='View membership', action_path='/dashboard/payments')
     return True, ''
+
+
+def _fulfil_facility(intent):
+    from apps.members.facilities import active_ids, grant
+    from apps.members.models import FacilityAddon, Membership
+    m = Membership.objects.filter(member=intent.member).first()
+    addon = FacilityAddon.objects.select_related('item').filter(item_id=intent.facility_item_id).first()
+    if m is None or addon is None:
+        return False, 'the facility or membership no longer exists'
+    if intent.facility_item_id in active_ids(intent.member):
+        return False, 'you already had access to this facility'
+    grant(intent.member, intent.facility_item_id, addon.name, addon.monthly_price, intent.months,
+          intent.amount, date.today(), m.expiry_date, 'addon')
+    notify(intent.member, 'payment', 'Facility added',
+           f'{addon.name} is included in your membership until {m.expiry_date:%d %b %Y}.', icon='pool',
+           action_label='My facilities', action_path='/dashboard/payments')
+    return True, ''
+
+
+# ============================================================
+# 5. REFUNDS (staff)
+# ============================================================
+def refund_intent(intent, reason='', staff=None):
+    """
+    Give the money of a paid / review intent back: to the card through Moyasar's
+    refund API, or to locker credit when it was paid with credit. Records a
+    negative Transaction. Raises PaymentError / MoyasarError.
+    """
+    with transaction.atomic():
+        intent = PaymentIntent.objects.select_for_update().get(id=intent.id)
+        if intent.status not in ('paid', 'review'):
+            raise PaymentError('Only paid payments can be refunded.')
+        if intent.purpose == 'locker_topup' and intent.status == 'paid':
+            # The top-up was credited: take it back first (refused if already spent).
+            credit, _ = LockerCredit.objects.select_for_update().get_or_create(member=intent.member)
+            if credit.balance < intent.amount:
+                raise PaymentError(f'Only SAR {credit.balance} of this top-up is left in locker credit.')
+            LockerCredit.objects.filter(id=credit.id).update(balance=F('balance') - intent.amount)
+        if intent.method == 'locker_credit':
+            credit, _ = LockerCredit.objects.select_for_update().get_or_create(member=intent.member)
+            LockerCredit.objects.filter(id=credit.id).update(balance=F('balance') + intent.amount)
+            label = 'Locker credit'
+        else:
+            moyasar.refund_payment(intent.moyasar_payment_id, intent.amount_halalas)
+            label = (intent.transaction.payment_method_label if intent.transaction_id else 'Card')
+        record_transaction(intent.member, f'Refund — {intent.description}'[:200], 'refund', -intent.amount,
+                           label, f'refund:{intent.moyasar_payment_id or intent.id}')
+        intent.status = 'refunded'
+        intent.failure_reason = (f'Refunded by {getattr(staff, "email", "staff")}: {reason}' if reason
+                                 else f'Refunded by {getattr(staff, "email", "staff")}')[:255]
+        intent.save(update_fields=['status', 'failure_reason'])
+    notify(intent.member, 'payment', 'Refund issued',
+           f'SAR {intent.amount} for "{intent.description}" was refunded'
+           + (' to your locker credit.' if intent.method == 'locker_credit' else ' to your card (3–10 days to appear).'),
+           icon='undo', action_label='View payments', action_path='/dashboard/payments')
+    return intent

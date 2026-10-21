@@ -172,6 +172,7 @@ def _intent_payload(intent, with_params=False):
         'order_number': intent.order.order_number if intent.order_id else None,
         'session_id': intent.trainer_session_id,
         'course_id': intent.course_id,
+        'facility_id': intent.facility_item_id,
         'paid_at': intent.paid_at,
     }
     if with_params:

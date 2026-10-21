@@ -263,6 +263,8 @@ class MembershipRegistration(models.Model):
     payment_method    = models.CharField(max_length=20, default='mada')
     payment_reference = models.CharField(max_length=100, blank=True)
     payment_amount    = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    # Facility add-ons chosen at signup: [{id, name, monthly_price, months, amount}] (prices frozen here).
+    facilities        = models.JSONField(default=list, blank=True, null=True)
     payment_status    = models.CharField(max_length=20, choices=PAYMENT_STATUS, default='pending')
     payment_paid_at   = models.DateTimeField(null=True, blank=True)
     # null (not '') so the unique constraint ignores registrations without a payment yet
@@ -324,3 +326,55 @@ class MembershipRegistration(models.Model):
             years = self.duration_months / 12
             return round(float(self.plan.price_annual) * years, 2)
         return float(self.plan.price_monthly) * self.duration_months
+
+
+# ============================================================
+# FACILITY ADD-ONS (pool, courts, recovery... paid per month)
+# ============================================================
+class FacilityAddon(models.Model):
+    """
+    Price of a public-site facility (an item of the admin "Facilities" list).
+    Members add it at signup (price x membership months) or later from the
+    portal (price x months remaining). Set in Admin -> Facility Pricing.
+    """
+    item = models.OneToOneField('site_content.SiteItem', on_delete=models.CASCADE, related_name='addon')
+    monthly_price = models.DecimalField(max_digits=8, decimal_places=2, default=0)
+    is_bookable = models.BooleanField(default=False)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = 'facility_addons'
+
+    def __str__(self):
+        return f'{self.name} — SAR {self.monthly_price}/mo'
+
+    @property
+    def name(self):
+        return ((self.item.data or {}).get('title') or {}).get('en') or f'Facility #{self.item_id}'
+
+
+class MembershipFacility(models.Model):
+    """A member's paid access to one facility, until `expires_on` (the membership expiry when bought)."""
+    SOURCE_CHOICES = [('signup', 'Signup'), ('addon', 'Added later')]
+
+    member = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='facility_access')
+    item = models.ForeignKey('site_content.SiteItem', on_delete=models.SET_NULL, null=True, related_name='+')
+    facility_name = models.CharField(max_length=200)                 # snapshot
+    monthly_price = models.DecimalField(max_digits=8, decimal_places=2)
+    months = models.PositiveIntegerField()
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    starts_on = models.DateField()
+    expires_on = models.DateField()
+    source = models.CharField(max_length=10, choices=SOURCE_CHOICES)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'membership_facilities'
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f'{self.member} — {self.facility_name} until {self.expires_on}'
+
+    @property
+    def is_active(self):
+        return self.expires_on > date.today()

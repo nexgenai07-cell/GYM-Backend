@@ -63,6 +63,18 @@ def check_ins(request):
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
+def my_facilities(request):
+    """
+    GET /api/members/facilities/ → bookable facilities with ownership and the
+    add-on price today (monthly price × months remaining). Buy one with
+    POST /api/payments/checkout/ {purpose: "facility_addon", facility_id}.
+    """
+    from .facilities import member_view
+    return Response(member_view(request.user))
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def my_pass(request):
     """
     GET /api/members/pass/ → { token, expires_in, pass_id, valid }

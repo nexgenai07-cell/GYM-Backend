@@ -10,6 +10,7 @@ from django.db import transaction
 from django.utils import timezone
 from django.utils.crypto import get_random_string
 from django.conf import settings
+from decimal import Decimal
 import logging
 
 from .models import MembershipRegistration, Membership
@@ -104,6 +105,12 @@ def approve_registration(reg: MembershipRegistration, approved_by=None):
         lifetime_value=reg.payment_amount or reg.total_price,
     )
 
+    # Facility add-ons paid at signup run alongside the membership.
+    from .facilities import grant
+    for line in reg.facilities or []:
+        grant(user, line['id'], line['name'], Decimal(line['monthly_price']), line['months'],
+              Decimal(line['amount']), start, expiry, 'signup')
+
     # 4. The signup payment appears in the member's Payments page.
     record_signup_payment(reg, user)
 
@@ -137,7 +144,9 @@ def record_signup_payment(reg, user):
     if not ref or Transaction.objects.filter(member=user, gateway_reference=ref).exists():
         return None
     return record_transaction(
-        user, f'Membership — {reg.plan.display_name} ({reg.duration_months} mo)', 'subscription',
+        user, f'Membership — {reg.plan.display_name} ({reg.duration_months} mo)'
+              + (f' + {len(reg.facilities)} facilit{"y" if len(reg.facilities) == 1 else "ies"}' if reg.facilities else ''),
+        'subscription',
         reg.payment_amount or reg.total_price, (reg.payment_method or 'card').upper(), ref,
         when=reg.payment_paid_at or timezone.now(),
     )

@@ -1,6 +1,6 @@
 # apps/admin_api/urls.py
 from django.urls import path
-from . import views
+from . import ops, views
 
 app_name = 'admin_api'
 
@@ -47,6 +47,20 @@ urlpatterns = [
     path('audit-feed/', views.audit_feed, name='audit-feed'),
     path('facility-nodes/', views.facility_nodes, name='facility-nodes'),
 
+
+    # Member purchases back office (ops.py)
+    path('facility-pricing/', ops.facility_pricing, name='facility-pricing'),
+    path('facility-pricing/<int:item_id>/', ops.facility_pricing_update, name='facility-pricing-update'),
+    path('shop/orders/', ops.shop_orders, name='shop-orders'),
+    path('shop/orders/<str:order_number>/', ops.shop_order_detail, name='shop-order-detail'),
+    path('shop/orders/<str:order_number>/status/', ops.shop_order_status, name='shop-order-status'),
+    path('shop/orders/<str:order_number>/refund/', ops.shop_order_refund, name='shop-order-refund'),
+    path('payments/review/', ops.payments_review, name='payments-review'),
+    path('payments/intents/<int:intent_id>/refund/', ops.payment_refund, name='payment-refund'),
+    path('trainer-hours/', ops.trainer_hours, name='trainer-hours'),
+    path('trainer-hours/<int:trainer_id>/', ops.trainer_hours_update, name='trainer-hours-update'),
+    path('trainer-sessions/', ops.trainer_sessions, name='trainer-sessions'),
+    path('trainer-sessions/<int:session_id>/status/', ops.trainer_session_status, name='trainer-session-status'),
 
     # Analytics
     path('analytics/kpis/', views.analytics_kpis, name='analytics-kpis'),

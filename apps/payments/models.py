@@ -181,6 +181,7 @@ class PaymentIntent(models.Model):
         ('trainer_session', 'Trainer session'),
         ('course', 'Course'),
         ('renewal', 'Membership renewal'),
+        ('facility_addon', 'Facility add-on'),
     ]
     STATUS_CHOICES = [
         ('pending', 'Pending'),
@@ -188,6 +189,7 @@ class PaymentIntent(models.Model):
         ('failed', 'Failed'),
         ('cancelled', 'Cancelled'),
         ('review', 'Needs manual review'),   # money taken but something didn't match
+        ('refunded', 'Refunded'),
     ]
     METHOD_CHOICES = [
         ('moyasar', 'Card / STC Pay (Moyasar)'),
@@ -207,7 +209,9 @@ class PaymentIntent(models.Model):
                                         related_name='payment_intents')
     course = models.ForeignKey('catalog.Course', on_delete=models.SET_NULL, null=True, blank=True, related_name='+')
     plan = models.ForeignKey('members.MembershipPlan', on_delete=models.SET_NULL, null=True, blank=True, related_name='+')
-    months = models.PositiveIntegerField(null=True, blank=True)            # renewal length
+    months = models.PositiveIntegerField(null=True, blank=True)            # renewal / add-on length
+    facility_item = models.ForeignKey('site_content.SiteItem', on_delete=models.SET_NULL, null=True, blank=True,
+                                      related_name='+')
 
     # Moyasar
     attempt_token = models.CharField(max_length=64)                        # echoed in the payment metadata

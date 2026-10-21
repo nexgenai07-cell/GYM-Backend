@@ -306,6 +306,15 @@ class PassAndCheckInTests(PortalBase):
 
 
 class AttendanceAndDashboardTests(PortalBase):
+    def test_milestones_list_hides_reward_code_until_claimed(self):
+        m = Milestone.objects.create(tier='T1', title='Week', target_days=1, reward_code='SECRET-1')
+        r = self.client.get('/api/attendance/milestones/')
+        self.assertEqual(r.status_code, 200)
+        self.assertIsNone(r.data[0]['reward_code'])
+        MemberMilestone.objects.create(member=self.user, milestone=m, status='active', current_days=1)
+        self.assertEqual(self.client.post(f'/api/attendance/milestones/{m.id}/claim/').data['reward_code'], 'SECRET-1')
+        self.assertEqual(self.client.get('/api/attendance/milestones/').data[0]['reward_code'], 'SECRET-1')
+
     def test_milestone_cannot_be_claimed_early(self):
         m = Milestone.objects.create(tier='T1', title='Week', target_days=7)
         MemberMilestone.objects.create(member=self.user, milestone=m, status='active', current_days=2)

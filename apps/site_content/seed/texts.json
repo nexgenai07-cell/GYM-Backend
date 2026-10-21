@@ -4912,5 +4912,29 @@
   "page": "cam",
   "en": "Could not capture the photo. Try again.",
   "ar": "تعذّر التقاط الصورة. حاول مرة أخرى."
+ },
+ {
+  "key": "fac.card.book",
+  "page": "fac",
+  "en": "BOOK · SAR {{price}}/MO",
+  "ar": "احجز · {{price}} ر.س/شهر"
+ },
+ {
+  "key": "en.fac.title",
+  "page": "en",
+  "en": "FACILITY ADD-ONS",
+  "ar": "إضافات المرافق"
+ },
+ {
+  "key": "en.fac.perMonth",
+  "page": "en",
+  "en": "/mo",
+  "ar": "/شهر"
+ },
+ {
+  "key": "en.fac.note",
+  "page": "en",
+  "en": "Charged per month of your membership; access ends with your membership.",
+  "ar": "تُحتسب لكل شهر من عضويتك؛ ينتهي الوصول بانتهاء العضوية."
  }
 ]

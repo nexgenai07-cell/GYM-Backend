@@ -74,6 +74,7 @@ class CourseListSerializer(serializers.ModelSerializer):
         return course_is_free_for(request.user, obj)
 
     trainer_name = serializers.CharField(source='trainer.user.full_name', read_only=True)
+    trainer_title = serializers.CharField(source='trainer.title', read_only=True)
     trainer_avatar = serializers.ImageField(source='trainer.user.avatar', read_only=True)
 
     class Meta:
@@ -85,7 +86,7 @@ class CourseListSerializer(serializers.ModelSerializer):
             'price', 'is_included_with_pro', 'free_for_me',
             'rating', 'total_reviews', 'total_enrolled',
             'is_featured',
-            'trainer_name', 'trainer_avatar',
+            'trainer_name', 'trainer_title', 'trainer_avatar',
             'created_at',
         ]
 

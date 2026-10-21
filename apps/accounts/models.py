@@ -47,3 +47,16 @@ class User(AbstractUser):
     @property
     def is_member(self):
         return self.role == 'member'
+
+class RateEvent(models.Model):
+    """
+    One counted event for rate limits that must hold across serverless instances
+    (failed logins, website signups). Old rows are pruned as new ones are written.
+    """
+    kind = models.CharField(max_length=20)
+    key = models.CharField(max_length=255)
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+
+    class Meta:
+        db_table = 'rate_events'
+        indexes = [models.Index(fields=['kind', 'key', 'created_at'])]

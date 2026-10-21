@@ -1,14 +1,18 @@
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
+from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.tokens import RefreshToken
 
+from datetime import timedelta
+
+from . import ratelimit
 from .models import User
+from .ratelimit import client_ip
 from .serializers import (
     UserSerializer,
-    RegisterSerializer,
     CustomTokenObtainPairSerializer,
     ProfileUpdateSerializer,
     ChangePasswordSerializer,
@@ -27,6 +31,29 @@ class LoginView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer
     permission_classes = [AllowAny]
 
+    # 5 wrong passwords for one email, or 30 from one IP, in 15 minutes → locked for the rest of the window.
+    WINDOW = timedelta(minutes=15)
+    PER_EMAIL, PER_IP = 5, 30
+
+    def post(self, request, *args, **kwargs):
+        email = str(request.data.get('email') or '').strip().lower()
+        ip = client_ip(request)
+        locked = ((email and ratelimit.count('login_email', email, self.WINDOW) >= self.PER_EMAIL)
+                  or ratelimit.count('login_ip', ip, self.WINDOW) >= self.PER_IP)
+        if locked:
+            return Response({'detail': 'Too many sign-in attempts. Wait 15 minutes and try again.'},
+                            status=status.HTTP_429_TOO_MANY_REQUESTS)
+        try:
+            response = super().post(request, *args, **kwargs)
+        except AuthenticationFailed:   # wrong email or password
+            if email:
+                ratelimit.hit('login_email', email)
+            ratelimit.hit('login_ip', ip)
+            raise
+        if email:
+            ratelimit.clear('login_email', email)
+        return response
+
 
 # ============================================
 # REGISTER
@@ -35,21 +62,11 @@ class LoginView(TokenObtainPairView):
 @permission_classes([AllowAny])
 def register(request):
     """
-    POST /api/auth/register/
-    Body: { email, username, password, password_confirm, first_name, last_name, phone }
-    Returns: { user, access, refresh }
+    POST /api/auth/register/ — closed. Accounts are created when the gym approves a paid
+    signup from the website (POST /api/public/register/ → admin approval).
     """
-    serializer = RegisterSerializer(data=request.data)
-    if serializer.is_valid():
-        user = serializer.save()
-        # Generate tokens immediately
-        refresh = RefreshToken.for_user(user)
-        return Response({
-            'user': UserSerializer(user).data,
-            'access': str(refresh.access_token),
-            'refresh': str(refresh),
-        }, status=status.HTTP_201_CREATED)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    return Response({'detail': 'Join on the Smart Gym website — your account is created when your membership is approved.'},
+                    status=status.HTTP_403_FORBIDDEN)
 
 
 # ============================================

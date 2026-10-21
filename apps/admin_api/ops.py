@@ -174,6 +174,8 @@ def _order_row(o):
 @permission_classes([IsAdminUser])
 def shop_orders(request):
     """GET /api/admin/shop/orders/?status=&q=  (status 'open' = paid/preparing/ready/dispatched)"""
+    from apps.shop.services import expire_stale_orders
+    expire_stale_orders()
     qs = Order.objects.select_related('member').prefetch_related('items', 'payment_intents').order_by('-created_at')
     st = request.query_params.get('status', '')
     if st == 'open':

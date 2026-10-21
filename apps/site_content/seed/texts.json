@@ -2438,7 +2438,7 @@
  {
   "key": "en.p1.phonePh",
   "page": "en",
-  "en": "+1 (555) 890-4412",
+  "en": "+966 55 890 4412",
   "ar": "+966 55 890 4412"
  },
  {
@@ -3686,7 +3686,7 @@
  {
   "key": "ct.f.phonePh",
   "page": "ct",
-  "en": "+1 (555) 019-2831",
+  "en": "+966 55 019 2831",
   "ar": "+966 55 019 2831"
  },
  {
@@ -4412,32 +4412,32 @@
  {
   "key": "svc.card1.price",
   "page": "svc",
-  "en": "$120",
-  "ar": "$120"
+  "en": "SAR 450",
+  "ar": "450 ر.س"
  },
  {
   "key": "svc.card2.price",
   "page": "svc",
-  "en": "$160",
-  "ar": "$160"
+  "en": "SAR 600",
+  "ar": "600 ر.س"
  },
  {
   "key": "svc.card3.price",
   "page": "svc",
-  "en": "$95",
-  "ar": "$95"
+  "en": "SAR 360",
+  "ar": "360 ر.س"
  },
  {
   "key": "svc.card4.price",
   "page": "svc",
-  "en": "$140",
-  "ar": "$140"
+  "en": "SAR 525",
+  "ar": "525 ر.س"
  },
  {
   "key": "svc.card5.price",
   "page": "svc",
-  "en": "$85",
-  "ar": "$85"
+  "en": "SAR 320",
+  "ar": "320 ر.س"
  },
  {
   "key": "svc.card1.labName",

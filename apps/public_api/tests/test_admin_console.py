@@ -417,3 +417,54 @@ class SystemStatusTests(ConsoleBase):
         self.assertEqual(r.data['me']['role'], 'admin')
         self.client.force_authenticate(self.member)
         self.assertEqual(self.client.get('/api/admin/settings/').status_code, 403)
+
+
+class ShopCatalogueTests(ConsoleBase):
+    def test_categories_products_promos(self):
+        cat = self.client.post('/api/admin/shop/categories/', {'name': 'Protein'}, format='json').data
+        self.assertEqual(cat['key'], 'protein')
+        r = self.client.post('/api/admin/shop/products/', {'name': 'Whey 1kg', 'category_id': cat['id'], 'price': '149',
+                                                           'stock_quantity': 3}, format='json')
+        self.assertEqual((r.status_code, r.data['sku'], r.data['is_low_stock']), (201, 'WHEY-1KG', True))
+        pid = r.data['id']
+        self.assertEqual(self.client.patch(f'/api/admin/shop/products/{pid}/', {'original_price': '100'},
+                                           format='json').status_code, 400)          # "was" price must be higher
+        self.client.force_authenticate(self.member)
+        self.assertEqual([p['name'] for p in self.client.get('/api/shop/products/').data], ['Whey 1kg'])
+        self.client.force_authenticate(self.admin)
+        self.client.patch(f"/api/admin/shop/categories/{cat['id']}/", {'is_active': False}, format='json')
+        self.assertEqual(self.client.get('/api/shop/products/').data, [])           # hidden category hides products
+        self.assertEqual(self.client.delete(f"/api/admin/shop/categories/{cat['id']}/").status_code, 400)
+        promo = self.client.post('/api/admin/shop/promos/', {'code': 'ramadan 20', 'discount_percent': 20,
+                                                             'valid_until': '2099-01-01'}, format='json').data
+        self.assertEqual((promo['code'], promo['is_valid']), ('RAMADAN20', True))
+        self.assertEqual(self.client.post('/api/admin/shop/promos/', {'code': 'X', 'discount_percent': 95},
+                                          format='json').status_code, 400)
+        self.assertEqual(self.client.get('/api/admin/shop/stats/').data['low_stock'], 1)
+        self.assertEqual(self.client.delete(f'/api/admin/shop/products/{pid}/').status_code, 204)
+
+
+class NutritionAdminTests(ConsoleBase):
+    def test_nutritionist_plan_review_and_scan(self):
+        n = self.client.post('/api/admin/nutrition/nutritionists/', {'email': 'diet@t.local', 'first_name': 'Huda',
+                                                                     'title': 'Dietitian'}, format='json')
+        self.assertEqual(n.status_code, 201)
+        self.client.force_authenticate(self.member)
+        plan = self.client.post('/api/nutrition/plan/request/', {'nutritionist_id': n.data['id'], 'goal': 'fat_loss'},
+                                format='json').data
+        self.assertIsNone(plan['reviewed_at'])
+        self.client.force_authenticate(self.admin)
+        self.assertIn('nutrition', [i['key'] for i in self.client.get('/api/admin/alerts/').data['items']])
+        self.assertEqual(len(self.client.get('/api/admin/nutrition/plans/', {'status': 'to_review'}).data), 1)
+        r = self.client.patch(f"/api/admin/nutrition/plans/{plan['id']}/", {'target_calories': 2100, 'notes': 'Walk daily'},
+                              format='json')
+        self.assertEqual((r.status_code, r.data['target_calories']), (200, 2100))
+        self.assertTrue(Notification.objects.filter(recipient=self.member, title='Your nutrition plan was reviewed').exists())
+        s = self.client.post(f'/api/admin/nutrition/members/{self.member.id}/scans/',
+                             {'weight_kg': 70, 'body_fat_percent': 18.5, 'lean_mass_kg': 55, 'fat_mass_kg': 13}, format='json')
+        self.assertEqual(s.status_code, 201)
+        self.client.patch(f"/api/admin/nutrition/nutritionists/{n.data['id']}/", {'is_active': False}, format='json')
+        self.client.force_authenticate(self.member)
+        self.assertEqual(self.client.get('/api/nutrition/nutritionists/').data, [])
+        self.assertEqual(self.client.post('/api/nutrition/plan/request/', {'nutritionist_id': n.data['id'], 'goal': 'fat_loss'},
+                                          format='json').status_code, 404)

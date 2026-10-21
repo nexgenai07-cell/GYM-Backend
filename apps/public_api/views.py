@@ -139,6 +139,9 @@ def public_articles(request):
 # ============================================================
 # PUBLIC — REGISTRATION
 # ============================================================
+SIGNUPS_PER_IP_HOUR = 10
+
+
 @api_view(['POST'])
 @permission_classes([AllowAny])
 @parser_classes([MultiPartParser, FormParser, JSONParser])
@@ -152,11 +155,19 @@ def public_register(request):
     Returns the registration status plus `payment` — the parameters the
     frontend passes to the Moyasar form (amount is computed server-side).
     """
+    from datetime import timedelta
+
+    from apps.accounts import ratelimit
+    ip = ratelimit.client_ip(request)
+    if ratelimit.count('signup_ip', ip, timedelta(hours=1)) >= SIGNUPS_PER_IP_HOUR:
+        return Response({'detail': 'Too many signups from this connection. Try again in an hour.'},
+                        status=status.HTTP_429_TOO_MANY_REQUESTS)
     serializer = RegistrationCreateSerializer(data=request.data)
     if not serializer.is_valid():
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     reg = serializer.save()
+    ratelimit.hit('signup_ip', ip)
     return Response(
         {**RegistrationStatusSerializer(reg).data, 'amount': str(reg.payment_amount),
          'facilities': reg.facilities or [], 'payment': checkout_params(reg)},

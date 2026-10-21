@@ -10,6 +10,7 @@ import uuid
 from django.db.models import F, Q
 from django.conf import settings
 
+from .services import expire_stale_orders, release_stock
 from .models import (
     ProductCategory, Product,
     Cart, CartItem,
@@ -43,7 +44,6 @@ def categories_list(request):
 # ============================================
 # PRODUCTS (public)
 # ============================================
-# apps/shop/views.py — replace the top imports and products_list
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def products_list(request):
@@ -51,7 +51,8 @@ def products_list(request):
     GET /api/shop/products/
     Query params: ?category=protein&search=&featured=true&in_stock=true
     """
-    qs = Product.objects.filter(is_active=True).select_related('category')
+    expire_stale_orders()
+    qs = Product.objects.filter(is_active=True, category__is_active=True).select_related('category')
 
     category = request.query_params.get('category')
     if category:
@@ -234,6 +235,7 @@ def checkout(request):
     the stock. The order is paid through /api/payments/checkout/ (Moyasar or
     locker credit); cancelling an unpaid order releases the stock.
     """
+    expire_stale_orders()   # frees stock held by abandoned checkouts
     delivery_method = request.data.get('delivery_method', 'locker')
     if delivery_method not in ('locker', 'counter'):
         return Response({'detail': 'Choose locker or counter pickup.'}, status=status.HTTP_400_BAD_REQUEST)
@@ -343,12 +345,7 @@ def cancel_order(request, order_number):
                 {'detail': 'Paid orders can’t be cancelled here — please ask the front desk for a refund.'},
                 status=status.HTTP_400_BAD_REQUEST,
             )
-        for item in order.items.select_related('product'):
-            if item.product:
-                Product.objects.filter(id=item.product_id).update(
-                    stock_quantity=F('stock_quantity') + item.quantity,
-                    total_sold=F('total_sold') - item.quantity,
-                )
+        release_stock(order)
         order.status = 'cancelled'
         order.save(update_fields=['status'])
 

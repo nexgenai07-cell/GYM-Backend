@@ -110,7 +110,7 @@ def insights(request):
     n = Product.objects.filter(is_active=True, stock_quantity__lte=5).count()
     if n:
         add('medium', 'inventory_2', f'{n} shop product{"s" if n != 1 else ""} almost sold out',
-            'Five or fewer left in stock.', 'Open shop orders', '/admin/shop-orders')
+            'Five or fewer left in stock.', 'Open shop products', '/admin/shop')
 
     full = [c for c in GymClass.objects.filter(is_active=True).annotate(
         w=Count('enrollments', filter=Q(enrollments__status='waitlist'))) if c.w]

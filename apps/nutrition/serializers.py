@@ -72,11 +72,11 @@ class NutritionPlanSerializer(serializers.ModelSerializer):
             'target_calories', 'target_protein_g', 'target_carbs_g', 'target_fats_g',
             'target_water_ml',
             'cycle_weeks', 'started_at', 'ends_at',
-            'notes',
+            'notes', 'reviewed_at',
             'nutritionist_name', 'nutritionist_credentials', 'nutritionist_avatar',
             'created_at', 'updated_at',
         ]
-        read_only_fields = ['id', 'created_at', 'updated_at', 'started_at']
+        read_only_fields = ['id', 'created_at', 'updated_at', 'started_at', 'reviewed_at']
 
     def get_nutritionist_name(self, obj):
         u = obj.nutritionist.user

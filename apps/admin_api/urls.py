@@ -1,6 +1,6 @@
 # apps/admin_api/urls.py
 from django.urls import path
-from . import catalog_ops, console, finance, insights, machines_ops, members_ops, ops, staff_ops, system_ops, views
+from . import catalog_ops, console, finance, insights, machines_ops, members_ops, nutrition_ops, ops, shop_ops, staff_ops, system_ops, views
 
 app_name = 'admin_api'
 
@@ -38,6 +38,24 @@ urlpatterns = [
     path('staff/stats/', staff_ops.staff_stats, name='staff-stats'),
     path('staff/<int:user_id>/', staff_ops.staff_update, name='staff-update'),
     path('staff/<int:user_id>/send-sign-in/', staff_ops.staff_send_signin, name='staff-send-sign-in'),
+    # Nutrition
+    path('nutrition/nutritionists/', nutrition_ops.nutritionists, name='nutritionists'),
+    path('nutrition/nutritionists/<int:nutritionist_id>/', nutrition_ops.nutritionist_update, name='nutritionist-update'),
+    path('nutrition/nutritionists/<int:nutritionist_id>/photo/', nutrition_ops.nutritionist_photo, name='nutritionist-photo'),
+    path('nutrition/plans/', nutrition_ops.plans, name='nutrition-plans'),
+    path('nutrition/plans/<int:plan_id>/', nutrition_ops.plan_update, name='nutrition-plan'),
+    path('nutrition/members/<int:member_id>/scans/', nutrition_ops.member_scans, name='member-scans'),
+
+    # Shop catalogue
+    path('shop/products/', shop_ops.products, name='shop-products'),
+    path('shop/products/<int:product_id>/', shop_ops.product_detail, name='shop-product'),
+    path('shop/products/<int:product_id>/image/', shop_ops.product_image, name='shop-product-image'),
+    path('shop/stats/', shop_ops.shop_stats, name='shop-stats'),
+    path('shop/categories/', shop_ops.categories, name='shop-categories'),
+    path('shop/categories/<int:category_id>/', shop_ops.category_detail, name='shop-category'),
+    path('shop/promos/', shop_ops.promos, name='shop-promos'),
+    path('shop/promos/<int:promo_id>/', shop_ops.promo_detail, name='shop-promo'),
+
     # System settings
     path('settings/', system_ops.system_status, name='settings-get'),
     # Finance

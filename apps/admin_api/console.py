@@ -58,6 +58,12 @@ def alerts(request):
     add('inbox', 'mail', inbox, 'Website messages',
         f'{inbox} unread message{"s" if inbox != 1 else ""} from the contact form.', '/admin/site-inbox')
 
+    from apps.nutrition.models import NutritionPlan
+    plans = NutritionPlan.objects.filter(status='active', reviewed_at__isnull=True).count()
+    add('nutrition', 'restaurant', plans, 'Nutrition plans to review',
+        f'{plans} member{"s" if plans != 1 else ""} asked for a plan and {"are" if plans != 1 else "is"} on starter targets.',
+        '/admin/nutrition')
+
     expiring = Membership.objects.filter(status__in=['active', 'expiring'], expiry_date__gt=today,
                                          expiry_date__lte=today + timedelta(days=7)).count()
     add('expiring', 'hourglass_bottom', expiring, 'Memberships ending this week',

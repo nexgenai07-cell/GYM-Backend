@@ -29,7 +29,7 @@ def nutritionists_list(request):
     GET /api/nutrition/nutritionists/
     Query params: ?search=&specialty=&accepting=true&verified=true
     """
-    qs = NutritionistProfile.objects.select_related('user').all()
+    qs = NutritionistProfile.objects.select_related('user').filter(user__is_active=True)   # hidden by staff → not listed
 
     if request.query_params.get('accepting') == 'true':
         qs = qs.filter(is_accepting_clients=True)
@@ -135,10 +135,10 @@ def request_plan(request):
         )
 
     try:
-        nutritionist = NutritionistProfile.objects.get(id=nutritionist_id)
+        nutritionist = NutritionistProfile.objects.get(id=nutritionist_id, user__is_active=True, is_accepting_clients=True)
     except NutritionistProfile.DoesNotExist:
         return Response(
-            {'detail': 'Nutritionist not found.'},
+            {'detail': 'This nutritionist isn’t taking new clients.'},
             status=status.HTTP_404_NOT_FOUND,
         )
 

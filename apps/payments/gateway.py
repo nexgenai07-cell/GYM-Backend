@@ -335,8 +335,12 @@ def _fulfil_topup(intent):
 
 def _fulfil_order(intent):
     from apps.shop.models import Order
+    from apps.shop.services import EXPIRED_NOTE, retake_stock
     order = Order.objects.select_for_update().filter(id=intent.order_id).first()
-    if order is None or order.status != 'pending':
+    expired = order is not None and order.status == 'cancelled' and EXPIRED_NOTE in order.notes
+    if expired and not retake_stock(order):
+        return False, f'order {order.order_number} expired and an item has since sold out'
+    if order is None or (order.status != 'pending' and not expired):
         return False, f'order {getattr(order, "order_number", "?")} is no longer awaiting payment'
     order.status = 'paid'
     order.save(update_fields=['status'])

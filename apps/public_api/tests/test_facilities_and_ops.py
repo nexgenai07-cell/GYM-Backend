@@ -4,6 +4,7 @@ from decimal import Decimal
 from unittest import mock
 
 from django.contrib.auth import get_user_model
+from django.utils import timezone
 from rest_framework.test import APITestCase
 
 from apps.catalog.models import TrainerAvailability, TrainerProfile, TrainerSession
@@ -185,3 +186,33 @@ class AdminOpsTests(PortalBase):
         self.assertEqual(len(self.client.get('/api/admin/trainer-sessions/').data), 1)
         self.client.post(f'/api/admin/trainer-sessions/{s.id}/status/', {'status': 'cancelled'})
         self.assertEqual(LockerCredit.objects.get(member=self.user).balance, Decimal('120.00'))
+
+
+class StaleOrderTests(APITestCase):
+    """Unpaid orders give their stock back after 30 minutes; a late card payment takes it again."""
+
+    def setUp(self):
+        from apps.shop.models import Order, OrderItem, Product, ProductCategory
+        self.member = User.objects.create_user(username='so', email='so@t.local', password='x', role='member')
+        cat = ProductCategory.objects.create(key='p', name='P')
+        self.product = Product.objects.create(category=cat, name='Bar', sku='BAR', price=Decimal('10'), stock_quantity=4)
+        self.order = Order.objects.create(order_number='ORD-OLD', member=self.member, status='pending',
+                                          subtotal=Decimal('20'), total=Decimal('20'))
+        OrderItem.objects.create(order=self.order, product=self.product, product_name='Bar', product_sku='BAR',
+                                 unit_price=Decimal('10'), quantity=2, line_total=Decimal('20'))
+        Product.objects.filter(id=self.product.id).update(stock_quantity=2)       # reserved at checkout
+        Order.objects.filter(id=self.order.id).update(created_at=timezone.now() - timedelta(minutes=45))
+
+    def test_expiry_releases_stock_and_late_payment_retakes_it(self):
+        from apps.payments.gateway import _fulfil_order
+        from apps.payments.models import PaymentIntent
+        from apps.shop.services import expire_stale_orders
+        self.assertEqual(expire_stale_orders(), 1)
+        self.product.refresh_from_db()
+        self.order.refresh_from_db()
+        self.assertEqual((self.product.stock_quantity, self.order.status), (4, 'cancelled'))
+        intent = PaymentIntent(member=self.member, purpose='shop_order', amount=Decimal('20'), order=self.order)
+        ok, _ = _fulfil_order(intent)
+        self.order.refresh_from_db()
+        self.product.refresh_from_db()
+        self.assertEqual((ok, self.order.status, self.product.stock_quantity), (True, 'paid', 2))

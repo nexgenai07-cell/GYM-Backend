@@ -90,6 +90,8 @@ class NutritionPlan(models.Model):
 
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='active')
     notes = models.TextField(blank=True)
+    # Set when staff review the starter targets a member requested (null = still the template).
+    reviewed_at = models.DateTimeField(null=True, blank=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

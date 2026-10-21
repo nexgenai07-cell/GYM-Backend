@@ -30,51 +30,76 @@ def summary(request):
     all_ci = CheckIn.objects.filter(member=user)
     month_ci = all_ci.filter(check_in_time__date__gte=month_start)
 
-    # Current streak
-    streak = 0
-    check_date = today
-    while all_ci.filter(check_in_time__date=check_date).exists():
-        streak += 1
-        check_date -= timedelta(days=1)
+    days = sorted(set(all_ci.values_list('check_in_time__date', flat=True)))
+    streak = _current_streak(days, today)
+    best = _longest_streak(days)
 
-    # Time totals
     total_minutes = all_ci.aggregate(t=Sum('duration_minutes'))['t'] or 0
     month_minutes = month_ci.aggregate(t=Sum('duration_minutes'))['t'] or 0
+    timed_visits = all_ci.filter(duration_minutes__isnull=False).count()
 
-    # First check-in time (optimal window)
-    first_today = all_ci.filter(check_in_time__date=today).order_by('check_in_time').first()
-    prime_window = first_today.check_in_time.strftime('%H:%M') if first_today else '—'
+    # Usual arrival time: the most common check-in hour over the last 60 days.
+    recent = all_ci.filter(check_in_time__date__gte=today - timedelta(days=60))
+    hours = {}
+    for t in recent.values_list('check_in_time', flat=True):
+        h = timezone.localtime(t).hour
+        hours[h] = hours.get(h, 0) + 1
+    usual_hour = max(hours, key=hours.get) if hours else None
+    last = all_ci.order_by('-check_in_time').first()
 
+    month_count = month_ci.count()
+    days_in_month = monthrange(today.year, today.month)[1]
     return Response({
         'current_streak': {
             'value': streak,
-            'unit': 'Days',
-            'footer': f'Personal Best: {streak} Days',
-            'progress': min(100, int((streak / 24) * 100)) if streak else 0,
+            'unit': 'Day' if streak == 1 else 'Days',
+            'footer': f'Personal best: {best} day{"" if best == 1 else "s"}',
+            'progress': min(100, int(streak / best * 100)) if best else 0,
         },
         'month_check_ins': {
-            'value': month_ci.count(),
-            'unit': 'Visits',
-            'badge': 'Top 4% Campus Elite' if month_ci.count() >= 20 else None,
-            'footer': 'Cycle Goal: 26 Sessions',
-            'footer_right': f'{min(100, int((month_ci.count() / 26) * 100))}%',
+            'value': month_count,
+            'unit': 'Visit' if month_count == 1 else 'Visits',
+            'badge': None,
+            'footer': f'{today:%B}',
+            'footer_right': f'{today.day}/{days_in_month} days in',
         },
         'workout_hours': {
             'value': round(total_minutes / 60, 1),
             'unit': 'Hrs',
             'badge': None,
-            'footer': f'Month total: {round(month_minutes / 60, 1)}h',
-            'footer_right': f'Avg {int(total_minutes / max(1, all_ci.count()))}m',
+            'footer': f'This month: {round(month_minutes / 60, 1)}h',
+            'footer_right': f'Avg {int(total_minutes / timed_visits)}m' if timed_visits else '',
         },
         'prime_window': {
-            'value': prime_window,
+            'value': f'{usual_hour:02d}:00' if usual_hour is not None else '—',
             'unit': '',
-            'badge': 'Evening Prime · 78% Session Affinity',
-            'footer': 'Recovery index: 94%',
-            'footer_right': 'Bio-Synced',
+            'badge': None,
+            'footer': 'Your usual arrival (60 days)' if usual_hour is not None else 'No visits yet',
+            'footer_right': f'Last visit {timezone.localtime(last.check_in_time):%d %b}' if last else '',
         },
         'total_check_ins': all_ci.count(),
     })
+
+
+def _current_streak(days, today):
+    """Consecutive days with a visit, ending today (or yesterday, so a streak survives until tonight)."""
+    have = set(days)
+    d = today if today in have else today - timedelta(days=1)
+    streak = 0
+    while d in have:
+        streak += 1
+        d -= timedelta(days=1)
+    return streak
+
+
+def _longest_streak(days):
+    best = run = 0
+    prev = None
+    for d in days:
+        run = run + 1 if prev and (d - prev).days == 1 else 1
+        best = max(best, run)
+        prev = d
+    return best
 
 
 # ============================================
@@ -98,39 +123,9 @@ def check_ins(request):
             'duration_minutes': c.duration_minutes,
         } for c in qs])
 
-    # POST — create check-in
-    facility = request.data.get('facility', 'Metro Station Core 01')
-    zone = request.data.get('zone', '')
-
-    # Prevent double check-in within same day
-    today = timezone.localdate()
-    existing = CheckIn.objects.filter(
-        member=request.user,
-        check_in_time__date=today,
-        check_out_time__isnull=True,
-    ).first()
-
-    if existing:
-        return Response({
-            'detail': 'Already checked in — check out first.',
-            'check_in_id': existing.id,
-        }, status=400)
-
-    ci = CheckIn.objects.create(
-        member=request.user,
-        facility=facility,
-        zone=zone,
-    )
-
-    # Update milestone progress for streak
-    _update_streak_milestones(request.user)
-
-    return Response({
-        'id': ci.id,
-        'facility': ci.facility,
-        'zone': ci.zone,
-        'check_in_time': ci.check_in_time,
-    }, status=201)
+    # Check-ins are recorded at the entrance (face gate / staff scanning the pass).
+    return Response({'detail': 'Check-ins are recorded at the entrance — show your digital pass or use the face gate.'},
+                    status=405)
 
 
 @api_view(['POST'])
@@ -188,7 +183,18 @@ def ledger(request):
     total = qs.count()
     start = (page - 1) * per_page
     end = start + per_page
-    page_items = qs[start:end]
+    page_items = list(qs[start:end])
+
+    # Workout volume logged on the same days (sets + kg moved).
+    from apps.workouts.models import Workout
+    day_volume = {}
+    if page_items:
+        dates = {timezone.localtime(c.check_in_time).date() for c in page_items}
+        for w in Workout.objects.filter(member=request.user, status='completed',
+                                        completed_at__date__gte=min(dates), completed_at__date__lte=max(dates)):
+            d = timezone.localtime(w.completed_at).date()
+            sets, kg = day_volume.get(d, (0, 0))
+            day_volume[d] = (sets + (w.total_sets or 0), kg + float(w.total_tonnage_kg or 0))
 
     results = []
     for c in page_items:
@@ -197,21 +203,22 @@ def ledger(request):
         duration = c.duration_minutes
 
         is_active = out_time is None
-        status = 'Streak' if duration else 'Active'
+        day = timezone.localtime(in_time).date()
+        sets, tonnage = day_volume.get(day, (0, 0))
 
         results.append({
             'id': c.id,
-            'date': in_time.strftime('%b %d, %Y'),
-            'status': f'Streak #{c.id % 30}',  # demo pattern
+            'date': timezone.localtime(in_time).strftime('%b %d, %Y'),
+            'status': 'In gym' if is_active else 'Completed',
             'statusType': 'active' if is_active else 'default',
-            'entry': in_time.strftime('%H:%M:%S'),
-            'exit': 'ACTIVE SESSION' if is_active else out_time.strftime('%H:%M:%S'),
+            'entry': timezone.localtime(in_time).strftime('%H:%M:%S'),
+            'exit': 'ACTIVE SESSION' if is_active else timezone.localtime(out_time).strftime('%H:%M:%S'),
             'exitActive': is_active,
             'duration': f'{duration}m' if duration else 'Active',
             'durationActive': is_active,
             'zones': [c.zone] if c.zone else [c.facility],
-            'reps': '—',      # filled by workout log later
-            'volume': '—',    # filled by workout log later
+            'reps': f'{sets} sets' if sets else '—',
+            'volume': f'{int(tonnage):,} kg' if tonnage else '',
         })
 
     return Response({
@@ -337,9 +344,11 @@ def claim_milestone(request, milestone_id):
         milestone=milestone,
     )
 
-    if mm.status != 'active':
+    if mm.status == 'claimed':
+        return Response({'detail': 'Already claimed.'}, status=400)
+    if mm.current_days < milestone.target_days:
         return Response(
-            {'detail': 'Milestone is not ready to claim.'},
+            {'detail': f'Keep going — {milestone.target_days - mm.current_days} more day(s) to unlock this reward.'},
             status=400,
         )
 
@@ -370,20 +379,22 @@ def hourly(request):
     member_buckets = {h: 0 for h in hours}
     campus_buckets = {h: 0 for h in hours}
 
-    # Member's check-ins
-    for c in CheckIn.objects.filter(member=request.user):
-        h = c.check_in_time.hour
-        member_buckets[h] += 1
+    since = timezone.now() - timedelta(days=90)
+    for t in CheckIn.objects.filter(member=request.user).values_list('check_in_time', flat=True):
+        member_buckets[timezone.localtime(t).hour] += 1
+    for t in CheckIn.objects.filter(check_in_time__gte=since).values_list('check_in_time', flat=True):
+        campus_buckets[timezone.localtime(t).hour] += 1
 
-    # Campus check-ins (all members)
-    for c in CheckIn.objects.all():
-        h = c.check_in_time.hour
-        campus_buckets[h] += 1
+    # Quietest busy-enough hour: among hours that see visits, the one with the fewest.
+    open_hours = [h for h in hours if campus_buckets[h] > 0]
+    quiet = min(open_hours, key=lambda h: campus_buckets[h]) if len(open_hours) > 1 else None
 
     return Response({
         'member': [{'hour': h, 'count': member_buckets[h]} for h in hours],
         'campus': [{'hour': h, 'count': campus_buckets[h]} for h in hours],
-        'peak_hour': max(member_buckets, key=member_buckets.get) if any(member_buckets.values()) else 18,
+        'peak_hour': max(member_buckets, key=member_buckets.get) if any(member_buckets.values()) else None,
+        'campus_peak_hour': max(campus_buckets, key=campus_buckets.get) if any(campus_buckets.values()) else None,
+        'quiet_hour': quiet,
     })
 
 
@@ -430,29 +441,20 @@ def arenas(request):
 def _update_streak_milestones(user):
     """Called after each check-in. Updates streak-based milestone progress."""
     today = timezone.localdate()
-    check_ins = CheckIn.objects.filter(member=user)
+    days = sorted(set(CheckIn.objects.filter(member=user).values_list('check_in_time__date', flat=True)))
+    streak = _current_streak(days, today)
 
-    # Current streak
-    streak = 0
-    check_date = today
-    while check_ins.filter(check_in_time__date=check_date).exists():
-        streak += 1
-        check_date -= timedelta(days=1)
-
-    # Update each milestone
     for milestone in Milestone.objects.filter(is_active=True):
-        mm, _ = MemberMilestone.objects.get_or_create(
-            member=user, milestone=milestone,
-        )
-        mm.current_days = streak
-        mm.progress = min(100, int((streak / milestone.target_days) * 100))
-
+        mm, _ = MemberMilestone.objects.get_or_create(member=user, milestone=milestone)
         if mm.status == 'claimed':
             continue
-
-        if streak >= milestone.target_days:
-            mm.status = 'active'   # ready to claim
-        else:
-            mm.status = 'locked' if streak == 0 else 'active'
-
+        was_ready = mm.current_days >= milestone.target_days
+        mm.current_days = streak
+        mm.progress = min(100, int((streak / milestone.target_days) * 100)) if milestone.target_days else 100
+        mm.status = 'locked' if streak == 0 else 'active'
+        if streak >= milestone.target_days and not was_ready:
+            from apps.notifications.service import notify
+            notify(user, 'achievement', 'Reward unlocked',
+                   f'{milestone.title}: you reached a {milestone.target_days}-day streak. Claim your reward!',
+                   icon='emoji_events', action_label='Claim', action_path='/dashboard/attendance')
         mm.save()

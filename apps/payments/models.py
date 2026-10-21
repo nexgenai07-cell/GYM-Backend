@@ -102,7 +102,7 @@ class Transaction(models.Model):
         ordering = ['-created_at']
 
     def __str__(self):
-        return f"{self.transaction_id} — ${self.amount} ({self.status})"
+        return f"{self.transaction_id} — SAR {self.amount} ({self.status})"
 
 
 class LockerCredit(models.Model):
@@ -120,7 +120,7 @@ class LockerCredit(models.Model):
         db_table = 'locker_credits'
 
     def __str__(self):
-        return f"{self.member.email} — ${self.balance}"
+        return f"{self.member.email} — SAR {self.balance}"
 
 
 class Invoice(models.Model):
@@ -165,4 +165,68 @@ class Invoice(models.Model):
         ordering = ['-issued_at']
 
     def __str__(self):
-        return f"{self.invoice_number} — ${self.total} ({self.status})"
+        return f"{self.invoice_number} — SAR {self.total} ({self.status})"
+
+class PaymentIntent(models.Model):
+    """
+    One attempt by a member to pay for something (locker top-up, shop order,
+    trainer session, course, membership renewal). The amount is decided by the
+    server; the browser pays it through the Moyasar form (or with locker
+    credit), and the purchase is fulfilled only after the payment is verified
+    with Moyasar — see apps.payments.gateway.
+    """
+    PURPOSE_CHOICES = [
+        ('locker_topup', 'Locker credit top-up'),
+        ('shop_order', 'Shop order'),
+        ('trainer_session', 'Trainer session'),
+        ('course', 'Course'),
+        ('renewal', 'Membership renewal'),
+    ]
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('paid', 'Paid'),
+        ('failed', 'Failed'),
+        ('cancelled', 'Cancelled'),
+        ('review', 'Needs manual review'),   # money taken but something didn't match
+    ]
+    METHOD_CHOICES = [
+        ('moyasar', 'Card / STC Pay (Moyasar)'),
+        ('locker_credit', 'Locker credit'),
+    ]
+
+    member = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name='payment_intents')
+    purpose = models.CharField(max_length=20, choices=PURPOSE_CHOICES)
+    method = models.CharField(max_length=20, choices=METHOD_CHOICES, default='moyasar')
+    amount = models.DecimalField(max_digits=10, decimal_places=2)          # SAR
+    description = models.CharField(max_length=200)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending', db_index=True)
+
+    # What is being paid for (one of these, depending on purpose)
+    order = models.ForeignKey('shop.Order', on_delete=models.SET_NULL, null=True, blank=True, related_name='payment_intents')
+    trainer_session = models.ForeignKey('catalog.TrainerSession', on_delete=models.SET_NULL, null=True, blank=True,
+                                        related_name='payment_intents')
+    course = models.ForeignKey('catalog.Course', on_delete=models.SET_NULL, null=True, blank=True, related_name='+')
+    plan = models.ForeignKey('members.MembershipPlan', on_delete=models.SET_NULL, null=True, blank=True, related_name='+')
+    months = models.PositiveIntegerField(null=True, blank=True)            # renewal length
+
+    # Moyasar
+    attempt_token = models.CharField(max_length=64)                        # echoed in the payment metadata
+    moyasar_payment_id = models.CharField(max_length=64, unique=True, null=True, blank=True)
+    payment_raw = models.JSONField(default=dict, blank=True)               # redacted provider payload
+    failure_reason = models.CharField(max_length=255, blank=True)
+
+    transaction = models.ForeignKey(Transaction, on_delete=models.SET_NULL, null=True, blank=True, related_name='+')
+    created_at = models.DateTimeField(auto_now_add=True)
+    paid_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        db_table = 'payment_intents'
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"Intent #{self.id} {self.purpose} SAR {self.amount} ({self.status})"
+
+    @property
+    def amount_halalas(self):
+        from decimal import ROUND_HALF_UP
+        return int((Decimal(self.amount) * 100).to_integral_value(ROUND_HALF_UP))

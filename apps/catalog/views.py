@@ -4,6 +4,9 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
+from datetime import timedelta
+from django.db import transaction as db_transaction
+from django.db.models import F
 
 from .models import (
     TrainerProfile, TrainerAvailability,
@@ -54,7 +57,7 @@ def trainer_detail(request, trainer_id):
     data = TrainerProfileSerializer(trainer).data
     # Include their courses
     courses = trainer.courses.filter(status='published')
-    data['courses'] = CourseListSerializer(courses, many=True).data
+    data['courses'] = CourseListSerializer(courses, many=True, context={'request': request}).data
     return Response(data)
 
 
@@ -85,7 +88,7 @@ def courses_list(request):
     if search:
         qs = qs.filter(title__icontains=search) | qs.filter(description__icontains=search)
 
-    return Response(CourseListSerializer(qs, many=True).data)
+    return Response(CourseListSerializer(qs, many=True, context={'request': request}).data)
 
 
 @api_view(['GET'])
@@ -99,7 +102,7 @@ def course_detail(request, course_id):
         id=course_id,
         status='published',
     )
-    data = CourseDetailSerializer(course).data
+    data = CourseDetailSerializer(course, context={'request': request}).data
     # Add reviews
     reviews = course.reviews.all()[:10]
     data['reviews'] = CourseReviewSerializer(reviews, many=True).data
@@ -146,15 +149,17 @@ def my_enrollments(request):
             status=status.HTTP_400_BAD_REQUEST,
         )
 
-    enrollment = Enrollment.objects.create(
-        member=request.user,
-        course=course,
-        amount_paid=course.price,
-    )
+    # Paid courses are enrolled by the payment (apps.payments.gateway) once Moyasar confirms it.
+    from apps.payments.gateway import course_is_free_for
+    if not course_is_free_for(request.user, course):
+        return Response(
+            {'detail': 'This course is paid — complete the payment to enrol.', 'payment_required': True,
+             'price': str(course.price)},
+            status=status.HTTP_402_PAYMENT_REQUIRED,
+        )
 
-    # Increment enrollment count
-    course.total_enrolled += 1
-    course.save(update_fields=['total_enrolled'])
+    enrollment = Enrollment.objects.create(member=request.user, course=course, amount_paid=0)
+    Course.objects.filter(id=course.id).update(total_enrolled=F('total_enrolled') + 1)
 
     return Response(EnrollmentSerializer(enrollment).data, status=status.HTTP_201_CREATED)
 
@@ -199,19 +204,33 @@ def my_sessions(request):
         qs = TrainerSession.objects.filter(member=request.user).select_related('trainer__user')
         return Response(TrainerSessionSerializer(qs, many=True).data)
 
+    # Book = reserve a free slot from the trainer's availability; it becomes
+    # 'scheduled' once paid (apps.payments.gateway). The price is the trainer's hourly rate.
+    from .slots import SLOT_MINUTES, MIN_LEAD_MINUTES, slot_is_free, within_availability
+
     serializer = TrainerSessionSerializer(data=request.data)
-    if serializer.is_valid():
-        trainer = get_object_or_404(
-            TrainerProfile,
-            id=request.data.get('trainer_id'),
-        )
+    serializer.is_valid(raise_exception=True)
+    trainer = get_object_or_404(TrainerProfile, id=request.data.get('trainer_id'))
+    if not (trainer.is_accepting_clients and trainer.offers_1on1):
+        return Response({'detail': 'This trainer is not taking 1:1 bookings right now.'},
+                        status=status.HTTP_400_BAD_REQUEST)
+
+    start = serializer.validated_data['scheduled_at']
+    if start < timezone.now() + timedelta(minutes=MIN_LEAD_MINUTES):
+        return Response({'detail': 'Please pick a time at least an hour from now.'}, status=status.HTTP_400_BAD_REQUEST)
+    if not within_availability(trainer, start, SLOT_MINUTES):
+        return Response({'detail': 'The trainer is not available at that time.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    with db_transaction.atomic():
+        TrainerProfile.objects.select_for_update().get(id=trainer.id)     # serialise bookings per trainer
+        if not slot_is_free(trainer, start, SLOT_MINUTES):
+            return Response({'detail': 'That slot was just taken — please pick another.'},
+                            status=status.HTTP_409_CONFLICT)
         session = serializer.save(
-            member=request.user,
-            trainer=trainer,
-            amount_charged=trainer.hourly_rate,
+            member=request.user, trainer=trainer, status='pending_payment',
+            duration_minutes=SLOT_MINUTES, amount_charged=trainer.hourly_rate,
         )
-        return Response(TrainerSessionSerializer(session).data, status=status.HTTP_201_CREATED)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    return Response(TrainerSessionSerializer(session).data, status=status.HTTP_201_CREATED)
 
 
 @api_view(['POST'])
@@ -220,15 +239,66 @@ def cancel_session(request, session_id):
     """
     POST /api/catalog/sessions/<id>/cancel/
     """
-    session = get_object_or_404(TrainerSession, id=session_id, member=request.user)
-    if session.status != 'scheduled':
-        return Response(
-            {'detail': 'Only scheduled sessions can be cancelled.'},
-            status=status.HTTP_400_BAD_REQUEST,
-        )
-    session.status = 'cancelled'
-    session.save()
+    # Unpaid bookings can always be cancelled. Paid ones up to REFUND_HOURS before the
+    # start, refunded to locker credit (instant, no card refund round-trip).
+    from apps.notifications.service import notify
+    from apps.payments.models import LockerCredit
+
+    with db_transaction.atomic():
+        session = get_object_or_404(TrainerSession.objects.select_for_update(), id=session_id, member=request.user)
+        if session.status == 'pending_payment':
+            session.status = 'cancelled'
+            session.save(update_fields=['status'])
+            return Response(TrainerSessionSerializer(session).data)
+        if session.status != 'scheduled':
+            return Response({'detail': 'Only upcoming sessions can be cancelled.'}, status=status.HTTP_400_BAD_REQUEST)
+        if session.scheduled_at - timezone.now() < timedelta(hours=REFUND_HOURS):
+            return Response(
+                {'detail': f'Sessions can be cancelled up to {REFUND_HOURS} hours before the start.'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        session.status = 'cancelled'
+        session.save(update_fields=['status'])
+        refund = session.amount_charged or 0
+        if refund > 0:
+            credit, _ = LockerCredit.objects.select_for_update().get_or_create(member=request.user)
+            LockerCredit.objects.filter(id=credit.id).update(balance=F('balance') + refund)
+            from apps.payments.gateway import record_transaction
+            record_transaction(request.user, f'Refund — cancelled session #{session.id}', 'refund', -refund,
+                               'Locker credit', f'session:{session.id}')
+    if refund > 0:
+        notify(request.user, 'trainer', 'Session cancelled',
+               f'SAR {refund} was refunded to your locker credit.', icon='event_busy',
+               action_label='View payments', action_path='/dashboard/payments')
     return Response(TrainerSessionSerializer(session).data)
+
+
+REFUND_HOURS = 24
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def trainer_slots(request, trainer_id):
+    """
+    GET /api/catalog/trainers/<id>/slots/?date=YYYY-MM-DD
+    Free 60-minute slots for that day, from the trainer's weekly availability.
+    """
+    from datetime import date as date_cls
+    from .slots import available_slots
+    trainer = get_object_or_404(TrainerProfile, id=trainer_id)
+    try:
+        day = date_cls.fromisoformat(request.query_params.get('date', ''))
+    except ValueError:
+        return Response({'detail': 'date must be YYYY-MM-DD.'}, status=status.HTTP_400_BAD_REQUEST)
+    weekdays = sorted(set(trainer.availability.filter(is_active=True).values_list('day_of_week', flat=True)))
+    return Response({
+        'date': day.isoformat(),
+        'price': str(trainer.hourly_rate),
+        'duration_minutes': 60,
+        'accepting': trainer.is_accepting_clients and trainer.offers_1on1,
+        'available_weekdays': weekdays,          # 0 = Monday
+        'slots': [{'start': s['start'].isoformat(), 'label': s['label']} for s in available_slots(trainer, day)],
+    })
 
 
 # ============================================

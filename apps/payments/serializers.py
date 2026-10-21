@@ -36,7 +36,7 @@ class TransactionListSerializer(serializers.ModelSerializer):
         model = Transaction
         fields = [
             'id', 'transaction_id', 'description', 'transaction_type',
-            'amount', 'status', 'created_at', 'settled_at',
+            'amount', 'status', 'payment_method_label', 'created_at', 'settled_at',
         ]
 
 

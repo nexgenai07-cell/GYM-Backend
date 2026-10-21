@@ -1,0 +1,387 @@
+"""
+Member payments: locker top-ups, shop orders, trainer sessions, paid courses
+and membership renewals.
+
+Flow (same rules as the registration payment in apps.public_api.moyasar):
+  1. create_intent()      server decides the amount; returns a PaymentIntent
+  2. browser pays with the Moyasar form (metadata = intent id + attempt token),
+     or pay_with_credit() takes it from the member's locker credit
+  3. sync_intent()        re-fetches the payment from Moyasar with the secret key
+                          (callback page, attach call and webhook all land here)
+  4. _fulfil()            marks the order paid / books the session / enrols /
+                          extends the membership / adds credit, and records a
+                          Transaction + Invoice + notification.
+Nothing the browser or webhook body says about a payment is trusted.
+"""
+import hmac
+import logging
+import secrets
+import uuid
+from datetime import date
+from decimal import Decimal, InvalidOperation
+
+from dateutil.relativedelta import relativedelta
+from django.conf import settings
+from django.db import transaction
+from django.db.models import F
+from django.utils import timezone
+
+from apps.notifications.service import notify
+from apps.public_api import moyasar
+from apps.public_api.moyasar import CURRENCY, PAID_STATUSES, MoyasarError, _redact
+
+from .models import Invoice, LockerCredit, PaymentIntent, Transaction
+
+logger = logging.getLogger(__name__)
+
+TOPUP_MIN = Decimal('10.00')
+RENEWAL_MONTHS = (1, 3, 6, 12)
+CREDIT_PURPOSES = ('shop_order', 'trainer_session', 'course', 'renewal')
+
+
+class PaymentError(Exception):
+    """The request can't be paid as asked (shown to the member)."""
+
+
+# ============================================================
+# 1. CREATE
+# ============================================================
+def create_intent(member, purpose, data):
+    """Validate what is being bought and price it. Raises PaymentError."""
+    builders = {
+        'locker_topup': _build_topup,
+        'shop_order': _build_order,
+        'trainer_session': _build_session,
+        'course': _build_course,
+        'renewal': _build_renewal,
+    }
+    if purpose not in builders:
+        raise PaymentError('Unknown payment purpose.')
+    fields = builders[purpose](member, data)
+    if fields['amount'] <= 0:
+        raise PaymentError('Nothing to pay for.')
+    return PaymentIntent.objects.create(
+        member=member, purpose=purpose, attempt_token=secrets.token_urlsafe(24), **fields,
+    )
+
+
+def _build_topup(member, data):
+    try:
+        amount = Decimal(str(data.get('amount'))).quantize(Decimal('0.01'))
+    except (InvalidOperation, TypeError, ValueError):
+        raise PaymentError('Enter a valid amount.')
+    credit, _ = LockerCredit.objects.get_or_create(member=member)
+    room = credit.max_cap - credit.balance
+    if amount < TOPUP_MIN:
+        raise PaymentError(f'The minimum top-up is SAR {TOPUP_MIN}.')
+    if amount > room:
+        raise PaymentError(f'Your locker credit is capped at SAR {credit.max_cap}; you can add up to SAR {max(room, 0)}.')
+    return {'amount': amount, 'description': f'Locker credit top-up (SAR {amount})'}
+
+
+def _build_order(member, data):
+    from apps.shop.models import Order
+    order = Order.objects.filter(order_number=data.get('order_number'), member=member).first()
+    if order is None:
+        raise PaymentError('Order not found.')
+    if order.status != 'pending':
+        raise PaymentError('This order is not awaiting payment.')
+    return {'amount': order.total, 'order': order, 'description': f'Shop order {order.order_number}'}
+
+
+def _build_session(member, data):
+    from apps.catalog.models import TrainerSession
+    session = TrainerSession.objects.select_related('trainer__user').filter(
+        id=data.get('session_id'), member=member).first()
+    if session is None:
+        raise PaymentError('Session not found.')
+    if session.status != 'pending_payment':
+        raise PaymentError('This session is not awaiting payment.')
+    if session.scheduled_at <= timezone.now():
+        raise PaymentError('This session time has passed — please book another slot.')
+    name = session.trainer.user.full_name or 'trainer'
+    when = timezone.localtime(session.scheduled_at).strftime('%d %b %Y %H:%M')
+    return {'amount': session.amount_charged, 'trainer_session': session,
+            'description': f'Session with {name} — {when}'}
+
+
+def _build_course(member, data):
+    from apps.catalog.models import Course, Enrollment
+    course = Course.objects.filter(id=data.get('course_id'), status='published').first()
+    if course is None:
+        raise PaymentError('Course not found.')
+    if Enrollment.objects.filter(member=member, course=course).exists():
+        raise PaymentError('You are already enrolled in this course.')
+    if course_is_free_for(member, course):
+        raise PaymentError('This course is free for you — enrol directly.')
+    return {'amount': course.price, 'course': course, 'description': f'Course: {course.title}'}
+
+
+def _build_renewal(member, data):
+    from apps.members.models import MembershipPlan
+    from apps.public_api.serializers import plan_amount
+    try:
+        months = int(data.get('months'))
+    except (TypeError, ValueError):
+        raise PaymentError('Choose a duration.')
+    if months not in RENEWAL_MONTHS:
+        raise PaymentError('Choose 1, 3, 6 or 12 months.')
+    plan = MembershipPlan.objects.filter(id=data.get('plan_id'), is_active=True).first()
+    if plan is None:
+        raise PaymentError('Plan not found.')
+    from apps.members.models import Membership
+    if not Membership.objects.filter(member=member).exists():
+        raise PaymentError('No membership to renew.')
+    return {'amount': plan_amount(plan, months), 'plan': plan, 'months': months,
+            'description': f'Membership renewal — {plan.display_name} ({months} mo)'}
+
+
+def course_is_free_for(member, course):
+    """Free courses, and 'included with Pro' courses for members on a Pro/Elite plan."""
+    if not course.price or course.price <= 0:
+        return True
+    if course.is_included_with_pro:
+        from apps.members.models import Membership
+        m = Membership.objects.select_related('plan').filter(member=member).first()
+        if m and m.allows_entry and any(t in m.plan.name.lower() for t in ('pro', 'elite')):
+            return True
+    return False
+
+
+# ============================================================
+# 2. MOYASAR FORM PARAMETERS
+# ============================================================
+def checkout_params(intent):
+    return {
+        'publishable_key': settings.MOYASAR_PUBLISHABLE_KEY,
+        'amount': intent.amount_halalas,
+        'currency': CURRENCY,
+        'description': f'Smart Gym — {intent.description}'[:255],
+        'metadata': {'intent_id': str(intent.id), 'attempt': intent.attempt_token},
+    }
+
+
+# ============================================================
+# 3. VERIFY WITH MOYASAR
+# ============================================================
+def attach_payment(intent, payment_id):
+    """Link the Moyasar payment the browser just created, then verify it."""
+    if not isinstance(payment_id, str) or not payment_id or len(payment_id) > 64:
+        raise MoyasarError('Invalid payment id.')
+    return sync_intent(payment_id, intent_id=intent.id)
+
+
+def sync_intent(payment_id, intent_id=None, payment=None):
+    """Idempotent: safe to call from the callback page, attach and the webhook in any order."""
+    payment = payment or moyasar.fetch_payment(payment_id)
+    metadata = payment.get('metadata') or {}
+    meta_id = str(metadata.get('intent_id', ''))
+    if not meta_id.isdigit():
+        raise MoyasarError('Payment is not linked to a member payment.')
+    if intent_id is not None and meta_id != str(intent_id):
+        raise MoyasarError('Payment does not belong to this payment request.')
+
+    with transaction.atomic():
+        intent = PaymentIntent.objects.select_for_update().filter(id=int(meta_id)).first()
+        if intent is None:
+            raise MoyasarError('Payment request not found.')
+        attempt = metadata.get('attempt')
+        if not (isinstance(attempt, str) and hmac.compare_digest(attempt.encode(), intent.attempt_token.encode())):
+            raise MoyasarError('Payment does not match this payment request.')
+        _apply_payment(intent, payment)
+    return intent
+
+
+def _apply_payment(intent, payment):
+    pid = payment.get('id')
+    status = payment.get('status')
+    if intent.status in ('paid', 'review'):
+        if pid != intent.moyasar_payment_id and status in PAID_STATUSES:
+            logger.warning('Intent #%s already settled by %s — extra paid payment %s needs a manual refund.',
+                           intent.id, intent.moyasar_payment_id, pid)
+        return
+    if PaymentIntent.objects.filter(moyasar_payment_id=pid).exclude(id=intent.id).exists():
+        raise MoyasarError('Payment already used for another purchase.')
+
+    intent.moyasar_payment_id = pid
+    intent.payment_raw = _redact(payment)
+    source = payment.get('source') or {}
+
+    if status in PAID_STATUSES:
+        problems = []
+        if payment.get('amount') != intent.amount_halalas:
+            problems.append(f"amount {payment.get('amount')} != expected {intent.amount_halalas} halalas")
+        if payment.get('currency') != CURRENCY:
+            problems.append(f"currency {payment.get('currency')} != {CURRENCY}")
+        if problems:
+            intent.status = 'review'
+            intent.failure_reason = ('Needs manual review: ' + '; '.join(problems))[:255]
+            logger.error('Intent #%s payment %s mismatch: %s', intent.id, pid, problems)
+            intent.save()
+            return
+        _fulfil(intent, _source_label(source))
+    elif status == 'failed':
+        intent.status = 'failed'
+        intent.failure_reason = (source.get('message') or 'Payment failed.')[:255]
+        intent.save()
+    else:
+        intent.save()   # initiated / authorized (3-D Secure in progress)
+
+
+def _source_label(source):
+    company = (source.get('company') or source.get('type') or 'card').upper()
+    number = str(source.get('number') or '')
+    return f'{company} •••• {number[-4:]}' if number[-4:].isdigit() else company
+
+
+# ============================================================
+# 3b. PAY WITH LOCKER CREDIT
+# ============================================================
+def pay_with_credit(intent):
+    if intent.purpose not in CREDIT_PURPOSES:
+        raise PaymentError('Locker credit can’t be used for this payment.')
+    with transaction.atomic():
+        intent = PaymentIntent.objects.select_for_update().get(id=intent.id)
+        if intent.status != 'pending':
+            raise PaymentError('This payment is no longer pending.')
+        credit, _ = LockerCredit.objects.select_for_update().get_or_create(member=intent.member)
+        if credit.balance < intent.amount:
+            raise PaymentError(f'Not enough locker credit (balance SAR {credit.balance}).')
+        LockerCredit.objects.filter(id=credit.id).update(balance=F('balance') - intent.amount)
+        intent.method = 'locker_credit'
+        _fulfil(intent, 'Locker credit')
+    return intent
+
+
+# ============================================================
+# 4. FULFIL
+# ============================================================
+TX_TYPE = {'locker_topup': 'topup', 'shop_order': 'retail', 'trainer_session': 'coaching',
+           'course': 'coaching', 'renewal': 'subscription'}
+
+
+def _fulfil(intent, method_label):
+    """Runs inside the caller's transaction with the intent row locked."""
+    ok, note = {
+        'locker_topup': _fulfil_topup,
+        'shop_order': _fulfil_order,
+        'trainer_session': _fulfil_session,
+        'course': _fulfil_course,
+        'renewal': _fulfil_renewal,
+    }[intent.purpose](intent)
+
+    now = timezone.now()
+    intent.paid_at = now
+    intent.transaction = record_transaction(
+        intent.member, intent.description, TX_TYPE[intent.purpose], intent.amount,
+        method_label, intent.moyasar_payment_id or f'credit:{intent.id}',
+    )
+    if ok:
+        intent.status = 'paid'
+        intent.failure_reason = ''
+    else:
+        # Paid, but what it paid for is gone (order cancelled, slot taken...): staff refunds it.
+        intent.status = 'review'
+        intent.failure_reason = f'Needs manual review: {note}'[:255]
+        logger.error('Intent #%s paid but not fulfilled: %s', intent.id, note)
+        notify(intent.member, 'payment', 'Payment received — our team will follow up',
+               f'We received SAR {intent.amount} for "{intent.description}" but {note}. '
+               'Our team will contact you to rebook or refund.', icon='report', priority='high',
+               action_label='View payments', action_path='/dashboard/payments')
+    intent.save()
+
+
+def record_transaction(member, description, tx_type, amount, method_label, gateway_ref, when=None):
+    """A settled Transaction + its paid Invoice (shown on the member's Payments page)."""
+    when = when or timezone.now()
+    txn = Transaction.objects.create(
+        member=member, transaction_id=f'TXN-{uuid.uuid4().hex[:10].upper()}',
+        description=description[:200], transaction_type=tx_type,
+        amount=amount, subtotal=amount, status='settled',
+        payment_method_label=method_label[:60], gateway_reference=(gateway_ref or '')[:100],
+        settled_at=when,
+    )
+    Invoice.objects.create(
+        invoice_number=f'INV-{uuid.uuid4().hex[:10].upper()}', member=member, transaction=txn,
+        description=description[:200], amount=amount, total=amount, status='paid', paid_at=when,
+    )
+    return txn
+
+
+def _fulfil_topup(intent):
+    credit, _ = LockerCredit.objects.select_for_update().get_or_create(member=intent.member)
+    # Money was taken, so it is always credited in full (even if another top-up raced past the cap).
+    LockerCredit.objects.filter(id=credit.id).update(balance=F('balance') + intent.amount)
+    notify(intent.member, 'payment', 'Locker credit added', f'SAR {intent.amount} was added to your locker credit.',
+           icon='account_balance_wallet', action_label='View balance', action_path='/dashboard/payments')
+    return True, ''
+
+
+def _fulfil_order(intent):
+    from apps.shop.models import Order
+    order = Order.objects.select_for_update().filter(id=intent.order_id).first()
+    if order is None or order.status != 'pending':
+        return False, f'order {getattr(order, "order_number", "?")} is no longer awaiting payment'
+    order.status = 'paid'
+    order.save(update_fields=['status'])
+    where = 'the counter' if order.delivery_method == 'counter' else f'locker {order.locker_number}'
+    notify(intent.member, 'shop', f'Order {order.order_number} paid',
+           f'Thanks! We are preparing your order — collect it from {where}.', icon='shopping_bag',
+           action_label='View orders', action_path='/dashboard/shop?tab=orders')
+    return True, ''
+
+
+def _fulfil_session(intent):
+    from apps.catalog.models import TrainerSession
+    from apps.catalog.slots import slot_is_free
+    session = TrainerSession.objects.select_for_update().select_related('trainer__user').filter(
+        id=intent.trainer_session_id).first()
+    if session is None or session.status != 'pending_payment':
+        return False, 'the session is no longer awaiting payment'
+    if not slot_is_free(session.trainer, session.scheduled_at, session.duration_minutes, exclude_id=session.id):
+        session.status = 'cancelled'
+        session.save(update_fields=['status'])
+        return False, 'the time slot was booked by someone else'
+    session.status = 'scheduled'
+    session.save(update_fields=['status'])
+    when = timezone.localtime(session.scheduled_at).strftime('%A %d %b, %H:%M')
+    notify(intent.member, 'trainer', 'Session booked',
+           f'Your session with {session.trainer.user.full_name} is confirmed for {when}.', icon='event_available',
+           action_label='View trainer', action_path=f'/dashboard/trainers/{session.trainer_id}')
+    return True, ''
+
+
+def _fulfil_course(intent):
+    from apps.catalog.models import Enrollment
+    if intent.course is None:
+        return False, 'the course no longer exists'
+    if Enrollment.objects.filter(member=intent.member, course=intent.course).exists():
+        return False, 'you were already enrolled in this course'
+    Enrollment.objects.create(member=intent.member, course=intent.course, amount_paid=intent.amount,
+                              payment_ref=intent.moyasar_payment_id or f'credit:{intent.id}')
+    type(intent.course).objects.filter(id=intent.course_id).update(total_enrolled=F('total_enrolled') + 1)
+    notify(intent.member, 'course', 'Enrolled', f'You are enrolled in "{intent.course.title}". Enjoy!',
+           icon='school', action_label='Open player', action_path=f'/dashboard/player/{intent.course_id}')
+    return True, ''
+
+
+def _fulfil_renewal(intent):
+    from apps.members.models import Membership
+    m = Membership.objects.select_for_update().filter(member=intent.member).first()
+    if m is None or intent.plan is None:
+        return False, 'there is no membership to renew'
+    today = date.today()
+    if m.expiry_date <= today:
+        m.start_date = today                       # lapsed: the countdown restarts today
+        base = today
+    else:
+        base = m.expiry_date
+    m.plan = intent.plan
+    m.expiry_date = base + relativedelta(months=intent.months)
+    m.status = 'active'
+    m.lifetime_value = (m.lifetime_value or 0) + intent.amount
+    m.save()
+    notify(intent.member, 'payment', 'Membership renewed',
+           f'{intent.plan.display_name} is active until {m.expiry_date:%d %b %Y}.', icon='card_membership',
+           action_label='View membership', action_path='/dashboard/payments')
+    return True, ''

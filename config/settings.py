@@ -128,7 +128,9 @@ AUTH_PASSWORD_VALIDATORS = [
 # INTERNATIONALIZATION
 # ============================================
 LANGUAGE_CODE = 'en-us'
-TIME_ZONE = 'UTC'
+TIME_ZONE = config('TIME_ZONE', default='Asia/Riyadh')   # gym-local dates, trainer hours, check-in days
+GYM_CAPACITY = config('GYM_CAPACITY', default=0, cast=int)   # 0 = sum of active facility capacities
+SHOP_VAT_RATE = config('SHOP_VAT_RATE', default='0.15')   # Saudi VAT
 USE_I18N = True
 USE_TZ = True
 

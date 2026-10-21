@@ -213,6 +213,7 @@ class Enrollment(models.Model):
 class TrainerSession(models.Model):
     """A booked 1:1 session with a trainer."""
     STATUS_CHOICES = [
+        ('pending_payment', 'Awaiting payment'),
         ('scheduled', 'Scheduled'),
         ('completed', 'Completed'),
         ('cancelled', 'Cancelled'),

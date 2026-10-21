@@ -104,7 +104,10 @@ def approve_registration(reg: MembershipRegistration, approved_by=None):
         lifetime_value=reg.payment_amount or reg.total_price,
     )
 
-    # 4. Link back
+    # 4. The signup payment appears in the member's Payments page.
+    record_signup_payment(reg, user)
+
+    # 5. Link back
     reg.created_user = user
     reg.status = MembershipRegistration.STATUS_APPROVED
     reg.approved_at = timezone.now()
@@ -119,11 +122,25 @@ def approve_registration(reg: MembershipRegistration, approved_by=None):
         reg.id, user.email, membership.pass_id, expiry,
     )
 
-    # 5. Welcome email — only once the approval is committed, so a rolled-back
+    # 6. Welcome email — only once the approval is committed, so a rolled-back
     #    approval never emails login details that don't work.
     transaction.on_commit(lambda: _send_welcome_email(user, membership, temp_password))
 
     return user
+
+
+def record_signup_payment(reg, user):
+    """Ledger entry (Transaction + paid Invoice) for the Moyasar payment made at signup."""
+    from apps.payments.gateway import record_transaction
+    from apps.payments.models import Transaction
+    ref = reg.moyasar_payment_id or reg.payment_reference
+    if not ref or Transaction.objects.filter(member=user, gateway_reference=ref).exists():
+        return None
+    return record_transaction(
+        user, f'Membership — {reg.plan.display_name} ({reg.duration_months} mo)', 'subscription',
+        reg.payment_amount or reg.total_price, (reg.payment_method or 'card').upper(), ref,
+        when=reg.payment_paid_at or timezone.now(),
+    )
 
 
 # ============================================================

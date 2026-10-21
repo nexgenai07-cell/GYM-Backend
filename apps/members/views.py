@@ -49,23 +49,36 @@ def my_membership(request):
 # ============================================
 # CHECK-INS
 # ============================================
-@api_view(['GET', 'POST'])
+@api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def check_ins(request):
     """
-    GET  /api/members/check-ins/  → list of user's check-ins
-    POST /api/members/check-ins/  → create a new check-in
+    GET /api/members/check-ins/ → the member's check-ins.
+    Check-ins are recorded at the entrance (face gate / staff scanning the
+    pass), never by the member, so attendance can't be faked.
     """
-    if request.method == 'GET':
-        entries = CheckIn.objects.filter(member=request.user)[:50]
-        return Response(CheckInSerializer(entries, many=True).data)
+    entries = CheckIn.objects.filter(member=request.user)[:50]
+    return Response(CheckInSerializer(entries, many=True).data)
 
-    # POST — new check-in
-    serializer = CheckInSerializer(data=request.data)
-    if serializer.is_valid():
-        serializer.save(member=request.user)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def my_pass(request):
+    """
+    GET /api/members/pass/ → { token, expires_in, pass_id, valid }
+    The QR on the member's digital pass. Staff scan it in Member Lookup.
+    """
+    from .passes import MAX_AGE_SECONDS, make_token
+    membership = Membership.objects.select_related('plan').filter(member=request.user).first()
+    if membership is None:
+        return Response({'detail': 'No membership.'}, status=status.HTTP_404_NOT_FOUND)
+    return Response({
+        'token': make_token(membership),
+        'expires_in': MAX_AGE_SECONDS,
+        'refresh_in': 60,
+        'pass_id': membership.pass_id,
+        'valid': membership.allows_entry,
+    })
 
 
 @api_view(['POST'])
@@ -95,55 +108,3 @@ def check_out(request, check_in_id):
     entry.save()
 
     return Response(CheckInSerializer(entry).data)
-
-
-@api_view(['GET'])
-@permission_classes([AllowAny])
-def verify_member(request, member_id):
-    """
-    GET /api/members/verify/<member_id>/
-    Public — used as the QR payload target for facility staff scanning.
-    Returns basic verification info (name, tier, status, expiry).
-    """
-    from django.contrib.auth import get_user_model
-    User = get_user_model()
-
-    try:
-        u = User.objects.get(id=member_id)
-    except User.DoesNotExist:
-        return Response(
-            {'valid': False, 'reason': 'Member not found.'},
-            status=status.HTTP_404_NOT_FOUND,
-        )
-
-    try:
-        membership = Membership.objects.select_related('plan').get(member=u)
-    except Membership.DoesNotExist:
-        return Response({
-            'valid': False,
-            'member_id': u.id,
-            'name': getattr(u, 'full_name', None) or u.email,
-            'reason': 'No active membership.',
-        })
-
-    is_active = (
-        membership.status == 'active'
-        and not membership.is_frozen
-        and membership.days_remaining > 0
-    )
-
-    return Response({
-        'valid': is_active,
-        'member_id': u.id,
-        'name': (
-            getattr(u, 'full_name', None)
-            or f"{u.first_name} {u.last_name}".strip()
-            or u.email
-        ),
-        'email': u.email,
-        'tier': membership.plan.display_name,
-        'status': membership.status,
-        'expiry_date': str(membership.expiry_date),
-        'days_remaining': membership.days_remaining,
-        'pass_id': membership.pass_id,
-    })

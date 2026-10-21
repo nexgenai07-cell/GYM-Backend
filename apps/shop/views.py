@@ -7,7 +7,8 @@ from django.db import transaction as db_transaction
 from django.utils import timezone
 from decimal import Decimal
 import uuid
-from django.db.models import Q
+from django.db.models import F, Q
+from django.conf import settings
 
 from .models import (
     ProductCategory, Product,
@@ -23,6 +24,8 @@ from .serializers import (
     PromoCodeSerializer,
 )
 
+
+VAT_RATE = Decimal(str(getattr(settings, 'SHOP_VAT_RATE', '0.15')))   # Saudi VAT 15%
 
 # ============================================
 # CATEGORIES (public)
@@ -226,75 +229,65 @@ def apply_promo(request):
 def checkout(request):
     """
     POST /api/shop/checkout/
-    Body: { "delivery_method": "locker", "promo_code": "PRO15", "notes": "..." }
-    Converts cart → order, decrements stock.
+    Body: { "delivery_method": "locker" | "counter", "promo_code": "PRO15", "notes": "..." }
+    Turns the cart into an order awaiting payment (status 'pending') and reserves
+    the stock. The order is paid through /api/payments/checkout/ (Moyasar or
+    locker credit); cancelling an unpaid order releases the stock.
     """
-    cart, _ = Cart.objects.get_or_create(member=request.user)
-
-    if cart.items.count() == 0:
-        return Response({'detail': 'Cart is empty.'}, status=status.HTTP_400_BAD_REQUEST)
-
     delivery_method = request.data.get('delivery_method', 'locker')
-    promo_code_str = request.data.get('promo_code', '').strip().upper()
-    notes = request.data.get('notes', '')
+    if delivery_method not in ('locker', 'counter'):
+        return Response({'detail': 'Choose locker or counter pickup.'}, status=status.HTTP_400_BAD_REQUEST)
+    promo_code_str = (request.data.get('promo_code') or '').strip().upper()
+    notes = (request.data.get('notes') or '')[:500]
 
     with db_transaction.atomic():
-        # Compute totals
-        subtotal = Decimal('0.00')
-        for item in cart.items.all():
-            subtotal += item.product.price * item.quantity
+        cart, _ = Cart.objects.get_or_create(member=request.user)
+        items = list(cart.items.select_related('product'))
+        if not items:
+            return Response({'detail': 'Cart is empty.'}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Promo
+        # Lock the products and check stock before taking anything.
+        products = {p.id: p for p in Product.objects.select_for_update().filter(id__in=[i.product_id for i in items])}
+        short = [f"{products[i.product_id].name} (only {products[i.product_id].stock_quantity} left)"
+                 for i in items if products[i.product_id].stock_quantity < i.quantity]
+        if short:
+            return Response({'detail': 'Not enough stock: ' + ', '.join(short) + '.'}, status=status.HTTP_409_CONFLICT)
+
+        subtotal = sum((products[i.product_id].price * i.quantity for i in items), Decimal('0.00'))
+
         discount = Decimal('0.00')
         promo = None
         if promo_code_str:
-            promo = PromoCode.objects.filter(code=promo_code_str).first()
-            if promo and promo.is_valid:
-                discount = (subtotal * promo.discount_percent) / Decimal('100')
+            promo = PromoCode.objects.select_for_update().filter(code=promo_code_str).first()
+            if promo is None or not promo.is_valid:
+                return Response({'detail': 'That promo code is not valid.'}, status=status.HTTP_400_BAD_REQUEST)
+            discount = (subtotal * promo.discount_percent / Decimal('100')).quantize(Decimal('0.01'))
 
         taxable = subtotal - discount
-        tax = (taxable * Decimal('0.05')).quantize(Decimal('0.01'))  # 5% VAT
+        tax = (taxable * VAT_RATE).quantize(Decimal('0.01'))
         total = taxable + tax
 
-        # Create order
-        order_number = f"#ORD-{uuid.uuid4().hex[:6].upper()}"
         order = Order.objects.create(
-            order_number=order_number,
+            order_number=f"ORD-{uuid.uuid4().hex[:8].upper()}",
             member=request.user,
             status='pending',
             delivery_method=delivery_method,
-            subtotal=subtotal,
-            discount=discount,
-            tax=tax,
-            total=total,
-            promo_code=promo_code_str if promo else '',
+            subtotal=subtotal, discount=discount, tax=tax, total=total,
+            promo_code=promo.code if promo else '',
             notes=notes,
             locker_number=f"LKR-{uuid.uuid4().hex[:4].upper()}" if delivery_method == 'locker' else '',
         )
-
-        # Create order items + decrement stock
-        for item in cart.items.all():
+        for item in items:
+            product = products[item.product_id]
             OrderItem.objects.create(
-                order=order,
-                product=item.product,
-                product_name=item.product.name,
-                product_sku=item.product.sku,
-                unit_price=item.product.price,
-                quantity=item.quantity,
-                line_total=item.product.price * item.quantity,
+                order=order, product=product, product_name=product.name, product_sku=product.sku,
+                unit_price=product.price, quantity=item.quantity, line_total=product.price * item.quantity,
             )
-
-            # Decrement stock
-            item.product.stock_quantity = max(0, item.product.stock_quantity - item.quantity)
-            item.product.total_sold += item.quantity
-            item.product.save(update_fields=['stock_quantity', 'total_sold'])
-
-        # Promo use count
+            product.stock_quantity -= item.quantity          # reserved until paid or cancelled
+            product.total_sold += item.quantity
+            product.save(update_fields=['stock_quantity', 'total_sold'])
         if promo:
-            promo.used_count += 1
-            promo.save(update_fields=['used_count'])
-
-        # Clear cart
+            PromoCode.objects.filter(id=promo.id).update(used_count=F('used_count') + 1)
         cart.items.all().delete()
 
     return Response(OrderDetailSerializer(order).data, status=status.HTTP_201_CREATED)
@@ -338,26 +331,25 @@ def order_detail(request, order_number):
 def cancel_order(request, order_number):
     """
     POST /api/shop/orders/<order_number>/cancel/
+    Members can cancel orders that are not paid yet (releases the stock).
+    Paid orders are refunded by staff — contact the front desk.
     """
-    try:
-        order = Order.objects.get(order_number=order_number, member=request.user)
-    except Order.DoesNotExist:
-        return Response({'detail': 'Order not found.'}, status=status.HTTP_404_NOT_FOUND)
-
-    if order.status not in ['pending', 'paid', 'preparing']:
-        return Response(
-            {'detail': 'Order can no longer be cancelled.'},
-            status=status.HTTP_400_BAD_REQUEST,
-        )
-
     with db_transaction.atomic():
-        # Restore stock
-        for item in order.items.all():
+        order = Order.objects.select_for_update().filter(order_number=order_number, member=request.user).first()
+        if order is None:
+            return Response({'detail': 'Order not found.'}, status=status.HTTP_404_NOT_FOUND)
+        if order.status != 'pending':
+            return Response(
+                {'detail': 'Paid orders can’t be cancelled here — please ask the front desk for a refund.'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        for item in order.items.select_related('product'):
             if item.product:
-                item.product.stock_quantity += item.quantity
-                item.product.save(update_fields=['stock_quantity'])
-
+                Product.objects.filter(id=item.product_id).update(
+                    stock_quantity=F('stock_quantity') + item.quantity,
+                    total_sold=F('total_sold') - item.quantity,
+                )
         order.status = 'cancelled'
-        order.save()
+        order.save(update_fields=['status'])
 
     return Response(OrderDetailSerializer(order).data)

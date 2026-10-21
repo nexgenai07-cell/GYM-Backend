@@ -8,7 +8,9 @@ from datetime import timedelta
 from apps.members.models import Membership, CheckIn
 from apps.workouts.models import Workout, WorkoutSet, PersonalRecord, Exercise
 from apps.notifications.models import Notification
-from apps.facilities.models import Facility
+from django.db.models import F
+
+from .occupancy import current_occupancy
 
 
 @api_view(['GET'])
@@ -62,14 +64,13 @@ def dashboard(request):
             'id': w.id,
             'name': w.name,
             'status': w.status,
-            'type': 'strength',  # inferred from category
             'started_at': w.started_at.isoformat() if w.started_at else None,
             'completed_at': w.completed_at.isoformat() if w.completed_at else None,
             'duration_minutes': w.duration_minutes,
             'total_exercises': w.total_exercises,
             'total_sets': w.total_sets,
             'total_tonnage_kg': float(w.total_tonnage_kg or 0),
-            'is_pr': False,
+            'is_pr': WorkoutSet.objects.filter(workout_exercise__workout=w, is_pr=True).exists(),
         })
 
     # ============================================
@@ -109,7 +110,7 @@ def dashboard(request):
     if in_progress:
         # Build with exercises and sets
         exercises = []
-        for we in in_progress.exercises.all()[:3]:
+        for we in in_progress.exercises.select_related('exercise').all():
             sets_data = [{
                 'set_number': s.set_number,
                 'reps': s.reps,
@@ -138,80 +139,40 @@ def dashboard(request):
         }
 
     # ============================================
-    # BIOMETRIC DATA (from latest workout)
+    # LAST SESSION (real numbers from the latest completed workout)
     # ============================================
     latest_workout = completed_workouts.order_by('-completed_at').first()
-    biometric = {
-        'calories': latest_workout.calories_burned if latest_workout else 0,
-        'avg_velocity': float(latest_workout.avg_velocity) if latest_workout and latest_workout.avg_velocity else 0,
-        'heart_rate': 178,         # would come from wearables (future)
-        'heart_zone': 'Zone 4 (Threshold Hypertrophy)',
-        'velocity_delta': '+0.12',
-        'hrv_delta': '+14ms via Sleep Matrix',
-        'recovery_score': 91,
-    }
+    biometric = None
+    if latest_workout:
+        biometric = {
+            'workout_name': latest_workout.name,
+            'completed_at': latest_workout.completed_at.isoformat() if latest_workout.completed_at else None,
+            'calories': latest_workout.calories_burned or 0,
+            'duration_minutes': latest_workout.duration_minutes or 0,
+            'total_sets': latest_workout.total_sets or 0,
+            'total_reps': latest_workout.total_reps or 0,
+            'tonnage_kg': float(latest_workout.total_tonnage_kg or 0),
+            'avg_velocity': float(latest_workout.avg_velocity) if latest_workout.avg_velocity else None,
+            'rpe_avg': float(latest_workout.rpe_avg) if latest_workout.rpe_avg else None,
+        }
 
     # ============================================
-    # AI DIRECTIVES (rule-based insights)
+    # DIRECTIVES (rule-based, each links somewhere real)
     # ============================================
-    directives = []
-    # If streak is 15+
-    if streak >= 15:
-        directives.append({
-            'tag': 'Milestone',
-            'tag_color': 'primary',
-            'icon': 'emoji_events',
-            'title': f'{streak}-Day Streak Milestone',
-            'body': 'You are on a strong consistency run. Consider a deload to prevent overtraining.',
-            'footer': 'Suggested Recovery',
-            'cta': 'View Options',
-        })
-
-    # If no workouts in 3 days
-    last_workout_date = (
-        completed_workouts.order_by('-completed_at')
-        .values_list('completed_at__date', flat=True)
-        .first()
-    )
-    if last_workout_date and (today - last_workout_date).days >= 3:
-        directives.append({
-            'tag': 'Recovery Alert',
-            'tag_color': 'primary',
-            'icon': 'ac_unit',
-            'title': '15-Min Cryo Chamber Pod',
-            'body': f'Your last session was {(today - last_workout_date).days} days ago. A recovery pod session will reset your HRV.',
-            'footer': 'Cryo Pod Available',
-            'cta': 'Book Slot',
-        })
-
-    # Always show a course/recovery recommendation
-    directives.append({
-        'tag': 'New Masterclass',
-        'tag_color': 'accent',
-        'icon': 'school',
-        'title': 'VBT Bar Speed: Kinetic Force',
-        'body': 'Led by Dr. Elias Vance. Master velocity loss thresholds for explosive output.',
-        'footer': '28 MIN · VIDEO',
-        'cta': 'Watch Now',
-    })
+    directives = _directives(user, today, in_progress, completed_workouts, membership_data)
 
     # ============================================
-    # FLOOR DENSITY (from facilities)
+    # FLOOR DENSITY (live, from open check-ins)
     # ============================================
-    facilities = Facility.objects.filter(is_active=True)[:3]
+    occ = current_occupancy()
     floor_density = {
-        'overall_percent': 68,
-        'label': 'Moderate Peak',
-        'facility': 'District 01 HQ Status',
-        'location': 'Metro Station Sub-Level Alpha',
-        'zones': [
-            {
-                'label': f.name,
-                'percent': f.utilization,
-                'accent': f.utilization >= 80,
-            }
-            for f in facilities
-        ],
+        'overall_percent': occ['percent'],
+        'current': occ['current'],
+        'capacity': occ['capacity'],
+        'label': occ['label'],
+        'peak_window': occ['peak_window'],
+        'zones': [{'label': z['label'], 'percent': z['percent'], 'count': z['count'], 'accent': i == 0}
+                  for i, z in enumerate(occ['zones'])],
     }
 
     # ============================================
@@ -243,3 +204,59 @@ def dashboard(request):
         'directives': directives,
         'floor_density': floor_density,
     })
+
+
+def _directives(user, today, in_progress, completed_workouts, membership):
+    from apps.attendance.models import MemberMilestone
+    from apps.catalog.models import Course, Enrollment
+    from apps.shop.models import Order
+
+    out = []
+
+    def add(tag, icon, title, body, cta, path, accent=False):
+        out.append({'tag': tag, 'tag_color': 'accent' if accent else 'primary', 'icon': icon,
+                    'title': title, 'body': body, 'footer': '', 'cta': cta, 'link': path})
+
+    if in_progress:
+        add('Workout', 'play_arrow', f'Finish "{in_progress.name}"',
+            f'{in_progress.total_sets or 0} sets logged so far. Log your next set or finish the session.',
+            'Open Machine Guide', '/dashboard/machine-guide', accent=True)
+
+    if membership and not membership['time_remaining']['expired'] and membership['days_remaining'] <= 14:
+        add('Membership', 'card_membership', f"{membership['days_remaining']} days left",
+            'Renew now so your access continues without a gap.', 'Renew', '/dashboard/payments', accent=True)
+    elif membership and membership['time_remaining']['expired']:
+        add('Membership', 'card_membership', 'Membership expired',
+            'Renew to get back into the gym.', 'Renew', '/dashboard/payments', accent=True)
+
+    unpaid = Order.objects.filter(member=user, status='pending').order_by('-created_at').first()
+    if unpaid:
+        add('Shop', 'shopping_bag', f'Order {unpaid.order_number} awaiting payment',
+            f'SAR {unpaid.total} — pay to have it prepared.', 'Pay now', '/dashboard/shop?tab=orders')
+
+    ready = MemberMilestone.objects.filter(member=user, status='active',
+                                           current_days__gte=F('milestone__target_days')).select_related('milestone').first()
+    if ready:
+        add('Reward', 'emoji_events', ready.milestone.title, 'Your streak reward is ready to claim.',
+            'Claim', '/dashboard/attendance')
+
+    last = completed_workouts.order_by('-completed_at').values_list('completed_at', flat=True).first()
+    if last and (today - timezone.localtime(last).date()).days >= 3 and not in_progress:
+        gap = (today - timezone.localtime(last).date()).days
+        add('Consistency', 'event_repeat', f'{gap} days since your last session',
+            'Start a session today to rebuild your streak.', 'Start workout', '/dashboard')
+
+    enrolled = Enrollment.objects.filter(member=user).values_list('course_id', flat=True)
+    course = Course.objects.filter(status='published').exclude(id__in=enrolled).order_by('-is_featured', '-rating').first()
+    if course:
+        add('Course', 'school', course.title, (course.subtitle or course.description or '')[:140],
+            'View course', '/dashboard/courses')
+    return out
+
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def occupancy(request):
+    """GET /api/dashboard/occupancy/ — live gym load for the portal header."""
+    return Response(current_occupancy())

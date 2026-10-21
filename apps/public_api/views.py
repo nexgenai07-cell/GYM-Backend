@@ -35,6 +35,7 @@ from .serializers import (
     RejectSerializer,
 )
 from .permissions import IsAdminOrManager
+from . import moyasar as moyasar_api
 from .moyasar import (
     checkout_params, sync_payment, webhook_token_valid,
     MoyasarError, MoyasarUnavailable,
@@ -227,7 +228,14 @@ def moyasar_webhook(request):
         return Response({'detail': 'No payment id.'}, status=status.HTTP_400_BAD_REQUEST)
 
     try:
-        sync_payment(payment_id)
+        # Member payments (top-ups, orders, sessions, courses, renewals) carry an
+        # intent_id; signup payments carry a registration_id.
+        payment = moyasar_api.fetch_payment(payment_id)
+        if (payment.get('metadata') or {}).get('intent_id'):
+            from apps.payments.gateway import sync_intent
+            sync_intent(payment_id, payment=payment)
+        else:
+            sync_payment(payment_id, payment=payment)
     except MoyasarUnavailable:
         # Temporary failure — non-2xx so Moyasar retries (guide §7).
         return Response({'detail': 'Retry later.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -374,29 +382,33 @@ def admin_registration_stats(request):
 @permission_classes([IsAdminOrManager])
 def admin_member_lookup(request):
     """
-    GET /api/admin/members/lookup/?iqama=XXX
+    GET /api/admin/members/lookup/?iqama=XXX   (typed Iqama number)
+    GET /api/admin/members/lookup/?pass=SGPASS:...   (member's digital pass QR, scanned)
     Returns member + membership + registration photo + remaining days + today's session.
     """
     iqama = request.query_params.get('iqama', '').strip()
-    if not iqama:
-        return Response({'detail': 'iqama query param required.'}, status=400)
-
-    try:
-        membership = Membership.objects.select_related('member', 'plan').get(
-            iqama_number__iexact=iqama,
-        )
-    except Membership.DoesNotExist:
-        # Maybe they registered but aren't approved yet
-        pending = MembershipRegistration.objects.filter(
-            iqama_number__iexact=iqama,
-        ).first()
-        if pending:
-            return Response({
-                'found': False,
-                'reason': 'registration_pending',
-                'registration': AdminRegistrationSerializer(pending, context={'request': request}).data,
-            }, status=status.HTTP_404_NOT_FOUND)
-        return Response({'found': False, 'reason': 'not_found'}, status=404)
+    pass_token = request.query_params.get('pass', '').strip()
+    if pass_token:
+        from apps.members.passes import InvalidPass, read_token
+        try:
+            membership = read_token(pass_token)
+        except InvalidPass as exc:
+            return Response({'found': False, 'reason': 'invalid_pass', 'detail': str(exc)}, status=400)
+    elif not iqama:
+        return Response({'detail': 'iqama or pass query param required.'}, status=400)
+    else:
+        try:
+            membership = Membership.objects.select_related('member', 'plan').get(iqama_number__iexact=iqama)
+        except Membership.DoesNotExist:
+            # Maybe they registered but aren't approved yet
+            pending = MembershipRegistration.objects.filter(iqama_number__iexact=iqama).first()
+            if pending:
+                return Response({
+                    'found': False,
+                    'reason': 'registration_pending',
+                    'registration': AdminRegistrationSerializer(pending, context={'request': request}).data,
+                }, status=status.HTTP_404_NOT_FOUND)
+            return Response({'found': False, 'reason': 'not_found'}, status=404)
 
     member = membership.member
 
@@ -549,6 +561,14 @@ def admin_check_in(request, member_id):
 
     # Increment the visit counter (atomic, avoids lost updates on concurrent check-ins).
     Membership.objects.filter(id=membership.id).update(total_check_ins=F('total_check_ins') + 1)
+
+    # Streak milestones + a notification for the member.
+    from apps.attendance.views import _update_streak_milestones
+    from apps.notifications.service import notify
+    _update_streak_milestones(member)
+    limit_note = f' Your session limit is {limit} minutes.' if limit else ''
+    notify(member, 'attendance', 'Checked in', f'Welcome in! Checked in at {timezone.localtime(ci.check_in_time):%H:%M}.{limit_note}',
+           icon='login', action_label='Attendance', action_path='/dashboard/attendance')
 
     return Response(CheckInSerializer(ci).data, status=status.HTTP_201_CREATED)
 

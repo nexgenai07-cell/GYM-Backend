@@ -117,14 +117,14 @@ def _redact(payment):
 # ============================================================
 # SYNC (callback + webhook + attach all land here)
 # ============================================================
-def sync_payment(payment_id, registration_id=None):
+def sync_payment(payment_id, registration_id=None, payment=None):
     """
     Re-fetch a payment from Moyasar and apply it to the registration named in
     its metadata. Idempotent, so the callback page and the webhook can both
     call it in either order. If registration_id is given, the payment must
     belong to it. Returns the registration.
     """
-    payment = fetch_payment(payment_id)
+    payment = payment or fetch_payment(payment_id)
 
     metadata = payment.get('metadata') or {}
     meta_reg_id = str(metadata.get('registration_id', ''))

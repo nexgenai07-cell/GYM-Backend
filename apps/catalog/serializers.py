@@ -64,6 +64,15 @@ class CourseModuleSerializer(serializers.ModelSerializer):
 
 
 class CourseListSerializer(serializers.ModelSerializer):
+    free_for_me = serializers.SerializerMethodField()   # member can enrol without paying
+
+    def get_free_for_me(self, obj):
+        from apps.payments.gateway import course_is_free_for
+        request = self.context.get('request')
+        if request is None or not request.user.is_authenticated:
+            return not obj.price or obj.price <= 0
+        return course_is_free_for(request.user, obj)
+
     trainer_name = serializers.CharField(source='trainer.user.full_name', read_only=True)
     trainer_avatar = serializers.ImageField(source='trainer.user.avatar', read_only=True)
 
@@ -73,7 +82,7 @@ class CourseListSerializer(serializers.ModelSerializer):
             'id', 'title', 'subtitle', 'category', 'level',
             'cover_image_url', 'duration_weeks', 'days_per_week',
             'estimated_minutes_per_session',
-            'price', 'is_included_with_pro',
+            'price', 'is_included_with_pro', 'free_for_me',
             'rating', 'total_reviews', 'total_enrolled',
             'is_featured',
             'trainer_name', 'trainer_avatar',
@@ -82,6 +91,15 @@ class CourseListSerializer(serializers.ModelSerializer):
 
 
 class CourseDetailSerializer(serializers.ModelSerializer):
+    free_for_me = serializers.SerializerMethodField()   # member can enrol without paying
+
+    def get_free_for_me(self, obj):
+        from apps.payments.gateway import course_is_free_for
+        request = self.context.get('request')
+        if request is None or not request.user.is_authenticated:
+            return not obj.price or obj.price <= 0
+        return course_is_free_for(request.user, obj)
+
     trainer = TrainerProfileSerializer(read_only=True)
     modules = CourseModuleSerializer(many=True, read_only=True)
 
@@ -91,7 +109,7 @@ class CourseDetailSerializer(serializers.ModelSerializer):
             'id', 'title', 'subtitle', 'description', 'category', 'level',
             'cover_image_url', 'promo_video_url',
             'duration_weeks', 'days_per_week', 'estimated_minutes_per_session',
-            'price', 'is_included_with_pro',
+            'price', 'is_included_with_pro', 'free_for_me',
             'status', 'is_featured',
             'rating', 'total_reviews', 'total_enrolled',
             'trainer', 'modules',
@@ -134,7 +152,7 @@ class TrainerSessionSerializer(serializers.ModelSerializer):
             'focus_area', 'notes', 'amount_charged',
             'created_at',
         ]
-        read_only_fields = ['id', 'status', 'amount_charged', 'created_at']
+        read_only_fields = ['id', 'trainer', 'status', 'duration_minutes', 'amount_charged', 'created_at']
 
 
 # ============================================

@@ -146,6 +146,10 @@ def workout_complete(request, workout_id):
     if vels:
         workout.avg_velocity = sum(vels) / len(vels)
 
+    # Rough estimate (no wearable): ~6 kcal per minute of resistance training (MET 5, ~70 kg).
+    if workout.duration_minutes and not workout.calories_burned:
+        workout.calories_burned = int(min(workout.duration_minutes, 240) * KCAL_PER_MINUTE)
+
     workout.save()
     return Response(WorkoutSerializer(workout).data)
 
@@ -212,6 +216,7 @@ def log_set(request, workout_exercise_id):
                 pr.save()
                 workout_set.is_pr = True
                 workout_set.save()
+                _notify_pr(request.user, we.exercise, workout_set)
 
         return Response(WorkoutSetSerializer(workout_set).data, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -369,6 +374,7 @@ def quick_log_set(request, exercise_id):
             workout_set.is_pr = True
             workout_set.save()
             pr_achieved = True
+            _notify_pr(request.user, exercise, workout_set)
 
     return Response({
         'set_id': workout_set.id,
@@ -380,3 +386,13 @@ def quick_log_set(request, exercise_id):
         'is_pr': workout_set.is_pr,
         'pr_achieved': pr_achieved,
     }, status=status.HTTP_201_CREATED)
+
+
+KCAL_PER_MINUTE = 6
+
+
+def _notify_pr(member, exercise, workout_set):
+    from apps.notifications.service import notify
+    notify(member, 'achievement', 'New personal record!',
+           f'{exercise.name}: {workout_set.weight_kg:g} kg × {workout_set.reps}.', icon='emoji_events',
+           action_label='View records', action_path='/dashboard/profile')

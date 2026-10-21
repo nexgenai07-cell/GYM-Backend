@@ -7,7 +7,13 @@ from decimal import Decimal
 import uuid
 from django.utils import timezone
 
-from .models import PaymentMethod, Transaction, LockerCredit, Invoice
+from django.conf import settings
+from django.shortcuts import get_object_or_404
+
+from apps.public_api.moyasar import MoyasarError, MoyasarUnavailable
+
+from . import gateway
+from .models import PaymentMethod, Transaction, LockerCredit, Invoice, PaymentIntent
 from .serializers import (
     PaymentMethodSerializer,
     TransactionListSerializer,
@@ -20,48 +26,25 @@ from .serializers import (
 # ============================================
 # PAYMENT METHODS
 # ============================================
-@api_view(['GET', 'POST'])
+@api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def payment_methods(request):
     """
-    GET  /api/payments/methods/  → list my methods
-    POST /api/payments/methods/  → add a method
+    GET /api/payments/methods/ → how the member has paid recently.
+    Card details are entered on Moyasar's hosted form and never stored here,
+    so there is no "add card" endpoint.
     """
-    if request.method == 'GET':
-        qs = PaymentMethod.objects.filter(member=request.user)
-        return Response(PaymentMethodSerializer(qs, many=True).data)
-
-    serializer = PaymentMethodSerializer(data=request.data)
-    if serializer.is_valid():
-        # If it's the first method or marked default, clear others
-        make_default = serializer.validated_data.get('is_default', False)
-        if not PaymentMethod.objects.filter(member=request.user).exists():
-            make_default = True
-
-        if make_default:
-            PaymentMethod.objects.filter(member=request.user).update(is_default=False)
-
-        serializer.save(member=request.user, is_default=make_default)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-@api_view(['POST'])
-@permission_classes([IsAuthenticated])
-def set_default_method(request, method_id):
-    """
-    POST /api/payments/methods/<id>/set-default/
-    """
-    try:
-        method = PaymentMethod.objects.get(id=method_id, member=request.user)
-    except PaymentMethod.DoesNotExist:
-        return Response({'detail': 'Method not found.'}, status=status.HTTP_404_NOT_FOUND)
-
-    PaymentMethod.objects.filter(member=request.user).update(is_default=False)
-    method.is_default = True
-    method.save()
-
-    return Response(PaymentMethodSerializer(method).data)
+    labels = (Transaction.objects.filter(member=request.user, status='settled')
+              .exclude(payment_method_label='').order_by('-created_at')
+              .values_list('payment_method_label', flat=True)[:50])
+    seen = []
+    for label in labels:
+        if label not in seen:
+            seen.append(label)
+    return Response({
+        'recent': seen[:3],
+        'accepted': ['mada', 'Visa', 'Mastercard', 'STC Pay', 'Locker credit'],
+    })
 
 
 # ============================================
@@ -111,53 +94,6 @@ def my_locker_credit(request):
     """
     credit, _ = LockerCredit.objects.get_or_create(member=request.user)
     return Response(LockerCreditSerializer(credit).data)
-
-
-@api_view(['POST'])
-@permission_classes([IsAuthenticated])
-def topup_locker_credit(request):
-    """
-    POST /api/payments/locker-credit/topup/
-    Body: { "amount": 50 }
-    """
-    try:
-        amount = Decimal(str(request.data.get('amount', 0)))
-    except Exception:
-        return Response({'detail': 'Invalid amount.'}, status=status.HTTP_400_BAD_REQUEST)
-
-    if amount <= 0:
-        return Response({'detail': 'Amount must be positive.'}, status=status.HTTP_400_BAD_REQUEST)
-
-    if amount > 500:
-        return Response({'detail': 'Max top-up is $500.'}, status=status.HTTP_400_BAD_REQUEST)
-
-    with db_transaction.atomic():
-        credit, _ = LockerCredit.objects.get_or_create(member=request.user)
-        credit.balance += amount
-
-        # Cap enforcement
-        if credit.balance > credit.max_cap:
-            credit.balance = credit.max_cap
-
-        credit.save()
-
-        # Record a transaction
-        txn = Transaction.objects.create(
-            member=request.user,
-            transaction_id=f"#TXN-{uuid.uuid4().hex[:8].upper()}",
-            description=f"Locker Credit Top-Up (+${amount})",
-            transaction_type='topup',
-            amount=amount,
-            subtotal=amount,
-            status='settled',
-            payment_method_label='Default Card',
-            settled_at=timezone.now(),
-        )
-
-    return Response({
-        'credit': LockerCreditSerializer(credit).data,
-        'transaction': TransactionListSerializer(txn).data,
-    }, status=status.HTTP_201_CREATED)
 
 
 # ============================================
@@ -218,3 +154,93 @@ def payment_summary(request):
         'locker_credit': LockerCreditSerializer(credit).data,
         'pending_invoices': Invoice.objects.filter(member=user, status='pending').count(),
     })
+
+
+# ============================================
+# CHECKOUT (Moyasar / locker credit) — see gateway.py
+# ============================================
+def _intent_payload(intent, with_params=False):
+    data = {
+        'id': intent.id,
+        'purpose': intent.purpose,
+        'status': intent.status,
+        'method': intent.method,
+        'amount': str(intent.amount),
+        'currency': 'SAR',
+        'description': intent.description,
+        'failure_reason': intent.failure_reason,
+        'order_number': intent.order.order_number if intent.order_id else None,
+        'session_id': intent.trainer_session_id,
+        'course_id': intent.course_id,
+        'paid_at': intent.paid_at,
+    }
+    if with_params:
+        data['payment'] = gateway.checkout_params(intent)
+    return data
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def checkout(request):
+    """
+    POST /api/payments/checkout/
+    Body: { "purpose": "locker_topup", "amount": 50 }
+        | { "purpose": "shop_order", "order_number": "ORD-..." }
+        | { "purpose": "trainer_session", "session_id": 12 }
+        | { "purpose": "course", "course_id": 3 }
+        | { "purpose": "renewal", "plan_id": 2, "months": 3 }
+        + optional "method": "locker_credit" to pay from the balance right away.
+    Returns the intent and, for card payments, the Moyasar form parameters.
+    """
+    try:
+        intent = gateway.create_intent(request.user, request.data.get('purpose'), request.data)
+        if request.data.get('method') == 'locker_credit':
+            intent = gateway.pay_with_credit(intent)
+            return Response(_intent_payload(intent), status=status.HTTP_201_CREATED)
+    except gateway.PaymentError as exc:
+        return Response({'detail': str(exc)}, status=status.HTTP_400_BAD_REQUEST)
+    if not settings.MOYASAR_PUBLISHABLE_KEY:
+        return Response({'detail': 'Online payments are not configured yet.'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+    return Response(_intent_payload(intent, with_params=True), status=status.HTTP_201_CREATED)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def intent_detail(request, intent_id):
+    """GET /api/payments/intents/<id>/"""
+    intent = get_object_or_404(PaymentIntent, id=intent_id, member=request.user)
+    return Response(_intent_payload(intent))
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def intent_attach(request, intent_id):
+    """POST /api/payments/intents/<id>/attach/ { "payment_id": "..." } — from the form's on_completed."""
+    intent = get_object_or_404(PaymentIntent, id=intent_id, member=request.user)
+    return _sync(lambda: gateway.attach_payment(intent, request.data.get('payment_id')))
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def intent_verify(request):
+    """POST /api/payments/intents/verify/ { "payment_id": "..." } — the callback page after 3-D Secure."""
+    payment_id = request.data.get('payment_id')
+    if not isinstance(payment_id, str) or not payment_id or len(payment_id) > 64:
+        return Response({'detail': 'Invalid payment id.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    def run():
+        intent = gateway.sync_intent(payment_id)
+        if intent.member_id != request.user.id:
+            raise MoyasarError('This payment belongs to another account.')
+        return intent
+    return _sync(run)
+
+
+def _sync(fn):
+    try:
+        intent = fn()
+    except MoyasarUnavailable as exc:
+        return Response({'detail': str(exc)}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+    except MoyasarError as exc:
+        return Response({'detail': str(exc)}, status=status.HTTP_400_BAD_REQUEST)
+    return Response(_intent_payload(intent))

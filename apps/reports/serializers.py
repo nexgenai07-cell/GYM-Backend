@@ -19,7 +19,7 @@ class GeneratedReportSerializer(serializers.ModelSerializer):
         model = GeneratedReport
         fields = [
             'id', 'report_id', 'name', 'report_type', 'period', 'format',
-            'size_kb', 'file_url', 'generated_at',
+            'size_kb', 'row_count', 'period_start', 'period_end', 'generated_at',
             'generated_by_name', 'time_ago',
         ]
 

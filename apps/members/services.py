@@ -155,16 +155,44 @@ def record_signup_payment(reg, user):
 # ============================================================
 # REJECT ONE
 # ============================================================
-def reject_registration(reg: MembershipRegistration, reason: str = '', rejected_by=None):
+def reject_registration(reg: MembershipRegistration, reason: str = '', rejected_by=None, refund=False):
+    """
+    Reject a signup. With refund=True a paid signup's Moyasar payment is refunded in full
+    first (a failed refund leaves the signup untouched). No ledger entry exists yet — the
+    signup payment is only recorded when the registration is approved.
+    """
     if reg.status == MembershipRegistration.STATUS_APPROVED:
         raise ValueError('Cannot reject an already-approved registration.')
+    if reg.status == MembershipRegistration.STATUS_REJECTED:
+        raise ValueError('This registration is already rejected.')
+
+    refunded = False
+    if refund and reg.payment_status == 'paid':
+        from apps.public_api import moyasar
+        try:
+            moyasar.refund_payment(reg.moyasar_payment_id, int(reg.payment_amount * 100))
+        except moyasar.MoyasarError as exc:
+            raise ValueError(f'Refund failed: {exc}') from exc
+        reg.payment_status = 'refunded'
+        refunded = True
 
     reg.status = MembershipRegistration.STATUS_REJECTED
     reg.rejection_reason = reason or 'No reason provided.'
-    reg.save(update_fields=['status', 'rejection_reason'])
-    logger.info('Rejected registration #%s: %s', reg.id, reason)
+    reg.save(update_fields=['status', 'rejection_reason', 'payment_status'])
+    logger.info('Rejected registration #%s (refunded=%s): %s', reg.id, refunded, reason)
 
-
+    lines = [f'Hi {reg.full_name},', '', 'We could not approve your Smart Gym registration.']
+    if reason:
+        lines.append(f'Reason: {reason}')
+    if refunded:
+        lines += ['', f'Your payment of SAR {reg.payment_amount} has been refunded to your card. '
+                      'It can take 3–10 working days to appear.']
+    lines += ['', 'Questions? Reply to this email or visit the front desk.', '', '— Smart Gym']
+    try:
+        send_mail('Your Smart Gym registration', '\n'.join(lines), settings.DEFAULT_FROM_EMAIL, [reg.email])
+    except Exception:   # noqa: BLE001 — the rejection stands even if the email fails
+        logger.exception('Rejection email for registration #%s failed', reg.id)
+    return refunded
 # ============================================================
 # BULK APPROVE
 # ============================================================

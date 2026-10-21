@@ -313,15 +313,16 @@ def admin_approve_registration(request, reg_id):
 @api_view(['POST'])
 @permission_classes([IsAdminOrManager])
 def admin_reject_registration(request, reg_id):
-    """POST /api/admin/registrations/<id>/reject/  { reason }"""
+    """POST /api/admin/registrations/<id>/reject/  { reason, refund }"""
     reg = get_object_or_404(MembershipRegistration, id=reg_id)
     ser = RejectSerializer(data=request.data)
     ser.is_valid(raise_exception=True)
     try:
-        reject_registration(reg, reason=ser.validated_data['reason'], rejected_by=request.user)
+        refunded = reject_registration(reg, reason=ser.validated_data['reason'], rejected_by=request.user,
+                                       refund=ser.validated_data['refund'])
     except ValueError as exc:
         return Response({'detail': str(exc)}, status=status.HTTP_400_BAD_REQUEST)
-    return Response({'ok': True, 'status': reg.status})
+    return Response({'ok': True, 'status': reg.status, 'refunded': refunded})
 
 
 @api_view(['POST'])

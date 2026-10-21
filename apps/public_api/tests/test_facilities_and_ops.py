@@ -119,7 +119,7 @@ class AdminOpsTests(PortalBase):
         self.assertEqual(self.client.patch(f'/api/admin/facility-pricing/{item.id}/', {'is_bookable': True}, format='json').status_code, 400)
         r = self.client.patch(f'/api/admin/facility-pricing/{item.id}/', {'monthly_price': '35', 'is_bookable': True}, format='json')
         self.assertEqual((r.data['monthly_price'], r.data['is_bookable']), ('35.00', True))
-        self.assertIn(item.id, [row['id'] for row in self.client.get('/api/admin/facility-pricing/').data])
+        self.assertIn(item.id, [row['id'] for row in self.client.get('/api/admin/facility-pricing/').data['results']])
 
     def test_order_flow_and_credit_refund(self):
         num = self.paid_order()

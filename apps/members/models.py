@@ -128,9 +128,17 @@ class Membership(models.Model):
     ENTRY_STATUSES = ('active', 'expiring')   # "expiring soon" is still paid up
 
     @property
+    def effectively_frozen(self):
+        """Frozen right now. A freeze ends by itself on frozen_until (no job needed)."""
+        return bool(self.is_frozen and (self.frozen_until is None or self.frozen_until > date.today()))
+
+    @property
     def allows_entry(self):
         """Single rule for gym entry — used by the gate lookup and the check-in endpoint."""
-        return self.status in self.ENTRY_STATUSES and not self.is_frozen and self.days_remaining > 0
+        if self.effectively_frozen:
+            return False
+        status_ok = self.status in self.ENTRY_STATUSES or (self.status == 'frozen' and self.is_frozen)
+        return status_ok and self.days_remaining > 0
 
 
 # ============================================================
@@ -243,6 +251,7 @@ class MembershipRegistration(models.Model):
         ('pending', 'Pending'),
         ('paid', 'Paid'),
         ('failed', 'Failed'),
+        ('refunded', 'Refunded'),
     ]
 
     # Applicant info
@@ -340,6 +349,7 @@ class FacilityAddon(models.Model):
     item = models.OneToOneField('site_content.SiteItem', on_delete=models.CASCADE, related_name='addon')
     monthly_price = models.DecimalField(max_digits=8, decimal_places=2, default=0)
     is_bookable = models.BooleanField(default=False)
+    capacity = models.PositiveIntegerField(default=0)        # people at once; feeds live occupancy
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:

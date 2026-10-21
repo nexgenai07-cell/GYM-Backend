@@ -56,14 +56,14 @@ def exercise_by_qr(request, qr_tag_id):
     GET /api/workouts/exercises/qr/<qr_tag_id>/
     Find exercise by QR tag.
     """
-    try:
-        exercise = Exercise.objects.get(qr_tag_id=qr_tag_id, is_active=True)
-        return Response(ExerciseSerializer(exercise).data)
-    except Exercise.DoesNotExist:
+    tag = qr_tag_id.strip()
+    exercise = Exercise.objects.filter(qr_tag_id__iexact=tag, is_active=True).first() if tag else None
+    if exercise is None:
         return Response(
             {'detail': 'No exercise found for this QR tag.'},
             status=status.HTTP_404_NOT_FOUND,
         )
+    return Response(ExerciseSerializer(exercise).data)
 
 
 # ============================================

@@ -1,6 +1,6 @@
 # apps/admin_api/urls.py
 from django.urls import path
-from . import ops, views
+from . import catalog_ops, console, finance, insights, machines_ops, members_ops, ops, staff_ops, system_ops, views
 
 app_name = 'admin_api'
 
@@ -9,37 +9,47 @@ urlpatterns = [
     path('overview/', views.overview, name='overview'),
 
     # Members
-    path('members/', views.members_list, name='members-list'),
-    path('members/stats/', views.member_stats, name='member-stats'),
-    path('members/bulk-action/', views.bulk_member_action, name='member-bulk-action'),
-    path('members/<int:user_id>/', views.member_detail, name='member-detail'),
-    path('members/<int:user_id>/update/', views.update_member, name='member-update'),
-    path('members/<int:user_id>/action/', views.member_action, name='member-action'),
+    path('members/', members_ops.members_list, name='members-list'),
+    path('members/stats/', members_ops.member_stats, name='member-stats'),
+    path('members/bulk-action/', members_ops.bulk_member_action, name='member-bulk-action'),
+    path('members/<int:user_id>/', members_ops.member_detail, name='member-detail'),
+    path('members/<int:user_id>/update/', members_ops.update_member, name='member-update'),
+    path('members/<int:user_id>/action/', members_ops.member_action, name='member-action'),
 
     # Machines
-    path('machines/', views.machines_list, name='machines-list'),
-    path('machines/stats/', views.machine_stats, name='machine-stats'),
-    path('machines/categories/', views.machine_categories, name='machine-categories'),
-    path('machines/<int:exercise_id>/regenerate-qr/', views.regenerate_qr, name='regenerate-qr'),
+    path('machines/', machines_ops.machines, name='machines-list'),
+    path('machines/stats/', machines_ops.machine_stats, name='machine-stats'),
+    path('machines/categories/', machines_ops.machine_categories, name='machine-categories'),
+    path('machines/<int:exercise_id>/', machines_ops.machine_update, name='machine-update'),
+    path('machines/<int:exercise_id>/regenerate-qr/', machines_ops.regenerate_qr, name='regenerate-qr'),
 
         # Trainers
-    path('trainers/', views.trainers_list_admin, name='trainers-list'),
-    path('trainers/stats/', views.trainer_stats_admin, name='trainer-stats'),
+    path('trainers/', catalog_ops.trainers, name='trainers-list'),
+    path('trainers/stats/', catalog_ops.trainer_stats, name='trainer-stats'),
+    path('trainers/<int:trainer_id>/', catalog_ops.trainer_update, name='trainer-update'),
+    path('trainers/<int:trainer_id>/photo/', catalog_ops.trainer_photo, name='trainer-photo'),
+    path('courses/', catalog_ops.courses, name='courses'),
+    path('courses/stats/', catalog_ops.course_stats, name='course-stats'),
+    path('courses/<int:course_id>/', catalog_ops.course_detail, name='course-detail'),
+    path('courses/<int:course_id>/cover/', catalog_ops.course_cover, name='course-cover'),
 
         # Staff
-    path('staff/', views.staff_list_admin, name='staff-list'),
-    path('staff/stats/', views.staff_stats_admin, name='staff-stats'),
+    path('staff/', staff_ops.staff, name='staff-list'),
+    path('staff/stats/', staff_ops.staff_stats, name='staff-stats'),
+    path('staff/<int:user_id>/', staff_ops.staff_update, name='staff-update'),
+    path('staff/<int:user_id>/send-sign-in/', staff_ops.staff_send_signin, name='staff-send-sign-in'),
     # System settings
-    path('settings/', views.system_settings_get, name='settings-get'),
-    path('settings/update/', views.system_settings_update, name='settings-update'),
+    path('settings/', system_ops.system_status, name='settings-get'),
     # Finance
-    path('finance/overview/', views.finance_overview, name='finance-overview'),
-    path('finance/transactions/', views.transactions_list, name='transactions-list'),
+    path('finance/overview/', finance.finance_overview, name='finance-overview'),
+    path('finance/transactions/', finance.transactions_list, name='transactions-list'),
+    path('finance/transactions/export/', views.transactions_export, name='transactions-export'),
         # Finance extras
-    path('finance/revenue-monthly/', views.revenue_monthly, name='revenue-monthly'),
-    path('finance/revenue-streams/', views.revenue_streams_view, name='revenue-streams'),
-    path('finance/top-members/', views.top_members_view, name='top-members'),
-    path('finance/transactions/<int:transaction_id>/', views.transaction_detail, name='transaction-detail'),
+    path('finance/revenue-monthly/', finance.revenue_monthly, name='revenue-monthly'),
+    path('finance/revenue-streams/', finance.revenue_streams_view, name='revenue-streams'),
+    path('finance/top-members/', finance.top_members_view, name='top-members'),
+    path('finance/transactions/<int:transaction_id>/', finance.transaction_detail, name='transaction-detail'),
+    path('finance/transactions/<int:transaction_id>/email-receipt/', finance.transaction_email_receipt, name='transaction-email-receipt'),
 
     # Dashboard extras
     path('flow-and-revenue/', views.flow_and_revenue, name='flow-and-revenue'),
@@ -47,6 +57,10 @@ urlpatterns = [
     path('audit-feed/', views.audit_feed, name='audit-feed'),
     path('facility-nodes/', views.facility_nodes, name='facility-nodes'),
 
+
+    # Header: alerts + global search (console.py)
+    path('alerts/', console.alerts, name='alerts'),
+    path('search/', console.search, name='search'),
 
     # Member purchases back office (ops.py)
     path('facility-pricing/', ops.facility_pricing, name='facility-pricing'),
@@ -63,7 +77,7 @@ urlpatterns = [
     path('trainer-sessions/<int:session_id>/status/', ops.trainer_session_status, name='trainer-session-status'),
 
     # Analytics
-    path('analytics/kpis/', views.analytics_kpis, name='analytics-kpis'),
-    path('analytics/growth/', views.analytics_growth, name='analytics-growth'),
-    path('analytics/insights/', views.ai_insights, name='ai-insights'),
+    path('analytics/kpis/', insights.kpis, name='analytics-kpis'),
+    path('analytics/growth/', insights.growth, name='analytics-growth'),
+    path('analytics/insights/', insights.insights, name='ai-insights'),
 ]

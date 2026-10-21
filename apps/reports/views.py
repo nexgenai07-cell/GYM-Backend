@@ -1,183 +1,129 @@
+"""
+Reports: CSV exports built from live data for a date range (gym time). The CSV is stored with
+the report when generated, so a later download matches what was generated.
+
+GET    /api/reports/templates/
+POST   /api/reports/generate/  {template_key, start: "YYYY-MM-DD", end: "YYYY-MM-DD"}
+GET    /api/reports/history/
+GET    /api/reports/history/<report_id>/
+GET    /api/reports/history/<report_id>/download/   → text/csv attachment
+DELETE /api/reports/history/<report_id>/delete/
+"""
+import csv
+import io
+import uuid
+from datetime import date, timedelta
+
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404
+from django.utils import timezone
+from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework import status
-from django.utils import timezone
-import uuid
 
-from .models import ReportTemplate, GeneratedReport
-from .serializers import ReportTemplateSerializer, GeneratedReportSerializer
 from apps.admin_api.permissions import IsAdminUser
 
+from .builders import REPORTS
+from .models import GeneratedReport, ReportTemplate
+from .serializers import GeneratedReportSerializer
 
-VALID_FORMATS = ('PDF', 'CSV', 'XLSX')
+MAX_DAYS = 366 * 2
 
 
-# ============================================
-# TEMPLATES
-# ============================================
 @api_view(['GET'])
 @permission_classes([IsAuthenticated, IsAdminUser])
 def templates_list(request):
-    """
-    GET /api/reports/templates/
-    Query: ?category=...
-    """
-    qs = ReportTemplate.objects.filter(is_active=True)
-
-    frequency = request.query_params.get('frequency')
-    if frequency:
-        qs = qs.filter(frequency=frequency)
-
-    return Response(ReportTemplateSerializer(qs, many=True).data)
+    """GET /api/reports/templates/ — the reports this backend can build."""
+    last = _last_by_type()
+    return Response([{'key': k, 'title': t, 'description': d, 'icon': icon, 'format': 'CSV',
+                      'last_generated_at': last.get(k)} for k, (t, d, icon, _) in REPORTS.items()])
 
 
-# ============================================
-# GENERATE REPORT
-# ============================================
+def _last_by_type():
+    out = {}
+    for r in GeneratedReport.objects.order_by('-generated_at').values('report_type', 'generated_at'):
+        out.setdefault(r['report_type'], r['generated_at'])
+    return out
+
+
+def _parse(v):
+    try:
+        return date.fromisoformat(str(v))
+    except (TypeError, ValueError):
+        return None
+
+
 @api_view(['POST'])
 @permission_classes([IsAuthenticated, IsAdminUser])
 def generate_report(request):
-    """
-    POST /api/reports/generate/
-    Body: { "template_key": "revenue", "period": "Oct 2026", "format": "PDF" }
-    """
-    template_key = request.data.get('template_key')
-    period = (request.data.get('period') or '').strip()
-    fmt = (request.data.get('format') or 'PDF').upper()
+    key = request.data.get('template_key')
+    if key not in REPORTS:
+        return Response({'detail': 'Choose a report.'}, status=status.HTTP_400_BAD_REQUEST)
+    today = timezone.localdate()
+    start = _parse(request.data.get('start')) or today.replace(day=1)
+    end = _parse(request.data.get('end')) or today
+    if start > end:
+        return Response({'end': ['The end date is before the start date.']}, status=status.HTTP_400_BAD_REQUEST)
+    if end > today:
+        end = today
+    if (end - start).days > MAX_DAYS:
+        return Response({'start': ['Pick a range of two years or less.']}, status=status.HTTP_400_BAD_REQUEST)
 
-    if not template_key:
-        return Response(
-            {'detail': 'template_key is required.'},
-            status=status.HTTP_400_BAD_REQUEST,
-        )
+    title, description, icon, build = REPORTS[key]
+    header, rows = build(start, end)
+    buf = io.StringIO()
+    w = csv.writer(buf)
+    w.writerow(header)
+    w.writerows(rows)
+    content = buf.getvalue()
 
-    if fmt not in VALID_FORMATS:
-        return Response(
-            {'detail': f'format must be one of {VALID_FORMATS}.'},
-            status=status.HTTP_400_BAD_REQUEST,
-        )
-
-    try:
-        template = ReportTemplate.objects.get(key=template_key, is_active=True)
-    except ReportTemplate.DoesNotExist:
-        return Response(
-            {'detail': 'Template not found.'},
-            status=status.HTTP_404_NOT_FOUND,
-        )
-
-    # Generate unique report ID
-    report_id = f"RPT-{uuid.uuid4().hex[:6].upper()}"
-
-    # Fallback period: current month name
-    default_period = timezone.now().strftime('%b %Y')
-    final_period = period or default_period
-
+    template, _ = ReportTemplate.objects.get_or_create(
+        key=key, defaults={'title': title, 'description': description, 'icon': icon})
+    label = (start.strftime('%b %Y') if start.day == 1 and (end + timedelta(days=1)).day == 1 and start.month == end.month
+             else f'{start:%d %b %Y} – {end:%d %b %Y}')
     report = GeneratedReport.objects.create(
-        template=template,
-        report_id=report_id,
-        name=f"{template.title} — {final_period}",
-        report_type=template.key,
-        period=final_period,
-        format=fmt,
-        size_kb=2400,  # stub — replace with actual PDF size later
-        generated_by=request.user,
-    )
-
-    return Response(
-        GeneratedReportSerializer(report).data,
-        status=status.HTTP_201_CREATED,
-    )
+        template=template, report_id=f'RPT-{uuid.uuid4().hex[:6].upper()}', name=f'{title} — {label}',
+        report_type=key, period=label[:60], format='CSV', content=content,
+        size_kb=max(1, round(len(content.encode('utf-8')) / 1024)), period_start=start, period_end=end,
+        row_count=len(rows), generated_by=request.user)
+    return Response(GeneratedReportSerializer(report).data, status=status.HTTP_201_CREATED)
 
 
-# ============================================
-# HISTORY
-# ============================================
 @api_view(['GET'])
 @permission_classes([IsAuthenticated, IsAdminUser])
 def history_list(request):
-    """
-    GET /api/reports/history/
-    Query: ?limit=50&report_type=revenue
-    """
     try:
-        limit = int(request.query_params.get('limit', 50))
+        limit = max(1, min(int(request.query_params.get('limit', 50)), 200))
     except ValueError:
         limit = 50
-
-    qs = GeneratedReport.objects.select_related('generated_by', 'template')
-
-    report_type = request.query_params.get('report_type')
-    if report_type:
-        qs = qs.filter(report_type=report_type)
-
+    qs = GeneratedReport.objects.select_related('generated_by').defer('content')
+    if request.query_params.get('report_type'):
+        qs = qs.filter(report_type=request.query_params['report_type'])
     return Response(GeneratedReportSerializer(qs[:limit], many=True).data)
 
 
-# ============================================
-# DETAIL
-# ============================================
 @api_view(['GET'])
 @permission_classes([IsAuthenticated, IsAdminUser])
 def report_detail(request, report_id):
-    """
-    GET /api/reports/history/<report_id>/
-    """
-    try:
-        report = GeneratedReport.objects.get(report_id=report_id)
-    except GeneratedReport.DoesNotExist:
-        return Response(
-            {'detail': 'Report not found.'},
-            status=status.HTTP_404_NOT_FOUND,
-        )
-
+    report = get_object_or_404(GeneratedReport.objects.defer('content'), report_id=report_id)
     return Response(GeneratedReportSerializer(report).data)
 
 
-# ============================================
-# DELETE
-# ============================================
 @api_view(['DELETE'])
 @permission_classes([IsAuthenticated, IsAdminUser])
 def delete_report(request, report_id):
-    """
-    DELETE /api/reports/history/<report_id>/
-    """
-    try:
-        report = GeneratedReport.objects.get(report_id=report_id)
-    except GeneratedReport.DoesNotExist:
-        return Response(
-            {'detail': 'Report not found.'},
-            status=status.HTTP_404_NOT_FOUND,
-        )
-
-    report.delete()
+    get_object_or_404(GeneratedReport, report_id=report_id).delete()
     return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-# ============================================
-# DOWNLOAD (stub — returns metadata)
-# ============================================
 @api_view(['GET'])
 @permission_classes([IsAuthenticated, IsAdminUser])
 def download_report(request, report_id):
-    """
-    GET /api/reports/history/<report_id>/download/
-    Returns metadata. In production, redirect to a signed S3 URL.
-    """
-    try:
-        report = GeneratedReport.objects.get(report_id=report_id)
-    except GeneratedReport.DoesNotExist:
-        return Response(
-            {'detail': 'Report not found.'},
-            status=status.HTTP_404_NOT_FOUND,
-        )
-
-    return Response({
-        'report_id': report.report_id,
-        'name': report.name,
-        'format': report.format,
-        'file_url': report.file_url or '',
-        'size_kb': report.size_kb,
-        'generated_at': report.generated_at,
-    })
+    report = get_object_or_404(GeneratedReport, report_id=report_id)
+    if not report.content:
+        return Response({'detail': 'This report was created before downloads existed — generate it again.'},
+                        status=status.HTTP_404_NOT_FOUND)
+    resp = HttpResponse('﻿' + report.content, content_type='text/csv; charset=utf-8')   # BOM → Excel reads UTF-8
+    resp['Content-Disposition'] = f'attachment; filename="{report.report_id}-{report.report_type}.csv"'
+    return resp

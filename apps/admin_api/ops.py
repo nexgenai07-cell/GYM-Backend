@@ -33,15 +33,27 @@ def _title(item):
 # ============================================================
 # FACILITY PRICING
 # ============================================================
+STATUS_PRESETS = {   # quick status from the admin Facilities page (text shown on the website)
+    'ok': {'en': 'OPEN', 'ar': 'مفتوح'},
+    'busy': {'en': 'BUSY', 'ar': 'مزدحم'},
+    'closed': {'en': 'CLOSED', 'ar': 'مغلق'},
+}
+
+
 def _facility_row(item, addon, members):
+    d = item.data or {}
     return {
         'id': item.id,
         'name': _title(item),
-        'category': (item.data or {}).get('category', ''),
+        'category': d.get('category', ''),
+        'location': (d.get('location') or {}).get('en', ''),
+        'status_text': (d.get('status') or {}).get('en', ''),
+        'status_tone': d.get('status_tone', 'ok'),
         'image_url': item.image_url,
         'is_active': item.is_active,
         'monthly_price': str(addon.monthly_price) if addon else '0.00',
         'is_bookable': bool(addon and addon.is_bookable),
+        'capacity': addon.capacity if addon else 0,
         'active_members': members,
     }
 
@@ -49,12 +61,28 @@ def _facility_row(item, addon, members):
 @api_view(['GET'])
 @permission_classes([IsAdminUser])
 def facility_pricing(request):
-    """GET /api/admin/facility-pricing/ — every facility of the public "Facilities" list with its add-on price."""
+    """
+    GET /api/admin/facility-pricing/ — the facilities of the public website (the same ones members
+    add to their plan), with price, bookable, capacity and members who have access, plus totals.
+    """
+    from django.db.models import Sum
     items = SiteItem.objects.filter(collection='facilities').order_by('order', 'id')
     addons = {a.item_id: a for a in FacilityAddon.objects.filter(item__in=items)}
-    counts = dict(MembershipFacility.objects.filter(expires_on__gt=date.today(), item__in=items)
-                  .values_list('item_id').annotate(n=Count('id')))
-    return Response([_facility_row(i, addons.get(i.id), counts.get(i.id, 0)) for i in items])
+    active = MembershipFacility.objects.filter(expires_on__gt=date.today(), item__in=items)
+    counts = dict(active.values_list('item_id').annotate(n=Count('id')))
+    since = timezone.now() - timedelta(days=30)
+    rows = [_facility_row(i, addons.get(i.id), counts.get(i.id, 0)) for i in items]
+    return Response({
+        'summary': {
+            'total': len(rows),
+            'on_website': sum(1 for r in rows if r['is_active']),
+            'bookable': sum(1 for r in rows if r['is_bookable']),
+            'members_with_addons': active.values('member').distinct().count(),
+            'addon_revenue_30d': str(MembershipFacility.objects.filter(created_at__gte=since)
+                                     .aggregate(s=Sum('amount'))['s'] or Decimal('0.00')),
+        },
+        'results': rows,
+    })
 
 
 @api_view(['PATCH'])
@@ -75,7 +103,27 @@ def facility_pricing_update(request, item_id):
         addon.is_bookable = bool(request.data['is_bookable'])
     if addon.is_bookable and addon.monthly_price <= 0:
         return Response({'monthly_price': 'Set a price above 0 before making it bookable.'}, status=400)
+    if 'capacity' in request.data:
+        try:
+            addon.capacity = max(0, int(request.data['capacity'] or 0))
+        except (TypeError, ValueError):
+            return Response({'capacity': 'Enter a whole number.'}, status=400)
     addon.save()
+
+    # Website-side switches live on the list item itself.
+    changed = []
+    if 'is_active' in request.data:
+        item.is_active = bool(request.data['is_active'])
+        changed.append('is_active')
+    tone = request.data.get('status_tone')
+    if tone:
+        if tone not in STATUS_PRESETS:
+            return Response({'status_tone': 'Use ok, busy or closed.'}, status=400)
+        item.data = {**(item.data or {}), 'status_tone': tone, 'status': STATUS_PRESETS[tone]}
+        changed.append('data')
+    if changed:
+        item.updated_by = request.user
+        item.save(update_fields=changed + ['updated_by', 'updated_at'])
     members = MembershipFacility.objects.filter(item=item, expires_on__gt=date.today()).count()
     return Response(_facility_row(item, addon, members))
 

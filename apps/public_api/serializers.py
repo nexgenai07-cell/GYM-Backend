@@ -243,3 +243,4 @@ class PaymentIdSerializer(serializers.Serializer):
 
 class RejectSerializer(serializers.Serializer):
     reason = serializers.CharField(required=False, allow_blank=True, default='')
+    refund = serializers.BooleanField(required=False, default=False)

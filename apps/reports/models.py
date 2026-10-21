@@ -68,6 +68,11 @@ class GeneratedReport(models.Model):
     )
 
     file_url = models.URLField(blank=True)
+    # The CSV itself, frozen when generated (downloads always match what was generated).
+    content = models.TextField(blank=True)
+    period_start = models.DateField(null=True, blank=True)
+    period_end = models.DateField(null=True, blank=True)
+    row_count = models.IntegerField(default=0)
     generated_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

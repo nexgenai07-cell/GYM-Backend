@@ -31,7 +31,7 @@ def trainers_list(request):
     GET /api/catalog/trainers/
     Query params: ?search=&verified=true&accepting=true
     """
-    qs = TrainerProfile.objects.select_related('user').all()
+    qs = TrainerProfile.objects.select_related('user').filter(user__is_active=True)   # hidden by staff → not listed
 
     if request.query_params.get('verified') == 'true':
         qs = qs.filter(is_verified=True)

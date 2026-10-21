@@ -17,6 +17,11 @@ def _capacity():
     configured = getattr(settings, 'GYM_CAPACITY', 0)
     if configured:
         return int(configured)
+    # Capacities set in Admin → Facilities, else the older facilities table.
+    from apps.members.models import FacilityAddon
+    total = FacilityAddon.objects.filter(item__is_active=True).aggregate(c=Sum('capacity'))['c']
+    if total:
+        return total
     from apps.facilities.models import Facility
     return Facility.objects.filter(is_active=True).aggregate(c=Sum('capacity'))['c'] or 0
 

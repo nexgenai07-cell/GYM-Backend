@@ -386,7 +386,8 @@ class ReportsTests(ConsoleBase):
                                                         'end': today}, format='json')
         self.assertEqual((r.status_code, r.data['row_count'], r.data['format']), (201, 2, 'CSV'))   # 1 payment + total
         body = self.client.get(f"/api/reports/history/{r.data['report_id']}/download/").content.decode('utf-8-sig')
-        self.assertIn('Total received,79.00', body)
+        self.assertIn('Total received · إجمالي المستلم,79.00', body)
+        self.assertIn('Date (gym time) · التاريخ (توقيت النادي)', body)
         self.assertNotIn('Shop order', body)
         att = self.client.post('/api/reports/generate/', {'template_key': 'attendance', 'start': today, 'end': today},
                                format='json').data
@@ -468,3 +469,18 @@ class NutritionAdminTests(ConsoleBase):
         self.assertEqual(self.client.get('/api/nutrition/nutritionists/').data, [])
         self.assertEqual(self.client.post('/api/nutrition/plan/request/', {'nutritionist_id': n.data['id'], 'goal': 'fat_loss'},
                                           format='json').status_code, 404)
+
+
+class ActivityBadgeTests(ConsoleBase):
+    def test_counts_new_activity_until_seen(self):
+        from apps.catalog.models import Course, Enrollment, TrainerProfile
+        t = TrainerProfile.objects.create(user=self.manager, title='Coach')
+        c = Course.objects.create(trainer=t, title='Base', description='x', category='Strength', status='published')
+        Enrollment.objects.create(member=self.member, course=c)
+        counts = self.client.get('/api/admin/activity/').data
+        self.assertEqual((counts['trainers'], counts['members']), (1, 1))
+        self.client.post('/api/admin/activity/', {'section': 'trainers'}, format='json')
+        self.assertEqual(self.client.get('/api/admin/activity/').data['trainers'], 0)
+        self.client.force_authenticate(self.manager)                      # per admin: the manager still sees it
+        self.assertEqual(self.client.get('/api/admin/activity/').data['trainers'], 1)
+        self.assertEqual(self.client.post('/api/admin/activity/', {'section': 'nope'}, format='json').status_code, 400)

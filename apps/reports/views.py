@@ -24,6 +24,8 @@ from rest_framework.response import Response
 
 from apps.admin_api.permissions import IsAdminUser
 
+from apps.core.bilingual import header as bilingual_header
+
 from .builders import REPORTS
 from .models import GeneratedReport, ReportTemplate
 from .serializers import GeneratedReportSerializer
@@ -74,7 +76,7 @@ def generate_report(request):
     header, rows = build(start, end)
     buf = io.StringIO()
     w = csv.writer(buf)
-    w.writerow(header)
+    w.writerow(bilingual_header(header))
     w.writerows(rows)
     content = buf.getvalue()
 

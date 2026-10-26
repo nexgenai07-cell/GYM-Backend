@@ -131,6 +131,12 @@ LANGUAGE_CODE = 'en-us'
 TIME_ZONE = config('TIME_ZONE', default='Asia/Riyadh')   # gym-local dates, trainer hours, check-in days
 GYM_CAPACITY = config('GYM_CAPACITY', default=0, cast=int)   # 0 = sum of active facility capacities
 SHOP_VAT_RATE = config('SHOP_VAT_RATE', default='0.15')   # Saudi VAT
+# Seller details printed on receipts; with a VAT number receipts also carry the ZATCA QR.
+GYM_LEGAL_NAME = config('GYM_LEGAL_NAME', default='Smart Gym')
+GYM_VAT_NUMBER = config('GYM_VAT_NUMBER', default='')
+GYM_ADDRESS = config('GYM_ADDRESS', default='Al Imam Muhammad Ibn Saud St, Al Muntazah, Al-Kharj 16942, Saudi Arabia')
+# Public base URL of this API, used in emailed receipt links.
+BACKEND_PUBLIC_URL = config('BACKEND_PUBLIC_URL', default='https://gym-backend-xi-seven.vercel.app')
 USE_I18N = True
 USE_TZ = True
 

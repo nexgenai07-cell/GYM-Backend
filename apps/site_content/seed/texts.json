@@ -2438,8 +2438,8 @@
  {
   "key": "en.p1.phonePh",
   "page": "en",
-  "en": "+966 55 890 4412",
-  "ar": "+966 55 890 4412"
+  "en": "05X XXX XXXX",
+  "ar": "05X XXX XXXX"
  },
  {
   "key": "en.p1.vecHead",
@@ -2600,8 +2600,8 @@
  {
   "key": "en.err.phone",
   "page": "en",
-  "en": "ENTER VALID NUMBER",
-  "ar": "أدخل رقمًا صحيحًا"
+  "en": "SAUDI MOBILE ONLY — e.g. 05X XXX XXXX",
+  "ar": "رقم جوال سعودي فقط — مثل 05X XXX XXXX"
  },
  {
   "key": "en.err.agree",
@@ -4934,7 +4934,67 @@
  {
   "key": "en.fac.note",
   "page": "en",
-  "en": "Charged per month of your membership; access ends with your membership.",
-  "ar": "تُحتسب لكل شهر من عضويتك؛ ينتهي الوصول بانتهاء العضوية."
+  "en": "Charged per month. Choose how many months each facility runs — up to your plan length.",
+  "ar": "تُحتسب شهريًا. اختر عدد أشهر كل مرفق — حتى مدة خطتك."
+ },
+ {
+  "key": "en.fac.add",
+  "page": "en",
+  "en": "ADD",
+  "ar": "إضافة"
+ },
+ {
+  "key": "en.fac.remove",
+  "page": "en",
+  "en": "REMOVE",
+  "ar": "إزالة"
+ },
+ {
+  "key": "en.fac.for",
+  "page": "en",
+  "en": "FOR",
+  "ar": "لمدة"
+ },
+ {
+  "key": "en.fac.whole",
+  "page": "en",
+  "en": "whole plan",
+  "ar": "كامل الخطة"
+ },
+ {
+  "key": "en.map.search",
+  "page": "en",
+  "en": "Search your address on the map",
+  "ar": "ابحث عن عنوانك على الخريطة"
+ },
+ {
+  "key": "en.map.mine",
+  "page": "en",
+  "en": "USE MY LOCATION",
+  "ar": "استخدم موقعي"
+ },
+ {
+  "key": "en.map.locating",
+  "page": "en",
+  "en": "LOCATING…",
+  "ar": "جارٍ تحديد الموقع…"
+ },
+ {
+  "key": "en.map.label",
+  "page": "en",
+  "en": "Map of your address",
+  "ar": "خريطة عنوانك"
+ },
+ {
+  "key": "en.map.hint",
+  "page": "en",
+  "en": "Search above, or click the map to drop a pin on your home.",
+  "ar": "ابحث بالأعلى أو انقر على الخريطة لتحديد موقع منزلك."
+ },
+ {
+  "key": "en.map.pinned",
+  "page": "en",
+  "en": "Pinned — drag the pin to adjust.",
+  "ar": "تم التحديد — اسحب الدبوس للتعديل."
  }
 ]

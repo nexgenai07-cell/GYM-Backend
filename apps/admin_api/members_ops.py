@@ -250,11 +250,15 @@ def _reset_password(u, staff):
     u.must_change_password = True
     u.save(update_fields=['password', 'must_change_password'])
     try:
-        send_mail('Smart Gym — your temporary password',
+        send_mail('Smart Gym — your temporary password · كلمة المرور المؤقتة',
                   f"Hi {u.first_name or u.email},\n\nA staff member reset your Smart Gym password.\n\n"
                   f"  Login page:         {member_portal_url()}/login\n  Email:              {u.email}\n"
                   f"  Temporary password: {temp}\n\nYou'll be asked to choose a new password when you log in.\n"
-                  f"If you didn't ask for this, contact the front desk.\n— Smart Gym",
+                  f"If you didn't ask for this, contact the front desk.\n— Smart Gym\n\n────────────\n\n"
+                  f"مرحبًا {u.first_name or u.email}،\n\nأعاد أحد الموظفين تعيين كلمة مرورك في سمارت جيم.\n\n"
+                  f"  صفحة الدخول: {member_portal_url()}/login\n  البريد الإلكتروني: {u.email}\n"
+                  f"  كلمة المرور المؤقتة: {temp}\n\nسيُطلب منك اختيار كلمة مرور جديدة عند تسجيل الدخول.\n"
+                  f"إذا لم تطلب ذلك، تواصل مع مكتب الاستقبال.\n— سمارت جيم",
                   settings.DEFAULT_FROM_EMAIL, [u.email])
     except Exception:   # noqa: BLE001
         logger.exception('Password reset email to %s failed.', u.email)
@@ -316,7 +320,8 @@ def bulk_member_action(request):
         resp['Content-Disposition'] = 'attachment; filename="smart-gym-members.csv"'
         resp.write('﻿')
         w = csv.writer(resp)
-        w.writerow(['Name', 'Email', 'Phone', 'Iqama', 'Plan', 'Expires', 'Status', 'Joined'])
+        from apps.core.bilingual import header
+        w.writerow(header(['Name', 'Email', 'Phone', 'Iqama', 'Plan', 'Expires', 'Status', 'Joined']))
         for u in users:
             r = _row(u, today)
             w.writerow([r['full_name'], r['email'], r['phone'], r['iqama_number'], r['plan'] or '',

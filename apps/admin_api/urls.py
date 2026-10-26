@@ -78,6 +78,7 @@ urlpatterns = [
 
     # Header: alerts + global search (console.py)
     path('alerts/', console.alerts, name='alerts'),
+    path('activity/', console.activity, name='activity'),
     path('search/', console.search, name='search'),
 
     # Member purchases back office (ops.py)

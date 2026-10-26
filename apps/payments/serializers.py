@@ -15,8 +15,14 @@ class PaymentMethodSerializer(serializers.ModelSerializer):
         read_only_fields = ['id', 'created_at']
 
 
+def _receipt(obj):
+    from .receipts import receipt_url
+    return receipt_url('t', obj.id) if obj.amount and obj.amount > 0 else None
+
+
 class TransactionSerializer(serializers.ModelSerializer):
     member_name = serializers.CharField(source='member.full_name', read_only=True)
+    receipt_url = serializers.SerializerMethodField()
     member_email = serializers.EmailField(source='member.email', read_only=True)
 
     class Meta:
@@ -26,17 +32,25 @@ class TransactionSerializer(serializers.ModelSerializer):
             'amount', 'tax_amount', 'subtotal',
             'payment_method_label', 'status',
             'member_name', 'member_email',
-            'created_at', 'settled_at',
+            'created_at', 'settled_at', 'receipt_url',
         ]
+
+    def get_receipt_url(self, obj):
+        return _receipt(obj)
 
 
 class TransactionListSerializer(serializers.ModelSerializer):
     """Lighter version for lists."""
+    receipt_url = serializers.SerializerMethodField()
+
+    def get_receipt_url(self, obj):
+        return _receipt(obj)
+
     class Meta:
         model = Transaction
         fields = [
             'id', 'transaction_id', 'description', 'transaction_type',
-            'amount', 'status', 'payment_method_label', 'created_at', 'settled_at',
+            'amount', 'status', 'payment_method_label', 'created_at', 'settled_at', 'receipt_url',
         ]
 
 
@@ -57,6 +71,10 @@ class LockerCreditSerializer(serializers.ModelSerializer):
 
 class InvoiceSerializer(serializers.ModelSerializer):
     member_name = serializers.CharField(source='member.full_name', read_only=True)
+    receipt_url = serializers.SerializerMethodField()
+
+    def get_receipt_url(self, obj):
+        return _receipt(obj.transaction) if obj.transaction_id else None
 
     class Meta:
         model = Invoice
@@ -64,5 +82,5 @@ class InvoiceSerializer(serializers.ModelSerializer):
             'id', 'invoice_number', 'description',
             'amount', 'tax_amount', 'total',
             'status', 'member_name',
-            'issued_at', 'due_at', 'paid_at',
+            'issued_at', 'due_at', 'paid_at', 'receipt_url',
         ]

@@ -26,4 +26,7 @@ urlpatterns = [
 
     # Summary
     path('summary/', views.payment_summary, name='payment-summary'),
+
+    # Receipts (signed links)
+    path('receipts/<str:token>/', views.receipt_page, name='receipt'),
 ]

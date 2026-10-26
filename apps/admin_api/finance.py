@@ -15,6 +15,8 @@ from rest_framework.response import Response
 
 from apps.payments.models import Invoice, PaymentIntent, Transaction
 
+from apps.payments.receipts import receipt_url
+
 from .permissions import IsAdminUser
 from .views import _range, cash_transactions
 
@@ -162,6 +164,7 @@ def transactions_list(request):
             'id': t.id, 'transaction_id': t.transaction_id, 'member_email': t.member.email,
             'member_name': t.member.full_name, 'description': t.description, 'type': t.transaction_type,
             'amount': _f(t.amount), 'method': t.payment_method_label, 'status': t.status, 'created_at': t.created_at,
+            'receipt_url': receipt_url('t', t.id) if t.amount > 0 else None,
         } for t in rows],
         'total': total, 'page': page, 'pages': max(1, (total + 19) // 20),
     })
@@ -180,6 +183,7 @@ def transaction_detail(request, transaction_id):
         'tax_amount': _f(t.tax_amount), 'status': t.status, 'type': t.get_transaction_type_display(),
         'method': t.payment_method_label or '—', 'gateway_reference': t.gateway_reference, 'created_at': t.created_at,
         'settled_at': t.settled_at,
+        'receipt_url': receipt_url('t', t.id) if t.amount > 0 else None,
         'invoice': {'number': inv.invoice_number, 'status': inv.status, 'total': _f(inv.total), 'paid_at': inv.paid_at}
         if inv else None,
         'payment': {'id': intent.id, 'purpose': intent.get_purpose_display(), 'status': intent.status,
@@ -190,32 +194,15 @@ def transaction_detail(request, transaction_id):
 @api_view(['POST'])
 @permission_classes([IsAdminUser])
 def transaction_email_receipt(request, transaction_id):
-    """POST /api/admin/finance/transactions/<id>/email-receipt/ → emails the receipt to the member."""
-    import logging
-
+    """POST /api/admin/finance/transactions/<id>/email-receipt/ → emails the bilingual receipt to the member."""
     from django.conf import settings
-    from django.core.mail import send_mail
 
     from apps.members.services import CONSOLE_EMAIL_BACKEND
+    from apps.payments.receipts import from_transaction, send_receipt_email
     t = get_object_or_404(Transaction.objects.select_related('member'), id=transaction_id)
+    if t.amount <= 0:
+        return Response({'detail': 'Refunds have no receipt to send.'}, status=400)
     if settings.EMAIL_BACKEND == CONSOLE_EMAIL_BACKEND and not settings.DEBUG:
         return Response({'detail': 'Email isn’t configured (SMTP).'}, status=400)
-    inv = Invoice.objects.filter(transaction=t).first()
-    when = timezone.localtime(t.settled_at or t.created_at)
-    lines = [
-        f"Hi {t.member.first_name or t.member.email},", "", "Here is your Smart Gym receipt.", "",
-        f"  Receipt:     {inv.invoice_number if inv else t.transaction_id}",
-        f"  Date:        {when:%d %b %Y %H:%M}",
-        f"  Item:        {t.description}",
-        f"  Paid with:   {t.payment_method_label or '—'}",
-    ]
-    if t.tax_amount:
-        lines += [f"  Subtotal:    SAR {t.subtotal:.2f}", f"  VAT:         SAR {t.tax_amount:.2f}"]
-    lines += [f"  Total:       SAR {t.amount:.2f}", "", "— Smart Gym"]
-    try:
-        send_mail(f'Smart Gym receipt {inv.invoice_number if inv else t.transaction_id}', '\n'.join(lines),
-                  settings.DEFAULT_FROM_EMAIL, [t.member.email])
-    except Exception:   # noqa: BLE001
-        logging.getLogger(__name__).exception('Receipt email for %s failed', t.transaction_id)
-        return Response({'detail': 'The email failed to send — try again.'}, status=502)
+    send_receipt_email(from_transaction(t))
     return Response({'detail': f'Receipt emailed to {t.member.email}.'})

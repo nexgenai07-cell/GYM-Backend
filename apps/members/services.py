@@ -108,8 +108,9 @@ def approve_registration(reg: MembershipRegistration, approved_by=None):
     # Facility add-ons paid at signup run alongside the membership.
     from .facilities import grant
     for line in reg.facilities or []:
+        ends = min(compute_expiry(start, int(line['months'])), expiry)
         grant(user, line['id'], line['name'], Decimal(line['monthly_price']), line['months'],
-              Decimal(line['amount']), start, expiry, 'signup')
+              Decimal(line['amount']), start, ends, 'signup')
 
     # 4. The signup payment appears in the member's Payments page.
     record_signup_payment(reg, user)
@@ -149,6 +150,7 @@ def record_signup_payment(reg, user):
         'subscription',
         reg.payment_amount or reg.total_price, (reg.payment_method or 'card').upper(), ref,
         when=reg.payment_paid_at or timezone.now(),
+        email=False,   # the receipt was emailed when the signup payment went through
     )
 
 
@@ -187,9 +189,15 @@ def reject_registration(reg: MembershipRegistration, reason: str = '', rejected_
     if refunded:
         lines += ['', f'Your payment of SAR {reg.payment_amount} has been refunded to your card. '
                       'It can take 3–10 working days to appear.']
-    lines += ['', 'Questions? Reply to this email or visit the front desk.', '', '— Smart Gym']
+    lines += ['', 'Questions? Reply to this email or visit the front desk.', '', '— Smart Gym', '', '────────────', '',
+              f'مرحبًا {reg.full_name}،', '', 'لم نتمكن من الموافقة على تسجيلك في سمارت جيم.']
+    if reason:
+        lines.append(f'السبب: {reason}')
+    if refunded:
+        lines += ['', f'تم استرداد مبلغ {reg.payment_amount} ريال إلى بطاقتك، وقد يستغرق ظهوره من 3 إلى 10 أيام عمل.']
+    lines += ['', 'لأي استفسار، رُد على هذه الرسالة أو تفضل بزيارة مكتب الاستقبال.', '', '— سمارت جيم']
     try:
-        send_mail('Your Smart Gym registration', '\n'.join(lines), settings.DEFAULT_FROM_EMAIL, [reg.email])
+        send_mail('Your Smart Gym registration · تسجيلك في سمارت جيم', '\n'.join(lines), settings.DEFAULT_FROM_EMAIL, [reg.email])
     except Exception:   # noqa: BLE001 — the rejection stands even if the email fails
         logger.exception('Rejection email for registration #%s failed', reg.id)
     return refunded
@@ -280,7 +288,11 @@ def _send_welcome_email(user, membership, temp_password=None):
             f"  Email:       {user.email}\n\n"
         )
 
-    subject = 'Welcome to Smart Gym — your membership is active'
+    subject = 'Welcome to Smart Gym · مرحبًا بك في سمارت جيم — your membership is active'
+    login_ar = (
+        f"كلمة المرور المؤقتة: {temp_password}\nسيُطلب منك اختيار كلمة مرور جديدة عند أول تسجيل دخول.\n"
+        if temp_password else "يمكنك الآن تسجيل الدخول بالبريد الإلكتروني وكلمة المرور التي أنشأتها عند التسجيل.\n"
+    )
     body = (
         f"Hi {user.first_name or user.email},\n\n"
         f"Your registration is approved! Your Smart Gym membership is now active.\n\n"
@@ -289,7 +301,17 @@ def _send_welcome_email(user, membership, temp_password=None):
         f"  Plan:        {membership.plan.display_name}\n"
         f"  Valid until: {membership.expiry_date}\n\n"
         f"{login}"
-        f"See you on the floor.\n— Smart Gym"
+        f"See you on the floor.\n— Smart Gym\n\n"
+        f"────────────\n\n"
+        f"مرحبًا {user.first_name or user.email}،\n\n"
+        f"تمت الموافقة على تسجيلك، وعضويتك في سمارت جيم مفعّلة الآن.\n\n"
+        f"  رقم البطاقة: {membership.pass_id}\n"
+        f"  رقم الإقامة: {membership.iqama_number}\n"
+        f"  الخطة: {membership.plan.display_name}\n"
+        f"  صالحة حتى: {membership.expiry_date}\n\n"
+        f"{login_ar}"
+        f"  صفحة الدخول: {member_portal_url()}/login\n\n"
+        f"نراك في النادي.\n— سمارت جيم"
     )
     try:
         send_mail(subject, body, settings.DEFAULT_FROM_EMAIL, [user.email])

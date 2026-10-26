@@ -58,7 +58,7 @@ class RegistrationCreateSerializer(serializers.ModelSerializer):
     iqama_number = serializers.CharField(max_length=20)
     email = serializers.EmailField(max_length=254)
     photo = serializers.ImageField()
-    # Optional facility add-ons: comma-separated ids of the admin "Facilities" list ("3,7").
+    # Optional facility add-ons from the admin "Facilities" list: "3,7" (whole plan) or "3:6,7:1" (months each).
     facilities = serializers.CharField(required=False, allow_blank=True)
 
     class Meta:
@@ -67,7 +67,25 @@ class RegistrationCreateSerializer(serializers.ModelSerializer):
             'iqama_number', 'full_name', 'email', 'phone',
             'address', 'age', 'gender', 'photo',
             'plan', 'duration_months', 'password', 'facilities',
+            'address_lat', 'address_lng',
         ]
+
+    def validate_phone(self, value):
+        from apps.core.phone import MESSAGE, normalize_saudi_mobile
+        phone = normalize_saudi_mobile(value)
+        if phone is None:
+            raise serializers.ValidationError(MESSAGE)
+        return phone
+
+    def validate_address_lat(self, value):
+        if value is not None and not -90 <= value <= 90:
+            raise serializers.ValidationError('Invalid latitude.')
+        return value
+
+    def validate_address_lng(self, value):
+        if value is not None and not -180 <= value <= 180:
+            raise serializers.ValidationError('Invalid longitude.')
+        return value
 
     def validate_iqama_number(self, value):
         value = value.strip()
@@ -85,9 +103,10 @@ class RegistrationCreateSerializer(serializers.ModelSerializer):
 
     def validate(self, attrs):
         # Price the facility add-ons now (months = membership length); prices are frozen on the registration.
-        from apps.members.facilities import FacilityError, parse_ids, signup_quote
+        from apps.members.facilities import FacilityError, parse_selection, signup_quote
         try:
-            attrs['facilities'] = signup_quote(parse_ids(attrs.get('facilities')), attrs.get('duration_months', 1))
+            months = attrs.get('duration_months', 1)
+            attrs['facilities'] = signup_quote(parse_selection(attrs.get('facilities'), months))
         except FacilityError as exc:
             raise serializers.ValidationError({'facilities': str(exc)})
 
@@ -187,13 +206,14 @@ class AdminRegistrationSerializer(serializers.ModelSerializer):
     approved_by_email = serializers.EmailField(source='approved_by.email', read_only=True, allow_null=True)
     created_user_email = serializers.EmailField(source='created_user.email', read_only=True, allow_null=True)
     membership = serializers.SerializerMethodField()
+    receipt_url = serializers.SerializerMethodField()
 
     class Meta:
         model = MembershipRegistration
         fields = [
-            'id',
+            'id', 'receipt_url',
             'iqama_number', 'full_name', 'email', 'phone',
-            'address', 'age', 'gender', 'photo_url',
+            'address', 'address_lat', 'address_lng', 'age', 'gender', 'photo_url',
             'plan', 'plan_name', 'duration_months',
             'payment_method', 'payment_reference', 'payment_amount', 'facilities',
             'payment_status', 'payment_paid_at',
@@ -202,6 +222,10 @@ class AdminRegistrationSerializer(serializers.ModelSerializer):
             'approved_by_email', 'rejection_reason',
             'created_user_email', 'membership',
         ]
+
+    def get_receipt_url(self, obj):
+        from apps.payments.receipts import receipt_url
+        return receipt_url('r', obj.id) if obj.payment_status in ('paid', 'refunded') else None
 
     def get_membership(self, obj):
         """For approved signups: the membership period that started at approval."""

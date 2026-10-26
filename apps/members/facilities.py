@@ -1,7 +1,7 @@
 """
 Facility add-ons: prices, signup quotes, mid-membership quotes and access.
 
-  signup  : facility.monthly_price x membership months
+  signup  : facility.monthly_price x the months chosen for it (1 … membership months)
   add-on  : facility.monthly_price x months remaining (a started month counts as a whole month)
 Access ends on the membership expiry date at the time of purchase; there is
 no downgrade or refund.
@@ -24,36 +24,53 @@ def bookable():
 
 def parse_ids(raw):
     """'3,7' / [3, 7] / '' -> [3, 7] (unique, order kept)."""
+    return [i for i, _ in parse_selection(raw, None)]
+
+
+def parse_selection(raw, plan_months):
+    """
+    Facilities chosen at signup, each with its own length:
+    '3,7' (both for the whole plan) or '3:6,7:1' (3 for 6 months, 7 for 1 month)
+    -> [(3, 6), (7, 1)]. A facility can run for the plan's length or less, never longer.
+    """
     if raw in (None, ''):
         return []
     parts = raw if isinstance(raw, (list, tuple)) else str(raw).split(',')
-    out = []
+    out, seen = [], set()
     for p in parts:
         p = str(p).strip()
         if not p:
             continue
-        if not p.isdigit():
-            raise FacilityError('Facilities must be a list of ids.')
-        if int(p) not in out:
-            out.append(int(p))
+        item, _, months = p.partition(':')
+        if not item.isdigit() or (months and not months.isdigit()):
+            raise FacilityError('Facilities must be ids, optionally with months ("3:6").')
+        m = int(months) if months else plan_months
+        if plan_months is not None and not 1 <= m <= plan_months:
+            raise FacilityError(f'A facility can last 1 to {plan_months} months (your plan length).')
+        if int(item) not in seen:
+            seen.add(int(item))
+            out.append((int(item), m))
     return out
 
 
-def signup_quote(item_ids, months):
-    """Frozen line items for a registration: [{id, name, monthly_price, months, amount}]."""
-    if not item_ids:
+def signup_quote(selection, months=None):
+    """
+    Frozen line items for a registration: [{id, name, monthly_price, months, amount}].
+    `selection` = [(item_id, months)] (or plain ids, which take `months`).
+    """
+    if not selection:
         return []
-    addons = {a.item_id: a for a in bookable().filter(item_id__in=item_ids)}
-    missing = [i for i in item_ids if i not in addons]
-    if missing:
+    pairs = [(s, months) if isinstance(s, int) else s for s in selection]
+    addons = {a.item_id: a for a in bookable().filter(item_id__in=[i for i, _ in pairs])}
+    if any(i not in addons for i, _ in pairs):
         raise FacilityError('One or more selected facilities can’t be booked.')
     return [{
         'id': i,
         'name': addons[i].name,
         'monthly_price': str(addons[i].monthly_price),
-        'months': months,
-        'amount': str((addons[i].monthly_price * months).quantize(Decimal('0.01'))),
-    } for i in item_ids]
+        'months': m,
+        'amount': str((addons[i].monthly_price * m).quantize(Decimal('0.01'))),
+    } for i, m in pairs]
 
 
 def quote_total(lines):

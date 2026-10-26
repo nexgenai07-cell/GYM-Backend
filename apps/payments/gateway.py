@@ -307,8 +307,11 @@ def _fulfil(intent, method_label):
     intent.save()
 
 
-def record_transaction(member, description, tx_type, amount, method_label, gateway_ref, when=None):
-    """A settled Transaction + its paid Invoice (shown on the member's Payments page)."""
+def record_transaction(member, description, tx_type, amount, method_label, gateway_ref, when=None, email=True):
+    """
+    A settled Transaction + its paid Invoice (shown on the member's Payments page). A payment
+    (amount > 0) also emails the member a bilingual receipt once the database commit lands.
+    """
     when = when or timezone.now()
     txn = Transaction.objects.create(
         member=member, transaction_id=f'TXN-{uuid.uuid4().hex[:10].upper()}',
@@ -321,6 +324,9 @@ def record_transaction(member, description, tx_type, amount, method_label, gatew
         invoice_number=f'INV-{uuid.uuid4().hex[:10].upper()}', member=member, transaction=txn,
         description=description[:200], amount=amount, total=amount, status='paid', paid_at=when,
     )
+    if email and amount > 0:
+        from .receipts import email_after_commit, from_transaction
+        email_after_commit(from_transaction, txn)
     return txn
 
 

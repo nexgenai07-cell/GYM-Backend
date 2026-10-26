@@ -32,3 +32,13 @@ class SystemSettings(models.Model):
     def get_solo(cls):
         obj, _ = cls.objects.get_or_create(pk=1)
         return obj
+
+class AdminSeen(models.Model):
+    """When an admin last opened a sidebar section — new activity after this shows as a badge."""
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='admin_seen')
+    section = models.CharField(max_length=40)
+    seen_at = models.DateTimeField()
+
+    class Meta:
+        db_table = 'admin_seen'
+        unique_together = ('user', 'section')

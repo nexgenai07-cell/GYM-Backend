@@ -110,8 +110,9 @@ def transactions_export(request):
     resp['Content-Disposition'] = f'attachment; filename="smart-gym-transactions-{timezone.localdate()}.csv"'
     resp.write('﻿')   # Excel-friendly UTF-8
     w = csv.writer(resp)
-    w.writerow(['Date', 'Transaction', 'Member', 'Email', 'Description', 'Type', 'Paid with',
-                'Amount (SAR)', 'Status', 'Counted as revenue'])
+    from apps.core.bilingual import header
+    w.writerow(header(['Date', 'Transaction', 'Member', 'Email', 'Description', 'Type', 'Paid with',
+                'Amount (SAR)', 'Status', 'Counted as revenue']))
     for t in Transaction.objects.select_related('member').filter(created_at__gte=since).order_by('created_at'):
         w.writerow([timezone.localtime(t.created_at).strftime('%Y-%m-%d %H:%M'), t.transaction_id, t.member.full_name,
                     t.member.email, t.description, t.get_transaction_type_display(), t.payment_method_label,

@@ -241,6 +241,9 @@ def _apply_payment(reg, payment):
         'payment_method', 'status',
     ])
     logger.info('Registration #%s ← Moyasar %s (%s) → payment_status=%s', reg.id, pid, status, reg.payment_status)
+    if reg.payment_status == 'paid':   # first time it's paid (an already-paid signup returned earlier)
+        from apps.payments.receipts import email_after_commit, from_registration
+        email_after_commit(from_registration, reg)
 
 
 # ============================================================

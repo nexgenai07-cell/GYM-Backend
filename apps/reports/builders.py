@@ -39,7 +39,7 @@ def revenue(start, end):
         rows.append([_local(t.created_at), t.transaction_id, t.member.full_name or t.member.email, t.member.email,
                      t.description, t.get_transaction_type_display(), t.payment_method_label, _sar(t.amount)])
     if rows:
-        rows.append(['', '', '', '', '', '', 'Total received', _sar(total)])
+        rows.append(['', '', '', '', '', '', 'Total received · إجمالي المستلم', _sar(total)])
     return ['Date (gym time)', 'Transaction', 'Member', 'Email', 'Item', 'Type', 'Paid with', 'Amount (SAR)'], rows
 
 
@@ -57,7 +57,7 @@ def finance(start, end):
     for m in sorted(by):
         rows.append([m, *[_sar(by[m].get(s, 0)) for s in streams], _sar(vat[m]), _sar(sum(by[m].values()))])
     if rows:
-        rows.append(['Total', *[_sar(sum(by[m].get(s, 0) for m in by)) for s in streams],
+        rows.append(['Total · الإجمالي', *[_sar(sum(by[m].get(s, 0) for m in by)) for s in streams],
                      _sar(sum(vat.values())), _sar(sum(sum(v.values()) for v in by.values()))])
     return ['Month', *[f'{s} (SAR)' for s in streams], 'VAT included (SAR)', 'Total (SAR)'], rows
 

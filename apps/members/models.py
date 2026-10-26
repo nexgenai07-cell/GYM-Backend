@@ -260,6 +260,9 @@ class MembershipRegistration(models.Model):
     email        = models.EmailField(unique=True)
     phone        = models.CharField(max_length=20)
     address      = models.TextField(blank=True)
+    # Picked on the signup map (Google Maps); optional.
+    address_lat  = models.FloatField(null=True, blank=True)
+    address_lng  = models.FloatField(null=True, blank=True)
     age          = models.IntegerField()
     gender       = models.CharField(max_length=20, choices=GENDER_CHOICES)
     photo        = models.ImageField(upload_to='registrations/%Y/%m/', blank=True, null=True)

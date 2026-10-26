@@ -245,3 +245,36 @@ def _sync(fn):
     except MoyasarError as exc:
         return Response({'detail': str(exc)}, status=status.HTTP_400_BAD_REQUEST)
     return Response(_intent_payload(intent))
+
+
+# ============================================
+# RECEIPTS (signed link — opens from an email without signing in)
+# ============================================
+from django.http import Http404, HttpResponse  # noqa: E402
+from rest_framework.decorators import authentication_classes  # noqa: E402
+from rest_framework.permissions import AllowAny  # noqa: E402
+
+
+@api_view(['GET'])
+@authentication_classes([])
+@permission_classes([AllowAny])
+def receipt_page(request, token):
+    """GET /api/payments/receipts/<token>/ → bilingual printable receipt (HTML)."""
+    from apps.members.models import MembershipRegistration
+    from .models import Transaction
+    from .receipts import from_registration, from_transaction, read_token, render_html
+    kind, pk = read_token(token)
+    if kind == 't':
+        txn = Transaction.objects.select_related('member').filter(id=pk, amount__gt=0).first()
+        data = from_transaction(txn) if txn else None
+    elif kind == 'r':
+        reg = MembershipRegistration.objects.select_related('plan').filter(id=pk, payment_status__in=['paid', 'refunded']).first()
+        data = from_registration(reg) if reg else None
+    else:
+        data = None
+    if data is None:
+        raise Http404('Receipt not found.')
+    resp = HttpResponse(render_html(data), content_type='text/html; charset=utf-8')
+    resp['X-Robots-Tag'] = 'noindex'
+    resp['Cache-Control'] = 'private, max-age=300'
+    return resp

@@ -106,3 +106,50 @@ def search(request):
         'machines': [{'id': e.id, 'title': e.name, 'subtitle': e.qr_tag_id or e.category,
                       'path': '/admin/machines'} for e in machines],
     })
+
+
+# ============================================================
+# SIDEBAR ACTIVITY BADGES
+# ============================================================
+FIRST_LOOK_DAYS = 7   # a section never opened counts the last week
+
+
+def _activity_counters():
+    """section (sidebar path after /admin/) → function(since) returning how many new things happened."""
+    from apps.catalog.models import Enrollment
+    from apps.classes.models import ClassEnrollment
+    from apps.members.models import MembershipFacility
+    from apps.nutrition.models import NutritionPlan
+    from apps.payments.models import Transaction
+    return {
+        'registrations': lambda t: Reg.objects.filter(submitted_at__gt=t).exclude(status=Reg.STATUS_PENDING).count(),
+        'members': lambda t: User.objects.filter(role='member', created_at__gt=t).count(),
+        'shop-orders': lambda t: Order.objects.filter(created_at__gt=t).exclude(status__in=['pending', 'cancelled']).count(),
+        'trainers': lambda t: Enrollment.objects.filter(enrolled_at__gt=t).count(),
+        'trainer-hours': lambda t: TrainerSession.objects.filter(created_at__gt=t).exclude(status='pending_payment').count(),
+        'classes': lambda t: ClassEnrollment.objects.filter(enrolled_at__gt=t).exclude(status='cancelled').count(),
+        'nutrition': lambda t: NutritionPlan.objects.filter(created_at__gt=t).count(),
+        'finance': lambda t: Transaction.objects.filter(created_at__gt=t).count(),
+        'facilities': lambda t: MembershipFacility.objects.filter(created_at__gt=t).count(),
+        'site-inbox': lambda t: ContactMessage.objects.filter(created_at__gt=t).count(),
+    }
+
+
+@api_view(['GET', 'POST'])
+@permission_classes([IsAdminUser])
+def activity(request):
+    """
+    GET  /api/admin/activity/ → {section: new_count} since this admin last opened each section.
+    POST /api/admin/activity/ {section} → marks it seen now (badge clears).
+    """
+    from .models import AdminSeen
+    counters = _activity_counters()
+    if request.method == 'POST':
+        section = str(request.data.get('section') or '')
+        if section not in counters:
+            return Response({'detail': 'Unknown section.'}, status=400)
+        AdminSeen.objects.update_or_create(user=request.user, section=section, defaults={'seen_at': timezone.now()})
+        return Response({section: 0})
+    seen = dict(AdminSeen.objects.filter(user=request.user).values_list('section', 'seen_at'))
+    default = timezone.now() - timedelta(days=FIRST_LOOK_DAYS)
+    return Response({k: fn(seen.get(k, default)) for k, fn in counters.items()})

@@ -64,8 +64,8 @@ def _row(u, now_t=None):
         'user_email': u.email, 'phone': u.phone or '',
         'initials': ''.join(x[0] for x in name.split()[:2]).upper() or '?',
         'role': u.role, 'role_label': ROLE_LABELS.get(u.role, u.role),
-        'department': p.department if p else DEFAULT_DEPT.get(u.role, 'operations'),
-        'department_label': DEPARTMENTS.get(p.department if p else DEFAULT_DEPT.get(u.role, 'operations')),
+        'department': DEFAULT_DEPT.get(u.role, 'operations'),        # set by the role, not editable
+        'department_label': DEPARTMENTS.get(DEFAULT_DEPT.get(u.role, 'operations')),
         'status': status, 'status_label': STATUSES.get(status, status),
         'shift_start': p.shift_start.strftime('%H:%M') if p and p.shift_start else '',
         'shift_end': p.shift_end.strftime('%H:%M') if p and p.shift_end else '',
@@ -90,10 +90,15 @@ def _invite(u, staff, reset=False):
     intro = ('Your Smart Gym admin password was reset.' if reset
              else f'You’ve been added to the Smart Gym team as {ROLE_LABELS.get(u.role, u.role)}.')
     try:
-        send_mail('Smart Gym — your admin sign-in',
+        intro_ar = ('أُعيد تعيين كلمة مرور حسابك الإداري في سمارت جيم.' if reset
+                    else 'تمت إضافتك إلى فريق سمارت جيم.')
+        send_mail('Smart Gym — your admin sign-in · بيانات الدخول الإدارية',
                   f"Hi {u.first_name or u.email},\n\n{intro}\n\n"
                   f"  Sign in at:         {member_portal_url()}/admin/login\n  Email:              {u.email}\n"
-                  f"  Temporary password: {temp}\n\nYou'll choose your own password when you first sign in.\n— Smart Gym",
+                  f"  Temporary password: {temp}\n\nYou'll choose your own password when you first sign in.\n— Smart Gym\n\n"
+                  f"────────────\n\nمرحبًا {u.first_name or u.email}،\n\n{intro_ar}\n\n"
+                  f"  صفحة الدخول: {member_portal_url()}/admin/login\n  البريد الإلكتروني: {u.email}\n"
+                  f"  كلمة المرور المؤقتة: {temp}\n\nستختار كلمة مرورك عند أول تسجيل دخول.\n— سمارت جيم",
                   settings.DEFAULT_FROM_EMAIL, [u.email])
     except Exception:   # noqa: BLE001
         logger.exception('Staff invite email to %s failed.', u.email)
@@ -116,10 +121,6 @@ def _validate(data, errors, creating):
         if data.get('role') not in STAFF_ROLES:
             errors['role'] = 'Choose a role.'
         out['role'] = data.get('role')
-    if 'department' in data:
-        if data.get('department') not in DEPARTMENTS:
-            errors['department'] = 'Choose a department.'
-        out['department'] = data.get('department')
     if 'status' in data:
         if data.get('status') not in STATUSES:
             errors['status'] = 'Choose a status.'
@@ -166,7 +167,8 @@ def _save(u, fields):
         u.is_active = fields['status'] != 'suspended'
     u.save()
     p, _ = StaffProfile.objects.get_or_create(user=u, defaults={'department': DEFAULT_DEPT.get(u.role, 'operations')})
-    for f in ('department', 'shift_start', 'shift_end', 'joined_at', 'notes'):
+    p.department = DEFAULT_DEPT.get(u.role, 'operations')   # the role decides the department
+    for f in ('shift_start', 'shift_end', 'joined_at', 'notes'):
         if f in fields:
             setattr(p, f, fields[f])
     if 'status' in fields:
@@ -179,7 +181,7 @@ def _save(u, fields):
 def staff(request):
     """
     GET  /api/admin/staff/?role=&search=&status=
-    POST /api/admin/staff/ {email, first_name, last_name, phone, role, department, shift_start, shift_end, joined_at}
+    POST /api/admin/staff/ {email, first_name, last_name, phone, role, shift_start, shift_end, joined_at}
          Admins/managers get an email invite to sign in; an existing account with that email is promoted.
     """
     if request.method == 'GET':
@@ -225,7 +227,7 @@ def staff(request):
 @api_view(['PATCH'])
 @permission_classes([IsAdminUser])
 def staff_update(request, user_id):
-    """PATCH /api/admin/staff/<user_id>/ — name, phone, role, department, status, shift, joined_at, notes."""
+    """PATCH /api/admin/staff/<user_id>/ — name, phone, role, status, shift, joined_at, notes (department follows the role)."""
     u = get_object_or_404(User.objects.select_related('staff_profile'), id=user_id, role__in=STAFF_ROLES)
     errors = {}
     fields = _validate(request.data, errors, creating=False)

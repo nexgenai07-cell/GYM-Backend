@@ -64,6 +64,7 @@ class NutritionPlanSerializer(serializers.ModelSerializer):
         source='nutritionist.credentials', read_only=True
     )
     nutritionist_avatar = serializers.SerializerMethodField()
+    nutritionist_id = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = NutritionPlan
@@ -73,7 +74,7 @@ class NutritionPlanSerializer(serializers.ModelSerializer):
             'target_water_ml',
             'cycle_weeks', 'started_at', 'ends_at',
             'notes', 'reviewed_at',
-            'nutritionist_name', 'nutritionist_credentials', 'nutritionist_avatar',
+            'nutritionist_id', 'nutritionist_name', 'nutritionist_credentials', 'nutritionist_avatar',
             'created_at', 'updated_at',
         ]
         read_only_fields = ['id', 'created_at', 'updated_at', 'started_at', 'reviewed_at']

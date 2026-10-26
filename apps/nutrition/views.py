@@ -59,7 +59,7 @@ def nutritionist_detail(request, nutritionist_id):
     """
     nutritionist = get_object_or_404(
         NutritionistProfile.objects.select_related('user'),
-        id=nutritionist_id,
+        id=nutritionist_id, user__is_active=True,   # hidden by staff → 404, same as the list
     )
     return Response(NutritionistProfileSerializer(nutritionist).data)
 

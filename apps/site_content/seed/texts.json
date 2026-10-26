@@ -2438,8 +2438,8 @@
  {
   "key": "en.p1.phonePh",
   "page": "en",
-  "en": "05X XXX XXXX",
-  "ar": "05X XXX XXXX"
+  "en": "5X XXX XXXX",
+  "ar": "5X XXX XXXX"
  },
  {
   "key": "en.p1.vecHead",
@@ -2600,8 +2600,8 @@
  {
   "key": "en.err.phone",
   "page": "en",
-  "en": "SAUDI MOBILE ONLY — e.g. 05X XXX XXXX",
-  "ar": "رقم جوال سعودي فقط — مثل 05X XXX XXXX"
+  "en": "SAUDI MOBILE ONLY — 9 digits starting with 5",
+  "ar": "رقم جوال سعودي فقط — 9 أرقام تبدأ بـ 5"
  },
  {
   "key": "en.err.agree",
@@ -3686,8 +3686,8 @@
  {
   "key": "ct.f.phonePh",
   "page": "ct",
-  "en": "+966 55 019 2831",
-  "ar": "+966 55 019 2831"
+  "en": "5X XXX XXXX",
+  "ar": "5X XXX XXXX"
  },
  {
   "key": "ct.f.email",
@@ -4962,39 +4962,15 @@
   "ar": "كامل الخطة"
  },
  {
-  "key": "en.map.search",
-  "page": "en",
-  "en": "Search your address on the map",
-  "ar": "ابحث عن عنوانك على الخريطة"
- },
- {
-  "key": "en.map.mine",
-  "page": "en",
-  "en": "USE MY LOCATION",
-  "ar": "استخدم موقعي"
- },
- {
-  "key": "en.map.locating",
-  "page": "en",
-  "en": "LOCATING…",
-  "ar": "جارٍ تحديد الموقع…"
- },
- {
-  "key": "en.map.label",
-  "page": "en",
-  "en": "Map of your address",
-  "ar": "خريطة عنوانك"
- },
- {
   "key": "en.map.hint",
   "page": "en",
-  "en": "Search above, or click the map to drop a pin on your home.",
-  "ar": "ابحث بالأعلى أو انقر على الخريطة لتحديد موقع منزلك."
+  "en": "Start typing, then pick your address from the list.",
+  "ar": "ابدأ الكتابة ثم اختر عنوانك من القائمة."
  },
  {
   "key": "en.map.pinned",
   "page": "en",
-  "en": "Pinned — drag the pin to adjust.",
-  "ar": "تم التحديد — اسحب الدبوس للتعديل."
+  "en": "Address found — location saved.",
+  "ar": "تم العثور على العنوان وحفظ الموقع."
  }
 ]

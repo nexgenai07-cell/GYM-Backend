@@ -136,7 +136,8 @@ def admin_texts(request):
         qs = qs.filter(Q(key__icontains=q) | Q(en__icontains=q) | Q(ar__icontains=q))
     if request.query_params.get('customized') == 'true':
         qs = qs.filter(~Q(en=F('default_en')) | ~Q(ar=F('default_ar')))
-    return Response(SiteTextSerializer(qs, many=True).data)
+    # Creation order = the order the texts appear on the page (seeded top to bottom).
+    return Response(SiteTextSerializer(qs.order_by('page', 'id'), many=True).data)
 
 
 @api_view(['PATCH'])

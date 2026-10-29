@@ -1,6 +1,8 @@
 """
 Admin → Trainers & Courses: add and edit trainer profiles, verify them, take them off the
-member portal, and run the course catalogue (draft → published → archived, lessons, covers).
+member portal, give them coach-portal access, and run the course catalogue (draft → published →
+archived, lessons, covers). Courses coaches write arrive as "pending": publish them, or send them
+back with a note (the coach is told either way).
 Weekly booking hours and 1:1 pricing live on the Trainer hours page (ops.trainer_hours_*).
 """
 import logging
@@ -97,6 +99,8 @@ def _trainer_row(t, counts=None):
         'hourly_rate': _f(t.hourly_rate), 'is_verified': t.is_verified,
         'is_accepting_clients': t.is_accepting_clients, 'offers_1on1': t.offers_1on1,
         'is_active': u.is_active,   # false → hidden from the member portal
+        'can_sign_in': u.role == 'trainer' and u.is_active and u.has_usable_password(),   # coach portal
+        'last_login': u.last_login,
         'courses': c.get('courses', 0), 'upcoming_sessions': c.get('upcoming', 0),
     }
 
@@ -172,7 +176,7 @@ def trainers(request):
     POST /api/admin/trainers/ {email, first_name, last_name, phone, title, ...}
          Adds a trainer. An existing member/staff account with that email is reused (its role
          becomes trainer unless it's admin/manager); otherwise an account without a password is
-         created — trainers are shown to members, they don't log in.
+         created — they sign in to the coach portal once given access (portal-access/).
     """
     if request.method == 'GET':
         qs = TrainerProfile.objects.select_related('user').order_by('-user__is_active', 'user__first_name')
@@ -254,6 +258,45 @@ def trainer_update(request, trainer_id):
 
 @api_view(['POST'])
 @permission_classes([IsAdminUser])
+def trainer_portal_access(request, trainer_id):
+    """
+    POST /api/admin/trainers/<id>/portal-access/ {password?}
+    Lets the coach sign in to the coach portal: with the starting password given, or by emailing
+    a temporary one. Either way they choose their own password (and set up 2-step verification)
+    at first sign-in.
+    """
+    from django.contrib.auth.password_validation import validate_password
+    from django.core.exceptions import ValidationError
+    from .staff_ops import _invite
+    t = get_object_or_404(TrainerProfile.objects.select_related('user'), id=trainer_id)
+    u = t.user
+    if u.role in ('admin', 'manager'):
+        return Response({'detail': f'{u.full_name or u.email} signs in to the admin console.'}, status=400)
+    if not u.is_active:
+        return Response({'detail': 'This trainer is hidden — show them on the member portal first.'}, status=400)
+    password = str(request.data.get('password') or '')
+    if password:
+        try:
+            validate_password(password, u)
+        except ValidationError as e:
+            return Response({'password': ' '.join(e.messages)}, status=400)
+        with transaction.atomic():
+            u.role = 'trainer'
+            u.set_password(password)
+            u.must_change_password = True
+            u.save(update_fields=['role', 'password', 'must_change_password'])
+        return Response({'detail': f'{u.full_name or u.email} can sign in at /coach/login with the password you set.'})
+    if u.role != 'trainer':
+        u.role = 'trainer'
+        u.save(update_fields=['role'])
+    err = _invite(u, request.user, reset=u.has_usable_password())
+    if err:
+        return Response({'detail': err}, status=502 if 'failed' in err else 400)
+    return Response({'detail': f'Coach portal sign-in details emailed to {u.email}.'})
+
+
+@api_view(['POST'])
+@permission_classes([IsAdminUser])
 @parser_classes([MultiPartParser, FormParser])
 def trainer_photo(request, trainer_id):
     """POST /api/admin/trainers/<id>/photo/ multipart {image}."""
@@ -297,6 +340,7 @@ def _course_row(c, modules=False):
         'total_enrolled': getattr(c, 'enrolled', None) if getattr(c, 'enrolled', None) is not None else c.total_enrolled,
         'module_count': getattr(c, 'module_count', None),
         'updated_at': c.updated_at,
+        'submitted_at': c.submitted_at, 'review_note': c.review_note,
     }
     if modules:
         row['modules'] = [{
@@ -460,7 +504,12 @@ def course_detail(request, course_id):
         return Response(status=204)
 
     errors = {}
+    status_before = c.status
     _apply_course(c, request.data, errors)
+    if 'review_note' in request.data:
+        c.review_note = str(request.data.get('review_note') or '').strip()[:2000]
+    if status_before == 'pending' and c.status == 'draft' and not c.review_note:
+        errors['review_note'] = 'Tell the coach what to change before sending it back.'
     if not errors and c.status == 'published':
         if not c.description.strip():
             errors['description'] = 'Add a description before publishing.'
@@ -470,13 +519,33 @@ def course_detail(request, course_id):
     if errors:
         return Response(errors, status=400)
     with transaction.atomic():
+        if c.status == 'published':
+            c.review_note = ''
         c.save()
         if 'modules' in request.data:
             _replace_modules(c, request.data['modules'], errors)
             if errors:
                 transaction.set_rollback(True)
                 return Response(errors, status=400)
+    _tell_coach(c, status_before)
     return Response(_course_row(c, modules=True))
+
+
+def _tell_coach(c, status_before):
+    """The coach hears when the gym publishes, sends back or archives their course."""
+    from apps.notifications.service import notify_coach
+    if c.status == status_before:
+        return
+    if c.status == 'published':
+        notify_coach(c.trainer, 'course', 'Your course is live', f'“{c.title}” is published — members can join it now.',
+                     icon='rocket_launch', action_label='Open course', action_path=f'/coach/courses/{c.id}')
+    elif c.status == 'draft' and status_before == 'pending':
+        notify_coach(c.trainer, 'course', 'Changes requested on your course',
+                     f'The gym sent “{c.title}” back: {c.review_note}', icon='rate_review', priority='high',
+                     action_label='Edit course', action_path=f'/coach/courses/{c.id}')
+    elif c.status == 'archived':
+        notify_coach(c.trainer, 'course', 'Course archived', f'“{c.title}” was taken off the member portal by the gym.',
+                     icon='archive', action_label='My courses', action_path='/coach/courses')
 
 
 @api_view(['POST'])
@@ -501,6 +570,7 @@ def course_stats(request):
     paid = Enrollment.objects.exclude(status='refunded').aggregate(t=Sum('amount_paid'))['t']
     return Response({
         'total': sum(by.values()), 'published': by.get('published', 0), 'draft': by.get('draft', 0),
+        'pending': by.get('pending', 0),
         'archived': by.get('archived', 0), 'featured': Course.objects.filter(is_featured=True, status='published').count(),
         'enrollments': Enrollment.objects.count(), 'course_revenue': _f(paid),
         'categories': COURSE_CATEGORIES,

@@ -1,7 +1,7 @@
 """
 Admin → Staff: the team roster. Everyone with a staff role, their department, shift hours and
-status. Admins and managers sign in to this portal (they get an emailed invite with a temporary
-password); other roles are listed for scheduling only.
+status. Admins and managers sign in to this portal and coaches (trainers) to the coach portal —
+they get an emailed invite with a temporary password; other roles are listed for scheduling only.
 
 Rules: only admins can add, edit or promote admins/managers; nobody can suspend or demote
 themselves.
@@ -26,7 +26,9 @@ from .permissions import IsAdminUser
 logger = logging.getLogger(__name__)
 
 STAFF_ROLES = ['admin', 'manager', 'trainer', 'nutritionist', 'receptionist']
-PORTAL_ROLES = {'admin', 'manager'}
+PORTAL_ROLES = {'admin', 'manager'}             # the admin console
+SIGN_IN_ROLES = PORTAL_ROLES | {'trainer'}      # + the coach portal
+LOGIN_PATH = {'admin': '/admin/login', 'manager': '/admin/login', 'trainer': '/coach/login'}
 ROLE_LABELS = dict(User.ROLE_CHOICES)
 DEPARTMENTS = dict(StaffProfile.DEPARTMENT_CHOICES)
 STATUSES = dict(StaffProfile.STATUS_CHOICES)
@@ -72,14 +74,16 @@ def _row(u, now_t=None):
         'shift_display': (p.shift_display if p and p.shift_start and p.shift_end else 'Hours not set'),
         'on_shift': _on_shift(p, now_t) and u.is_active,
         'joined_at': joined, 'notes': p.notes if p else '',
-        'can_sign_in': u.role in PORTAL_ROLES and u.is_active and u.has_usable_password(),
+        'can_sign_in': u.role in SIGN_IN_ROLES and u.is_active and u.has_usable_password(),
         'last_login': u.last_login,
         'has_trainer_profile': hasattr(u, 'trainer_profile'),
+        'two_factor': (getattr(getattr(u, 'two_factor', None), 'method', None)
+                       if getattr(getattr(u, 'two_factor', None), 'enabled', False) else None),
     }
 
 
 def _invite(u, staff, reset=False):
-    """Emails a temporary password and the admin sign-in link. Returns an error message or None."""
+    """Emails a temporary password and the sign-in link (admin console or coach portal). Error message or None."""
     from apps.members.services import CONSOLE_EMAIL_BACKEND, generate_temp_password, member_portal_url
     if settings.EMAIL_BACKEND == CONSOLE_EMAIL_BACKEND and not settings.DEBUG:
         return 'Email isn’t configured (SMTP), so the sign-in details can’t be sent.'
@@ -87,18 +91,22 @@ def _invite(u, staff, reset=False):
     u.set_password(temp)
     u.must_change_password = True
     u.save(update_fields=['password', 'must_change_password'])
-    intro = ('Your Smart Gym admin password was reset.' if reset
+    coach = u.role == 'trainer'
+    portal, portal_ar = ('coach portal', 'بوابة المدربين') if coach else ('admin', 'الإدارية')
+    link = f'{member_portal_url()}{LOGIN_PATH.get(u.role, "/admin/login")}'
+    intro = (f'Your Smart Gym {portal} password was reset.' if reset
              else f'You’ve been added to the Smart Gym team as {ROLE_LABELS.get(u.role, u.role)}.')
     try:
-        intro_ar = ('أُعيد تعيين كلمة مرور حسابك الإداري في سمارت جيم.' if reset
+        intro_ar = (f'أُعيد تعيين كلمة مرور حسابك ({portal_ar}) في سمارت جيم.' if reset
                     else 'تمت إضافتك إلى فريق سمارت جيم.')
-        send_mail('Smart Gym — your admin sign-in · بيانات الدخول الإدارية',
+        send_mail(f'Smart Gym — your {portal} sign-in · بيانات الدخول',
                   f"Hi {u.first_name or u.email},\n\n{intro}\n\n"
-                  f"  Sign in at:         {member_portal_url()}/admin/login\n  Email:              {u.email}\n"
-                  f"  Temporary password: {temp}\n\nYou'll choose your own password when you first sign in.\n— Smart Gym\n\n"
+                  f"  Sign in at:         {link}\n  Email:              {u.email}\n"
+                  f"  Temporary password: {temp}\n\nYou'll choose your own password and set up 2-step verification "
+                  "when you first sign in.\n— Smart Gym\n\n"
                   f"────────────\n\nمرحبًا {u.first_name or u.email}،\n\n{intro_ar}\n\n"
-                  f"  صفحة الدخول: {member_portal_url()}/admin/login\n  البريد الإلكتروني: {u.email}\n"
-                  f"  كلمة المرور المؤقتة: {temp}\n\nستختار كلمة مرورك عند أول تسجيل دخول.\n— سمارت جيم",
+                  f"  صفحة الدخول: {link}\n  البريد الإلكتروني: {u.email}\n"
+                  f"  كلمة المرور المؤقتة: {temp}\n\nستختار كلمة مرورك وتفعّل التحقق بخطوتين عند أول تسجيل دخول.\n— سمارت جيم",
                   settings.DEFAULT_FROM_EMAIL, [u.email])
     except Exception:   # noqa: BLE001
         logger.exception('Staff invite email to %s failed.', u.email)
@@ -198,6 +206,10 @@ def _save(u, fields):
     if 'status' in fields:
         p.status = fields['status']
     p.save()
+    if u.role == 'trainer':
+        from apps.catalog.models import TrainerProfile
+        TrainerProfile.objects.get_or_create(user=u, defaults={'title': 'Coach', 'hourly_rate': 0,
+                                                                'is_accepting_clients': False})
 
 
 @api_view(['GET', 'POST'])
@@ -243,7 +255,7 @@ def staff(request):
     if dup:
         errors['first_name'] = dup
     password = str(request.data.get('password') or '')
-    if password and fields.get('role') in PORTAL_ROLES:
+    if password and fields.get('role') in SIGN_IN_ROLES:
         try:
             validate_password(password)
         except ValidationError as e:
@@ -258,25 +270,80 @@ def staff(request):
             u = User(email=email, username=email)
             u.set_unusable_password()
         _save(u, fields)
-    if u.role in PORTAL_ROLES and password:
+    if u.role in SIGN_IN_ROLES and password:
         # Starting password set by the admin (works without email); changed at first sign-in.
         u.set_password(password)
         u.must_change_password = True
         u.save(update_fields=['password', 'must_change_password'])
         warning = None
     else:
-        warning = _invite(u, request.user) if u.role in PORTAL_ROLES else None
+        warning = _invite(u, request.user) if u.role in SIGN_IN_ROLES else None
         if warning:
             warning += ' Or edit them and set a starting password yourself.'
     logger.info('Staff %s (%s) added by %s', u.email, u.role, request.user.email)
     return Response({**_row(u), 'warning': warning}, status=201)
 
 
-@api_view(['PATCH'])
+def _remove(request, u):
+    """
+    DELETE: takes someone off the team. A person who is also a gym member keeps their member
+    account (role back to member); anyone else is deleted, unless coaching or nutrition records
+    still point at them — then suspending keeps that history intact.
+    """
+    from django.db.models import ProtectedError
+    if u.id == request.user.id:
+        return Response({'detail': 'You can’t remove yourself from the team.'}, status=400)
+    msg = _guard(request, u.role, u.role)
+    if msg:
+        return Response({'detail': msg}, status=403)
+    if (u.role == 'admin' and u.is_active
+            and not User.objects.filter(role='admin', is_active=True).exclude(id=u.id).exists()):
+        return Response({'detail': 'Keep at least one active admin.'}, status=400)
+    name = u.full_name or u.email
+    t = getattr(u, 'trainer_profile', None)
+    if t is not None:
+        used = [label for label, n in (('1-on-1 sessions', t.sessions.count()), ('courses', t.courses.count()),
+                                       ('classes', t.classes.count())) if n]
+        if used:
+            return Response({'detail': f'{name} has {", ".join(used)} on record, so they can’t be removed — '
+                                       'suspend them instead.'}, status=400)
+    n = getattr(u, 'nutritionist_profile', None)
+    if n is not None and n.plans.exists():
+        return Response({'detail': f'{name} has nutrition plans on record, so they can’t be removed — '
+                                   'suspend them instead.'}, status=400)
+    with transaction.atomic():
+        if t is not None:
+            t.delete()
+        if n is not None:
+            n.delete()
+        StaffProfile.objects.filter(user=u).delete()
+        if hasattr(u, 'membership'):
+            u.role = 'member'
+            u.must_change_password = False
+            u.save(update_fields=['role', 'must_change_password'])
+            outcome = f'{name} was removed from the team; their gym membership stays.'
+        else:
+            try:
+                with transaction.atomic():
+                    u.delete()
+            except ProtectedError:
+                return Response({'detail': f'{name} has records the gym must keep, so they can’t be removed — '
+                                           'suspend them instead.'}, status=400)
+            outcome = f'{name} was removed from the team.'
+    logger.info('Staff %s removed by %s', u.email, request.user.email)
+    return Response({'detail': outcome})
+
+
+@api_view(['PATCH', 'DELETE'])
 @permission_classes([IsAdminUser])
 def staff_update(request, user_id):
-    """PATCH /api/admin/staff/<user_id>/ — name, phone, role, status, shift, joined_at, notes (department follows the role)."""
+    """
+    PATCH  /api/admin/staff/<user_id>/ — name, phone, role, status, shift, joined_at, notes (department follows the role).
+    DELETE /api/admin/staff/<user_id>/ — remove from the team (see _remove).
+    """
     u = get_object_or_404(User.objects.select_related('staff_profile'), id=user_id, role__in=STAFF_ROLES)
+    if request.method == 'DELETE':
+        return _remove(request, u)
     from django.contrib.auth.password_validation import validate_password
     from django.core.exceptions import ValidationError
     errors = {}
@@ -288,8 +355,8 @@ def staff_update(request, user_id):
             errors['first_name'] = dup
     password = str(request.data.get('password') or '')
     if password:
-        if fields.get('role', u.role) not in PORTAL_ROLES:
-            errors['password'] = 'Only admins and managers sign in to the console.'
+        if fields.get('role', u.role) not in SIGN_IN_ROLES:
+            errors['password'] = 'Only admins, managers and coaches sign in.'
         else:
             try:
                 validate_password(password, u)
@@ -305,7 +372,7 @@ def staff_update(request, user_id):
     if (u.role == 'admin' and (fields.get('role', 'admin') != 'admin' or fields.get('status') == 'suspended')
             and not User.objects.filter(role='admin', is_active=True).exclude(id=u.id).exists()):
         return Response({'detail': 'Keep at least one active admin.'}, status=400)
-    was_portal = u.role in PORTAL_ROLES and u.has_usable_password()
+    was_portal = u.role in SIGN_IN_ROLES and u.has_usable_password()
     with transaction.atomic():
         _save(u, fields)
     warning = None
@@ -313,16 +380,32 @@ def staff_update(request, user_id):
         u.set_password(password)                   # starting password; changed at first sign-in
         u.must_change_password = True
         u.save(update_fields=['password', 'must_change_password'])
-    elif u.role in PORTAL_ROLES and not was_portal and u.is_active:
+    elif u.role in SIGN_IN_ROLES and not was_portal and u.is_active:
         warning = _invite(u, request.user)          # promoted: send sign-in details
     return Response({**_row(u), 'warning': warning})
 
 
 @api_view(['POST'])
 @permission_classes([IsAdminUser])
+def staff_reset_2fa(request, user_id):
+    """POST /api/admin/staff/<user_id>/reset-2fa/ — lost phone: they set 2-step verification up again at sign-in."""
+    from .members_ops import reset_two_factor
+    u = get_object_or_404(User, id=user_id, role__in=STAFF_ROLES)
+    msg = _guard(request, u.role, u.role)
+    if msg:
+        return Response({'detail': msg}, status=403)
+    err = reset_two_factor(u, request.user)
+    if err:
+        return Response({'detail': err}, status=400)
+    return Response({'detail': f'2-step verification reset for {u.full_name or u.email}. '
+                               'They’ll set it up again at their next sign-in.'})
+
+
+@api_view(['POST'])
+@permission_classes([IsAdminUser])
 def staff_send_signin(request, user_id):
-    """POST /api/admin/staff/<user_id>/send-sign-in/ — new temporary password by email (admins/managers)."""
-    u = get_object_or_404(User, id=user_id, role__in=PORTAL_ROLES)
+    """POST /api/admin/staff/<user_id>/send-sign-in/ — new temporary password by email (admins/managers/coaches)."""
+    u = get_object_or_404(User, id=user_id, role__in=SIGN_IN_ROLES)
     msg = _guard(request, u.role, u.role)
     if msg and u.id != request.user.id:
         return Response({'detail': msg}, status=403)

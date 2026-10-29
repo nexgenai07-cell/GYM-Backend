@@ -183,6 +183,8 @@ class PaymentIntent(models.Model):
         ('renewal', 'Membership renewal'),
         ('facility_addon', 'Facility add-on'),
         ('nutrition_plan', 'Nutrition plan'),
+        ('video', 'Machine video'),
+        ('class_pass', 'Class'),
     ]
     STATUS_CHOICES = [
         ('pending', 'Pending'),
@@ -215,6 +217,12 @@ class PaymentIntent(models.Model):
                                       related_name='+')
     nutrition_plan = models.ForeignKey('nutrition.NutritionPlan', on_delete=models.SET_NULL, null=True, blank=True,
                                        related_name='payment_intents')
+    video = models.ForeignKey('workouts.ExerciseVideo', on_delete=models.SET_NULL, null=True, blank=True,
+                              related_name='+')
+    gym_class = models.ForeignKey('classes.GymClass', on_delete=models.SET_NULL, null=True, blank=True,
+                                  related_name='+')
+    pass_kind = models.CharField(max_length=10, blank=True, db_default='')     # class_pass: full | session
+    session_date = models.DateField(null=True, blank=True)                    # class_pass: kind=session
 
     # Moyasar
     attempt_token = models.CharField(max_length=64)                        # echoed in the payment metadata

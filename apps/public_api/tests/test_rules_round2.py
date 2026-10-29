@@ -208,7 +208,7 @@ class ConsoleRulesTests(Base):
         self.assertIn('already exists', r.data['name'])
         r = self.client.post('/api/admin/shop/products/', {'name': 'Creatine', 'sku': 'cr1', 'category_id': cat.id,
                                                            'price': 50}, format='json')
-        self.assertIn('3 letters, a dash and 4 digits', r.data['sku'])
+        self.assertIn('SUP- and 4 digits', r.data['sku'])          # the prefix follows the category
         self.assertIn('already exists', self.client.post('/api/admin/shop/categories/', {'name': 'supplements'},
                                                          format='json').data['name'])
 
@@ -319,7 +319,7 @@ class LiveNumbersTests(Base):
     def test_live_endpoint_counts_real_things(self):
         from django.core.cache import cache
         cache.delete('public-live-v1')
-        GymClass.objects.create(name='Spin', category='endurance', day_of_week=date.today().weekday(),
+        GymClass.objects.create(name='Spin', category='endurance', day_of_week=timezone.localdate().weekday(),
                                 start_time=time(18, 0), capacity=12)
         data = self.client.get('/api/public/live/').data
         self.assertEqual((data['members_active'], data['trainers'], data['classes_per_week']), (1, 1, 1))

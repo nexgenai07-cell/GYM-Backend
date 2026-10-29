@@ -1,6 +1,6 @@
 """
-Member payments: locker top-ups, shop orders, trainer sessions, paid courses
-and membership renewals.
+Member payments: locker top-ups, shop orders, trainer sessions, paid courses,
+membership renewals, facility add-ons, nutrition plans, Machine Guide videos and paid classes.
 
 Flow (same rules as the registration payment in apps.public_api.moyasar):
   1. create_intent()      server decides the amount; returns a PaymentIntent
@@ -36,7 +36,8 @@ logger = logging.getLogger(__name__)
 
 TOPUP_MIN = Decimal('10.00')
 RENEWAL_MONTHS = (1, 3, 6, 12)
-CREDIT_PURPOSES = ('shop_order', 'trainer_session', 'course', 'renewal', 'facility_addon', 'nutrition_plan')
+CREDIT_PURPOSES = ('shop_order', 'trainer_session', 'course', 'renewal', 'facility_addon', 'nutrition_plan',
+                   'video', 'class_pass')
 
 
 class PaymentError(Exception):
@@ -56,6 +57,8 @@ def create_intent(member, purpose, data):
         'renewal': _build_renewal,
         'facility_addon': _build_facility,
         'nutrition_plan': _build_nutrition,
+        'video': _build_video,
+        'class_pass': _build_class_pass,
     }
     if purpose not in builders:
         raise PaymentError('Unknown payment purpose.')
@@ -162,6 +165,35 @@ def _build_facility(member, data):
         raise PaymentError(str(exc))
     return {'amount': amount, 'facility_item_id': item_id, 'months': months,
             'description': f'Facility add-on — {addon.name} ({months} mo)'}
+
+
+def _build_video(member, data):
+    from apps.workouts import videos
+    from apps.workouts.models import ExerciseVideo
+    video = ExerciseVideo.objects.select_related('exercise').filter(id=data.get('video_id'), is_active=True).first()
+    if video is None:
+        raise PaymentError('Video not found.')
+    can, why = videos.access(member, video)
+    if can:
+        raise PaymentError('You can already watch this video' + (' — it’s included in your plan.' if why == 'plan' else '.'))
+    return {'amount': video.price, 'video': video,
+            'description': f'Video: {video.title} ({video.exercise.name})'[:200]}
+
+
+def _build_class_pass(member, data):
+    from apps.classes import passes
+    from apps.classes.models import GymClass
+    c = GymClass.objects.select_related('trainer__user').filter(id=data.get('class_id')).first()
+    if c is None:
+        raise PaymentError('Class not found.')
+    kind = data.get('kind')
+    day = passes.parse_day(data.get('date')) if kind == 'session' else None
+    try:
+        price, until = passes.check_purchase(member, c, kind, day)
+    except ValueError as exc:
+        raise PaymentError(str(exc))
+    what = f'{c.name} — whole class until {until:%d %b %Y}' if kind == 'full' else f'{c.name} — {day:%a %d %b %Y}'
+    return {'amount': price, 'gym_class': c, 'pass_kind': kind, 'session_date': day, 'description': f'Class: {what}'}
 
 
 def course_is_free_for(member, course):
@@ -286,7 +318,7 @@ def pay_with_credit(intent):
 # ============================================================
 TX_TYPE = {'locker_topup': 'topup', 'shop_order': 'retail', 'trainer_session': 'coaching',
            'course': 'coaching', 'renewal': 'subscription', 'facility_addon': 'subscription',
-           'nutrition_plan': 'coaching'}
+           'nutrition_plan': 'coaching', 'video': 'coaching', 'class_pass': 'coaching'}
 
 
 def _fulfil(intent, method_label):
@@ -299,6 +331,8 @@ def _fulfil(intent, method_label):
         'renewal': _fulfil_renewal,
         'facility_addon': _fulfil_facility,
         'nutrition_plan': _fulfil_nutrition,
+        'video': _fulfil_video,
+        'class_pass': _fulfil_class_pass,
     }[intent.purpose](intent)
 
     now = timezone.now()
@@ -415,16 +449,69 @@ def activate_plan(plan):
 
 
 def _fulfil_course(intent):
-    from apps.catalog.models import Enrollment
+    from apps.catalog.models import Enrollment, enrollment_started
     if intent.course is None:
         return False, 'the course no longer exists'
     if Enrollment.objects.filter(member=intent.member, course=intent.course).exists():
         return False, 'you were already enrolled in this course'
-    Enrollment.objects.create(member=intent.member, course=intent.course, amount_paid=intent.amount,
-                              payment_ref=intent.moyasar_payment_id or f'credit:{intent.id}')
+    enrollment = Enrollment.objects.create(member=intent.member, course=intent.course, amount_paid=intent.amount,
+                                           payment_ref=intent.moyasar_payment_id or f'credit:{intent.id}')
     type(intent.course).objects.filter(id=intent.course_id).update(total_enrolled=F('total_enrolled') + 1)
+    enrollment_started(enrollment)
     notify(intent.member, 'course', 'Enrolled', f'You are enrolled in "{intent.course.title}". Enjoy!',
            icon='school', action_label='Open player', action_path=f'/dashboard/player/{intent.course_id}')
+    return True, ''
+
+
+def _fulfil_video(intent):
+    from apps.notifications.service import notify_coach
+    from apps.workouts.models import VideoPurchase
+    video = intent.video
+    if video is None:
+        return False, 'the video was removed'
+    _, created = VideoPurchase.objects.get_or_create(member=intent.member, video=video,
+                                                     defaults={'amount': intent.amount})
+    if not created:
+        return False, 'you had already bought this video'
+    notify(intent.member, 'workout', 'Video unlocked',
+           f'“{video.title}” for {video.exercise.name} is yours to watch any time.', icon='smart_display',
+           action_label='Watch now', action_path=f'/dashboard/machine-guide?exercise={video.exercise_id}')
+    if video.coach_id:
+        notify_coach(video.coach, 'workout', 'Someone bought your video',
+                     f'{intent.member.full_name or "A member"} unlocked “{video.title}” (SAR {intent.amount}).',
+                     icon='smart_display', action_label='My videos', action_path='/coach/videos')
+    return True, ''
+
+
+def _fulfil_class_pass(intent):
+    from apps.classes import passes
+    from apps.classes.models import ClassEnrollment, ClassPass, GymClass
+    from apps.notifications.service import notify_coach
+    c = GymClass.objects.select_for_update().filter(id=intent.gym_class_id).first()
+    if c is None:
+        return False, 'the class was removed'
+    try:
+        _, until = passes.check_purchase(intent.member, c, intent.pass_kind, intent.session_date)
+    except ValueError as exc:
+        return False, str(exc).rstrip('.').lower()
+    ClassPass.objects.create(gym_class=c, member=intent.member, kind=intent.pass_kind,
+                             session_date=intent.session_date, valid_until=until, amount=intent.amount)
+    if intent.pass_kind == 'full':
+        e, made = ClassEnrollment.objects.get_or_create(gym_class=c, member=intent.member,
+                                                        defaults={'status': 'enrolled'})
+        if not made:
+            e.status = 'enrolled'
+            e.save(update_fields=['status'])
+        when = f'every {c.start_time:%H:%M} on its day until {until:%d %b %Y}'
+    else:
+        when = f'on {intent.session_date:%A %d %b} at {c.start_time:%H:%M}'
+    notify(intent.member, 'attendance', 'Class booked', f'You’re in {c.name} {when}.', icon='event_available',
+           action_label='My classes', action_path='/dashboard/classes')
+    if c.trainer_id:
+        notify_coach(c.trainer, 'attendance', 'New class booking',
+                     f'{intent.member.full_name or "A member"} paid for {c.name} '
+                     + ('(whole class).' if intent.pass_kind == 'full' else f'on {intent.session_date:%a %d %b}.'),
+                     icon='groups', action_label='My classes', action_path='/coach/classes')
     return True, ''
 
 

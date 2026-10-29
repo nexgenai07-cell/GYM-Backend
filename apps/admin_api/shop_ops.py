@@ -68,18 +68,46 @@ def _product_row(p):
     }
 
 
+# Fixed format: the category's 3-letter prefix, a dash and 4 digits — PRO-0001, GEA-0012.
 SKU_RE = re.compile(r'[A-Z]{3}-\d{4}')
-SKU_MESSAGE = 'SKU must be 3 letters, a dash and 4 digits, e.g. SUP-0001.'
 
 
-def next_sku(category):
-    """First free SKU for a category: its first 3 letters + a running number (SUP-0001)."""
-    prefix = (re.sub(r'[^A-Za-z]', '', getattr(category, 'key', '') or getattr(category, 'name', '')).upper() + 'XXX')[:3]
-    taken = set(Product.objects.filter(sku__startswith=f'{prefix}-').values_list('sku', flat=True))
+def sku_prefix(category):
+    """The category's 3 letters (from its key, else its name): protein → PRO, pre-workout → PRE."""
+    return (re.sub(r'[^A-Za-z]', '', getattr(category, 'key', '') or getattr(category, 'name', '')).upper() + 'XXX')[:3]
+
+
+def next_sku(category, exclude_id=None):
+    """First free SKU for a category: its prefix + a running number (SUP-0001)."""
+    prefix = sku_prefix(category)
+    taken = Product.objects.filter(sku__startswith=f'{prefix}-')
+    if exclude_id:
+        taken = taken.exclude(id=exclude_id)
+    taken = set(taken.values_list('sku', flat=True))
     n = 1
     while f'{prefix}-{n:04d}' in taken:
         n += 1
     return f'{prefix}-{n:04d}'
+
+
+def _apply_sku(p, data, errors, category_changed):
+    """The number part can be chosen; the prefix always follows the category."""
+    if p.category_id is None:
+        return
+    prefix = sku_prefix(p.category)
+    raw = str(data.get('sku') or '').strip().upper() if 'sku' in data else ''
+    if not raw:
+        if not p.id or category_changed or not SKU_RE.fullmatch(p.sku or '') or not p.sku.startswith(prefix + '-'):
+            p.sku = next_sku(p.category, exclude_id=p.id)
+        return
+    if raw.isdigit() and len(raw) <= 4:
+        raw = f'{prefix}-{int(raw):04d}'
+    if not SKU_RE.fullmatch(raw) or not raw.startswith(prefix + '-'):
+        errors['sku'] = (f'SKU for {p.category.name} products is {prefix}- and 4 digits, e.g. {prefix}-0007 '
+                         '(or type just the number).')
+    elif Product.objects.filter(sku__iexact=raw).exclude(id=p.id).exists():
+        errors['sku'] = f'SKU {raw} is already used by another product. Next free: {next_sku(p.category, p.id)}.'
+    p.sku = raw
 
 
 def _apply_product(p, data, errors):
@@ -100,20 +128,16 @@ def _apply_product(p, data, errors):
         dup = duplicate_error(Product.objects.all(), 'name', p.name, 'A product named', exclude_id=p.id)
         if dup:
             errors['name'] = dup
-    if 'sku' in data:
-        sku = str(data.get('sku') or '').strip().upper()
-        if sku != (p.sku or '').upper() or not p.id:      # old SKUs keep working until they're changed
-            if not SKU_RE.fullmatch(sku):
-                errors['sku'] = SKU_MESSAGE
-            elif Product.objects.filter(sku__iexact=sku).exclude(id=p.id).exists():
-                errors['sku'] = f'SKU {sku} is already used by another product.'
-        p.sku = sku
+    category_changed = False
     if 'category_id' in data:
         c = ProductCategory.objects.filter(id=data.get('category_id')).first()
         if c is None:
             errors['category_id'] = 'Choose a category.'
         else:
+            category_changed = bool(p.id) and c.id != p.category_id
             p.category = c
+    if 'sku' in data or category_changed or not p.id:
+        _apply_sku(p, data, errors, category_changed)
     if 'price' in data:
         d = _money(data, 'price', errors, required=True)
         if d is not None:
@@ -163,13 +187,20 @@ def products(request):
     p = Product(stock_quantity=0)
     errors = {}
     data = {'name': '', 'price': None, 'category_id': None, **request.data}
-    if not data.get('sku'):
-        data['sku'] = next_sku(ProductCategory.objects.filter(id=data.get('category_id')).first())
     _apply_product(p, data, errors)
     if errors:
         return Response(errors, status=400)
     p.save()
     return Response(_product_row(p), status=201)
+
+
+@api_view(['GET'])
+@permission_classes([IsAdminUser])
+def product_next_sku(request):
+    """GET /api/admin/shop/products/next-sku/?category_id=&product_id= → {prefix, sku} for the product form."""
+    c = get_object_or_404(ProductCategory, id=request.query_params.get('category_id'))
+    pid = request.query_params.get('product_id')
+    return Response({'prefix': sku_prefix(c), 'sku': next_sku(c, exclude_id=int(pid) if str(pid).isdigit() else None)})
 
 
 @api_view(['PATCH', 'DELETE'])

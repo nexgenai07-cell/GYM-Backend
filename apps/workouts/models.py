@@ -71,6 +71,52 @@ class Exercise(models.Model):
         return self.name
 
 
+class ExerciseVideo(models.Model):
+    """
+    A how-to video for a machine, added by a coach (or the gym). Basic videos are free for every
+    member; Advanced and Premium ones are included in some membership plans
+    (MembershipPlan.video_access) or bought one by one (VideoPurchase).
+    """
+    TIER_CHOICES = [
+        ('basic', 'Basic (free)'),
+        ('advanced', 'Advanced'),
+        ('premium', 'Premium'),
+    ]
+    TIER_RANK = {'basic': 0, 'advanced': 1, 'premium': 2}
+
+    exercise = models.ForeignKey(Exercise, on_delete=models.CASCADE, related_name='videos')
+    coach = models.ForeignKey('catalog.TrainerProfile', on_delete=models.SET_NULL, null=True, blank=True,
+                              related_name='machine_videos')
+    tier = models.CharField(max_length=10, choices=TIER_CHOICES, default='basic')
+    title = models.CharField(max_length=120)
+    description = models.TextField(blank=True)
+    video_url = models.URLField()
+    duration_minutes = models.PositiveIntegerField(default=5)
+    price = models.DecimalField(max_digits=8, decimal_places=2, default=0)   # 0 for basic videos
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = 'exercise_videos'
+        ordering = ['exercise_id', 'created_at']
+
+    def __str__(self):
+        return f'{self.exercise.name} — {self.title} ({self.tier})'
+
+
+class VideoPurchase(models.Model):
+    """A member bought one Advanced/Premium video; it stays unlocked for them."""
+    member = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='video_purchases')
+    video = models.ForeignKey(ExerciseVideo, on_delete=models.PROTECT, related_name='purchases')
+    amount = models.DecimalField(max_digits=8, decimal_places=2)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'video_purchases'
+        unique_together = ['member', 'video']
+
+
 class Workout(models.Model):
     """A single workout session."""
     STATUS_CHOICES = [

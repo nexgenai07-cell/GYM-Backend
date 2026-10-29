@@ -6,6 +6,7 @@ from unittest.mock import patch
 from django.contrib.auth import get_user_model
 from django.core import mail
 from django.test import override_settings
+from django.utils import timezone
 from rest_framework.test import APITestCase
 
 from apps.members.models import CheckIn, FacilityAddon, Membership, MembershipPlan, MembershipRegistration as R
@@ -394,12 +395,12 @@ class ReportsTests(ConsoleBase):
         CheckIn.objects.create(member=self.member, zone='Main floor')
         keys = [t['key'] for t in self.client.get('/api/reports/templates/').data]
         self.assertEqual(set(keys), {'revenue', 'finance', 'members', 'attendance', 'machines', 'trainers'})
-        today = date.today().isoformat()
+        today = timezone.localdate().isoformat()        # gym time, like the reports
         for k in keys:
             r = self.client.post('/api/reports/generate/', {'template_key': k, 'start': '2025-01-01', 'end': today},
                                  format='json')
             self.assertEqual(r.status_code, 201, k)
-        r = self.client.post('/api/reports/generate/', {'template_key': 'revenue', 'start': date.today().replace(day=1).isoformat(),
+        r = self.client.post('/api/reports/generate/', {'template_key': 'revenue', 'start': timezone.localdate().replace(day=1).isoformat(),
                                                         'end': today}, format='json')
         self.assertEqual((r.status_code, r.data['row_count'], r.data['format']), (201, 2, 'CSV'))   # 1 payment + total
         body = self.client.get(f"/api/reports/history/{r.data['report_id']}/download/").content.decode('utf-8-sig')
@@ -493,9 +494,15 @@ class ActivityBadgeTests(ConsoleBase):
         from apps.catalog.models import Course, Enrollment, TrainerProfile
         t = TrainerProfile.objects.create(user=self.manager, title='Coach')
         c = Course.objects.create(trainer=t, title='Base', description='x', category='Strength', status='published')
-        Enrollment.objects.create(member=self.member, course=c)
-        counts = self.client.get('/api/admin/activity/').data
-        self.assertEqual((counts['trainers'], counts['members']), (1, 1))
+        old = Enrollment.objects.create(member=self.member, course=c)
+        # a new admin's first look: past activity isn't news to them
+        self.assertEqual(set(self.client.get('/api/admin/activity/').data.values()), {0})
+        self.client.force_authenticate(self.manager)
+        self.client.get('/api/admin/activity/')
+        old.delete()
+        Enrollment.objects.create(member=self.member, course=c)              # happens after both first looks
+        self.client.force_authenticate(self.admin)
+        self.assertEqual(self.client.get('/api/admin/activity/').data['trainers'], 1)
         self.client.post('/api/admin/activity/', {'section': 'trainers'}, format='json')
         self.assertEqual(self.client.get('/api/admin/activity/').data['trainers'], 0)
         self.client.force_authenticate(self.manager)                      # per admin: the manager still sees it

@@ -22,12 +22,15 @@ urlpatterns = [
     path('machines/categories/', machines_ops.machine_categories, name='machine-categories'),
     path('machines/<int:exercise_id>/', machines_ops.machine_update, name='machine-update'),
     path('machines/<int:exercise_id>/regenerate-qr/', machines_ops.regenerate_qr, name='regenerate-qr'),
+    path('machines/<int:exercise_id>/videos/', machines_ops.machine_videos, name='machine-videos'),
+    path('machine-videos/<int:video_id>/', machines_ops.machine_video_detail, name='machine-video-detail'),
 
         # Trainers
     path('trainers/', catalog_ops.trainers, name='trainers-list'),
     path('trainers/stats/', catalog_ops.trainer_stats, name='trainer-stats'),
     path('trainers/<int:trainer_id>/', catalog_ops.trainer_update, name='trainer-update'),
     path('trainers/<int:trainer_id>/photo/', catalog_ops.trainer_photo, name='trainer-photo'),
+    path('trainers/<int:trainer_id>/portal-access/', catalog_ops.trainer_portal_access, name='trainer-portal-access'),
     path('courses/', catalog_ops.courses, name='courses'),
     path('courses/stats/', catalog_ops.course_stats, name='course-stats'),
     path('courses/<int:course_id>/', catalog_ops.course_detail, name='course-detail'),
@@ -38,6 +41,7 @@ urlpatterns = [
     path('staff/stats/', staff_ops.staff_stats, name='staff-stats'),
     path('staff/<int:user_id>/', staff_ops.staff_update, name='staff-update'),
     path('staff/<int:user_id>/send-sign-in/', staff_ops.staff_send_signin, name='staff-send-sign-in'),
+    path('staff/<int:user_id>/reset-2fa/', staff_ops.staff_reset_2fa, name='staff-reset-2fa'),
     # Nutrition
     path('nutrition/nutritionists/', nutrition_ops.nutritionists, name='nutritionists'),
     path('nutrition/nutritionists/<int:nutritionist_id>/', nutrition_ops.nutritionist_update, name='nutritionist-update'),
@@ -49,6 +53,7 @@ urlpatterns = [
 
     # Shop catalogue
     path('shop/products/', shop_ops.products, name='shop-products'),
+    path('shop/products/next-sku/', shop_ops.product_next_sku, name='shop-product-next-sku'),
     path('shop/products/<int:product_id>/', shop_ops.product_detail, name='shop-product'),
     path('shop/products/<int:product_id>/image/', shop_ops.product_image, name='shop-product-image'),
     path('shop/stats/', shop_ops.shop_stats, name='shop-stats'),

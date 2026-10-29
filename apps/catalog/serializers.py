@@ -124,13 +124,27 @@ class CourseDetailSerializer(serializers.ModelSerializer):
 class EnrollmentSerializer(serializers.ModelSerializer):
     course = CourseListSerializer(read_only=True)
     course_id = serializers.IntegerField(write_only=True)
+    # Worked out from the days actually done, so it stays right when lessons are added or removed.
+    progress_percent = serializers.SerializerMethodField()
+    completed_count = serializers.SerializerMethodField()
+    total_modules = serializers.SerializerMethodField()
+
+    def get_completed_count(self, obj):
+        return obj.completed_modules.count()
+
+    def get_total_modules(self, obj):
+        return obj.course.modules.count()
+
+    def get_progress_percent(self, obj):
+        total = self.get_total_modules(obj)
+        return int(self.get_completed_count(obj) * 100 / total) if total else 0
 
     class Meta:
         model = Enrollment
         fields = [
             'id', 'course', 'course_id', 'status',
             'enrolled_at', 'completed_at',
-            'progress_percent', 'amount_paid', 'payment_ref',
+            'progress_percent', 'completed_count', 'total_modules', 'amount_paid', 'payment_ref',
         ]
         read_only_fields = [
             'id', 'status', 'enrolled_at', 'completed_at',

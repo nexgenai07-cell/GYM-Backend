@@ -64,6 +64,12 @@ def alerts(request):
         f'{plans} member{"s" if plans != 1 else ""} asked for a plan and {"are" if plans != 1 else "is"} on starter targets.',
         '/admin/nutrition')
 
+    from apps.catalog.models import Course
+    pending = Course.objects.filter(status='pending').count()
+    add('courses', 'rate_review', pending, 'Courses to review',
+        f'{pending} course{"s" if pending != 1 else ""} from coaches waiting to be published or sent back.',
+        '/admin/trainers?tab=courses&status=pending', 'high')
+
     expiring = Membership.objects.filter(status__in=['active', 'expiring'], expiry_date__gt=today,
                                          expiry_date__lte=today + timedelta(days=7)).count()
     add('expiring', 'hourglass_bottom', expiring, 'Memberships ending this week',
@@ -151,5 +157,12 @@ def activity(request):
         AdminSeen.objects.update_or_create(user=request.user, section=section, defaults={'seen_at': timezone.now()})
         return Response({section: 0})
     seen = dict(AdminSeen.objects.filter(user=request.user).values_list('section', 'seen_at'))
-    default = timezone.now() - timedelta(days=FIRST_LOOK_DAYS)
+    if not seen:
+        # A new admin (or a member just promoted) starts clean: everything before their first
+        # look counts as seen, so the bubbles only show what happens from now on.
+        now = timezone.now()
+        AdminSeen.objects.bulk_create([AdminSeen(user=request.user, section=k, seen_at=now) for k in counters],
+                                      ignore_conflicts=True)
+        return Response({k: 0 for k in counters})
+    default = timezone.now() - timedelta(days=FIRST_LOOK_DAYS)   # a section added after their first look
     return Response({k: fn(seen.get(k, default)) for k, fn in counters.items()})

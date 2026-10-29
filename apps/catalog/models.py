@@ -115,9 +115,11 @@ class Course(models.Model):
     price = models.DecimalField(max_digits=8, decimal_places=2, default=0)
     is_included_with_pro = models.BooleanField(default=False)
 
-    # Status
+    # Status — coaches write drafts and send them for review (pending); the gym publishes them.
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='draft')
     is_featured = models.BooleanField(default=False)
+    submitted_at = models.DateTimeField(null=True, blank=True)       # last sent for review
+    review_note = models.TextField(blank=True, db_default='')       # why the gym sent it back
 
     # Metrics
     rating = models.DecimalField(max_digits=3, decimal_places=2, default=0)
@@ -299,3 +301,16 @@ class TrainerReview(models.Model):
 
     def __str__(self):
         return f"{self.trainer} — {self.rating}★"
+
+def enrollment_started(enrollment):
+    """Tell the coach their course has a new student and the gym about the purchase."""
+    from apps.notifications.service import notify_coach, notify_staff
+    course, member = enrollment.course, enrollment.member
+    who = member.full_name or member.email
+    paid = enrollment.amount_paid or 0
+    notify_coach(course.trainer, 'course', 'A member started your course',
+                 f'{who} enrolled in “{course.title}” and is starting Day 1.', icon='school',
+                 action_label='My students', action_path='/coach/students')
+    notify_staff('course', 'Course purchased' if paid > 0 else 'Course enrolment',
+                 f'{who} enrolled in “{course.title}”' + (f' — paid SAR {paid}.' if paid > 0 else ' (free).'),
+                 icon='school', action_label='Open courses', action_path='/admin/trainers?tab=courses')

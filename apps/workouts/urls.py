@@ -7,6 +7,7 @@ urlpatterns = [
     # Exercises catalog
     path('exercises/', views.exercises_list, name='exercises-list'),
     path('exercises/qr/<str:qr_tag_id>/', views.exercise_by_qr, name='exercise-by-qr'),
+    path('exercises/<int:exercise_id>/videos/', views.exercise_videos, name='exercise-videos'),
 
     # Workouts
     path('', views.workouts_list, name='workouts-list'),

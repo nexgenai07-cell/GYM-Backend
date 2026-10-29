@@ -43,8 +43,13 @@ class LoginView(TokenObtainPairView):
         if locked:
             return Response({'detail': 'Too many sign-in attempts. Wait 15 minutes and try again.'},
                             status=status.HTTP_429_TOO_MANY_REQUESTS)
+        from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
+        from . import two_factor
+        serializer = self.get_serializer(data=request.data)
         try:
-            response = super().post(request, *args, **kwargs)
+            serializer.is_valid(raise_exception=True)
+        except TokenError as e:
+            raise InvalidToken(e.args[0])
         except AuthenticationFailed:   # wrong email or password
             if email:
                 ratelimit.hit('login_email', email)
@@ -58,7 +63,16 @@ class LoginView(TokenObtainPairView):
             return Response({'detail': msg}, status=status.HTTP_401_UNAUTHORIZED)
         if email:
             ratelimit.clear('login_email', email)
-        return response
+        # Password right. Accounts with 2-step verification (or roles that need it) get a ticket for
+        # the second step instead of tokens; the refresh token made by the serializer is revoked.
+        try:
+            step = two_factor.start_login(serializer.user)
+        except two_factor.TwoFactorError as e:
+            return Response({e.field: str(e), 'detail': str(e)}, status=e.status)
+        if step:
+            RefreshToken(serializer.validated_data['refresh']).blacklist()
+            return Response(step)
+        return Response(serializer.validated_data)
 
 
 # ============================================
@@ -223,8 +237,195 @@ def reset_password(request):
     user.must_change_password = False
     user.save(update_fields=['password', 'must_change_password'])
     ratelimit.clear('login_email', user.email.lower())     # a locked-out user can sign in again
-    return Response({'detail': 'Password changed. You can sign in now.',
-                     'login_path': '/admin/login' if user.role in ('admin', 'manager') else '/login'})
+    login_path = {'admin': '/admin/login', 'manager': '/admin/login', 'trainer': '/coach/login'}.get(user.role, '/login')
+    return Response({'detail': 'Password changed. You can sign in now.', 'login_path': login_path})
+
+
+# ============================================
+# 2-STEP VERIFICATION
+# ============================================
+def _tokens(user):
+    """The same body as a normal sign-in: {access, refresh, user}."""
+    from django.contrib.auth.models import update_last_login
+    refresh = CustomTokenObtainPairSerializer.get_token(user)
+    update_last_login(None, user)
+    return {'refresh': str(refresh), 'access': str(refresh.access_token), 'user': UserSerializer(user).data}
+
+
+def _tfa_error(e):
+    return Response({e.field: str(e), 'detail': str(e)}, status=e.status)
+
+
+def _need_code(request):
+    if not str(request.data.get('code') or '').strip():
+        return Response({'code': 'Enter the 6-digit code.'}, status=status.HTTP_400_BAD_REQUEST)
+    return None
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def two_factor_login_verify(request):
+    """POST /api/auth/2fa/verify/ {ticket, code} → tokens. `code` can be a backup code."""
+    from . import two_factor
+    missing = _need_code(request)
+    if missing:
+        return missing
+    try:
+        user = two_factor.verify_login(request.data.get('ticket'), request.data.get('code'))
+    except two_factor.TwoFactorError as e:
+        return _tfa_error(e)
+    return Response(_tokens(user))
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def two_factor_resend(request):
+    """POST /api/auth/2fa/resend/ {ticket} — another emailed code."""
+    from . import two_factor
+    try:
+        return Response(two_factor.resend(request.data.get('ticket')))
+    except two_factor.TwoFactorError as e:
+        return _tfa_error(e)
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def two_factor_setup_method(request):
+    """POST /api/auth/2fa/setup/method/ {ticket, method: totp|email} — at sign-in, for roles that need 2FA."""
+    from . import two_factor
+    try:
+        return Response(two_factor.choose_method(request.data.get('ticket'), request.data.get('method'),
+                                                 purposes=('setup',)))
+    except two_factor.TwoFactorError as e:
+        return _tfa_error(e)
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def two_factor_setup_confirm(request):
+    """POST /api/auth/2fa/setup/confirm/ {ticket, code} → 2FA on; tokens + backup codes (shown once)."""
+    from . import two_factor
+    missing = _need_code(request)
+    if missing:
+        return missing
+    try:
+        user, codes = two_factor.confirm_method(request.data.get('ticket'), request.data.get('code'), purposes=('setup',))
+    except two_factor.TwoFactorError as e:
+        return _tfa_error(e)
+    return Response({**_tokens(user), 'backup_codes': codes})
+
+
+TFA_CHECKS_PER_15_MIN = 5
+
+
+def _current_code_ok(request):
+    """(ok, error response). The signed-in person's current code, with a limit on wrong tries."""
+    from . import two_factor
+    key = str(request.user.id)
+    window = timedelta(minutes=15)
+    if ratelimit.count('tfa_check', key, window) >= TFA_CHECKS_PER_15_MIN:
+        return False, Response({'code': 'Too many wrong codes. Wait 15 minutes and try again.'},
+                               status=status.HTTP_429_TOO_MANY_REQUESTS)
+    if two_factor.check_current(request.user, request.data.get('code')):
+        ratelimit.clear('tfa_check', key)
+        return True, None
+    ratelimit.hit('tfa_check', key)
+    return False, Response({'code': 'That code isn’t right. Use the current code from your app or email, '
+                                    'or one of your backup codes.'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+def _tfa_status(user):
+    from . import two_factor
+    tf = two_factor.settings_for(user)
+    return {
+        'enabled': bool(tf), 'method': tf.method if tf else None,
+        'required': two_factor.is_required(user),
+        'backup_codes_left': len(tf.backup_codes or []) if tf else 0,
+        'email_available': two_factor.email_available(), 'email_hint': two_factor.email_hint(user.email),
+        'confirmed_at': tf.confirmed_at if tf else None,
+    }
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def two_factor_status(request):
+    """GET /api/auth/2fa/ — on/off, method, whether the role requires it."""
+    return Response(_tfa_status(request.user))
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def two_factor_enable(request):
+    """
+    POST /api/auth/2fa/enable/ {password, method}  → step 1 (ticket + QR key, or a code is emailed)
+    POST /api/auth/2fa/enable/ {ticket, code}      → step 2: on; returns backup codes (shown once)
+    Also switches method while it's on (the password proves it's you).
+    """
+    from . import two_factor
+    if request.data.get('ticket'):
+        missing = _need_code(request)
+        if missing:
+            return missing
+        try:
+            _, codes = two_factor.confirm_method(request.data['ticket'], request.data.get('code'),
+                                                 purposes=('enable',), user=request.user)
+        except two_factor.TwoFactorError as e:
+            return _tfa_error(e)
+        return Response({**_tfa_status(request.user), 'backup_codes': codes})
+    if not request.user.check_password(str(request.data.get('password') or '')):
+        return Response({'password': 'Your password isn’t right.'}, status=status.HTTP_400_BAD_REQUEST)
+    try:
+        ticket = two_factor.start_enable(request.user)
+        return Response({'ticket': ticket, **two_factor.choose_method(ticket, request.data.get('method'),
+                                                                      purposes=('enable',), user=request.user)})
+    except two_factor.TwoFactorError as e:
+        return _tfa_error(e)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def two_factor_send_code(request):
+    """POST /api/auth/2fa/send-code/ — emails a code to confirm a change (email method only)."""
+    from . import two_factor
+    try:
+        return Response(two_factor.request_current_code(request.user))
+    except two_factor.TwoFactorError as e:
+        return _tfa_error(e)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def two_factor_disable(request):
+    """POST /api/auth/2fa/disable/ {password, code} — members only; staff roles must keep it on."""
+    from . import two_factor
+    from .models import TwoFactor
+    if two_factor.is_required(request.user):
+        return Response({'detail': 'Your role must keep 2-step verification on. You can switch to another method instead.'},
+                        status=status.HTTP_400_BAD_REQUEST)
+    if not request.user.check_password(str(request.data.get('password') or '')):
+        return Response({'password': 'Your password isn’t right.'}, status=status.HTTP_400_BAD_REQUEST)
+    ok, err = _current_code_ok(request)
+    if not ok:
+        return err
+    TwoFactor.objects.filter(user=request.user).delete()
+    return Response(_tfa_status(request.user))
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def two_factor_backup_codes(request):
+    """POST /api/auth/2fa/backup-codes/ {code} — a fresh set (the old ones stop working)."""
+    from . import two_factor
+    from .models import TwoFactor
+    tf = two_factor.settings_for(request.user)
+    if tf is None:
+        return Response({'detail': 'Turn on 2-step verification first.'}, status=status.HTTP_400_BAD_REQUEST)
+    ok, err = _current_code_ok(request)
+    if not ok:
+        return err
+    shown, hashes = two_factor.new_backup_codes()
+    TwoFactor.objects.filter(id=tf.id).update(backup_codes=hashes)
+    return Response({**_tfa_status(request.user), 'backup_codes': shown})
 
 
 # ============================================

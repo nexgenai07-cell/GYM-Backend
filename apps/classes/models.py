@@ -41,6 +41,13 @@ class GymClass(models.Model):
     capacity = models.IntegerField(default=10)
     location = models.CharField(max_length=100, blank=True)
 
+    # Paid classes (0 = free). A class can run for a set period (starts_on → ends_on): members buy
+    # the whole run, or pay for single sessions.
+    price_per_session = models.DecimalField(max_digits=8, decimal_places=2, default=0, db_default=0)
+    full_price = models.DecimalField(max_digits=8, decimal_places=2, null=True, blank=True)
+    starts_on = models.DateField(null=True, blank=True)
+    ends_on = models.DateField(null=True, blank=True)
+
     is_active = models.BooleanField(default=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
@@ -78,3 +85,27 @@ class ClassEnrollment(models.Model):
 
     def __str__(self):
         return f"{self.gym_class.name} — {self.member.email}"
+
+
+class ClassPass(models.Model):
+    """
+    What a member paid for a paid class: the whole run (kind=full, valid to the class's last day)
+    or one session (kind=session, on session_date). Free classes need no pass.
+    """
+    KIND_CHOICES = [('full', 'Whole class'), ('session', 'One session')]
+
+    gym_class = models.ForeignKey(GymClass, on_delete=models.PROTECT, related_name='passes')
+    member = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='class_passes')
+    kind = models.CharField(max_length=10, choices=KIND_CHOICES)
+    session_date = models.DateField(null=True, blank=True)      # kind=session
+    valid_until = models.DateField()                            # last day it covers
+    amount = models.DecimalField(max_digits=8, decimal_places=2)
+    is_cancelled = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'class_passes'
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f'{self.gym_class.name} — {self.member.email} ({self.kind})'

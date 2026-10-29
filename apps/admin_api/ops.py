@@ -335,9 +335,16 @@ def trainer_hours_update(request, trainer_id):
     Replaces the trainer's weekly hours. Already-booked sessions are kept.
     """
     t = get_object_or_404(TrainerProfile.objects.select_related('user'), id=trainer_id)
-    errors = {}
+    errors = save_hours(t, request.data, errors={}, allow_rate=True)
+    if errors:
+        return Response(errors, status=400)
+    return Response(_trainer_row(t))
+
+
+def save_hours(t, data, errors, allow_rate):
+    """Validates and saves weekly hours (+ booking flags, + the rate for staff). Returns the errors."""
     windows = []
-    for n, w in enumerate(request.data.get('windows', []) or []):
+    for n, w in enumerate(data.get('windows', []) or []):
         try:
             day = int(w.get('day_of_week'))
         except (TypeError, ValueError):
@@ -353,28 +360,29 @@ def trainer_hours_update(request, trainer_id):
         day_w = sorted((s, e) for dd, s, e in windows if dd == d)
         if any(day_w[i][1] > day_w[i + 1][0] for i in range(len(day_w) - 1)):
             errors[f'day.{d}'] = 'Hours overlap on the same day.'
-    if 'hourly_rate' in request.data:
+    rate = None
+    if allow_rate and 'hourly_rate' in data:
         try:
-            rate = Decimal(str(request.data['hourly_rate'])).quantize(Decimal('0.01'))
+            rate = Decimal(str(data['hourly_rate'])).quantize(Decimal('0.01'))
             if rate < 0:
                 raise InvalidOperation
         except (InvalidOperation, ValueError):
             errors['hourly_rate'] = 'Enter a rate in SAR.'
     if errors:
-        return Response(errors, status=400)
+        return errors
 
     with transaction.atomic():
-        if 'hourly_rate' in request.data:
+        if rate is not None:
             t.hourly_rate = rate
         for flag in ('is_accepting_clients', 'offers_1on1'):
-            if flag in request.data:
-                setattr(t, flag, bool(request.data[flag]))
+            if flag in data:
+                setattr(t, flag, bool(data[flag]))
         t.save()
-        if 'windows' in request.data:
+        if 'windows' in data:
             t.availability.all().delete()
             TrainerAvailability.objects.bulk_create(
                 TrainerAvailability(trainer=t, day_of_week=d, start_time=s, end_time=e) for d, s, e in windows)
-    return Response(_trainer_row(t))
+    return errors
 
 
 def _session_row(s):
@@ -408,27 +416,39 @@ def trainer_session_status(request, session_id):
     POST /api/admin/trainer-sessions/<id>/status/ { status: completed | no_show | cancelled }
     Staff cancelling a paid session refunds it to the member's locker credit.
     """
-    new = request.data.get('status')
+    row, error = change_session_status(session_id, request.data.get('status'), by='the gym')
+    return Response(error, status=400) if error else Response(row)
+
+
+def change_session_status(session_id, new, by, trainer_id=None):
+    """
+    (row, None) or (None, {detail}). Completed / no-show / cancelled; a cancelled paid session is
+    refunded to the member's locker credit. `trainer_id` limits it to that coach's own sessions.
+    """
     if new not in ('completed', 'no_show', 'cancelled'):
-        return Response({'detail': 'Status must be completed, no_show or cancelled.'}, status=400)
+        return None, {'detail': 'Status must be completed, no_show or cancelled.'}
     with transaction.atomic():
-        s = get_object_or_404(TrainerSession.objects.select_for_update().select_related('trainer__user', 'member'),
-                              id=session_id)
+        qs = TrainerSession.objects.select_for_update().select_related('trainer__user', 'member')
+        if trainer_id is not None:
+            qs = qs.filter(trainer_id=trainer_id)
+        s = get_object_or_404(qs, id=session_id)
         if s.status != 'scheduled':
-            return Response({'detail': f'This session is already {s.status}.'}, status=400)
+            return None, {'detail': f'This session is already {s.status}.'}
+        if new in ('completed', 'no_show') and s.scheduled_at > timezone.now():
+            return None, {'detail': 'This session hasn’t started yet — mark it after it begins.'}
         s.status = new
         s.save(update_fields=['status'])
         if new == 'cancelled' and s.amount_charged:
             from apps.payments.models import LockerCredit
             credit, _ = LockerCredit.objects.select_for_update().get_or_create(member=s.member)
             LockerCredit.objects.filter(id=credit.id).update(balance=F('balance') + s.amount_charged)
-            gateway.record_transaction(s.member, f'Refund — session #{s.id} cancelled by the gym', 'refund',
+            gateway.record_transaction(s.member, f'Refund — session #{s.id} cancelled by {by}', 'refund',
                                        -s.amount_charged, 'Locker credit', f'session:{s.id}')
     if new == 'cancelled':
         when = timezone.localtime(s.scheduled_at).strftime('%d %b %H:%M')
-        notify(s.member, 'trainer', 'Session cancelled by the gym',
+        notify(s.member, 'trainer', f'Session cancelled by {by}',
                f'Your session with {s.trainer.user.full_name} on {when} was cancelled'
                + (f'; SAR {s.amount_charged} is back in your locker credit.' if s.amount_charged else '.'),
                icon='event_busy', priority='high', action_label='Book again',
                action_path=f'/dashboard/trainers/{s.trainer_id}')
-    return Response(_session_row(s))
+    return _session_row(s), None

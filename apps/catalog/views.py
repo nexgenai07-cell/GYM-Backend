@@ -12,6 +12,7 @@ from .models import (
     TrainerProfile, TrainerAvailability,
     Course, CourseModule, Enrollment,
     TrainerSession, CourseReview, TrainerReview,
+    enrollment_started,
 )
 from .serializers import (
     TrainerProfileSerializer, TrainerAvailabilitySerializer,
@@ -182,6 +183,7 @@ def my_enrollments(request):
 
     enrollment = Enrollment.objects.create(member=request.user, course=course, amount_paid=0)
     Course.objects.filter(id=course.id).update(total_enrolled=F('total_enrolled') + 1)
+    enrollment_started(enrollment)
 
     return Response(EnrollmentSerializer(enrollment).data, status=status.HTTP_201_CREATED)
 
@@ -465,15 +467,17 @@ def course_player(request, course_id):
             'is_current': is_current,
         })
 
+    total = len(module_data)
+    done = sum(m['is_completed'] for m in module_data)
     return Response({
         'course': CourseListSerializer(course).data,
         'trainer': TrainerProfileSerializer(course.trainer).data,
         'enrollment': {
             'id': enrollment.id,
             'status': enrollment.status,
-            'progress_percent': enrollment.progress_percent,
-            'completed_count': len(completed_ids),
-            'total_modules': modules.count(),
+            'progress_percent': int(done * 100 / total) if total else 0,
+            'completed_count': done,
+            'total_modules': total,
         },
         'modules': module_data,
         'current_module': {

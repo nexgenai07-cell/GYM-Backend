@@ -190,6 +190,8 @@ def checkout(request):
         | { "purpose": "trainer_session", "session_id": 12 }
         | { "purpose": "course", "course_id": 3 }
         | { "purpose": "renewal", "plan_id": 2, "months": 3 }
+        | { "purpose": "video", "video_id": 7 }
+        | { "purpose": "class_pass", "class_id": 4, "kind": "full" | "session", "date": "2026-11-03" }
         + optional "method": "locker_credit" to pay from the balance right away.
     Returns the intent and, for card payments, the Moyasar form parameters.
     """

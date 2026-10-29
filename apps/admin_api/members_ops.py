@@ -118,6 +118,7 @@ def member_detail(request, user_id):
     return Response({
         **_row(u, today),
         'must_change_password': u.must_change_password,
+        'two_factor': u.two_factor.method if hasattr(u, 'two_factor') and u.two_factor.enabled else None,
         'membership': MembershipSerializer(m).data if m else None,
         'frozen_until': m.frozen_until if m and m.effectively_frozen else None,
         'facilities': [{'name': f.facility_name, 'expires_on': f.expires_on}
@@ -277,6 +278,7 @@ def member_action(request, user_id):
     { action: extend, months, payment: cash|card_terminal|complimentary, amount?, note? }
     { action: freeze, days } | { action: unfreeze } | { action: message, title, message }
     { action: reset_password } | { action: deactivate } | { action: reactivate }
+    { action: reset_2fa }   — turns 2-step verification off (lost phone); they can turn it on again
     """
     u = get_object_or_404(User.objects.select_related('membership__plan'), id=user_id)
     action = request.data.get('action')
@@ -296,6 +298,8 @@ def member_action(request, user_id):
             err = _message(u, request.data)
         elif action == 'reset_password':
             err = _reset_password(u, request.user)
+        elif action == 'reset_2fa':
+            err = reset_two_factor(u, request.user)
         elif action in ('deactivate', 'reactivate'):
             u.is_active = action == 'reactivate'
             u.save(update_fields=['is_active'])
@@ -305,6 +309,23 @@ def member_action(request, user_id):
     if err:
         return Response({'detail': err}, status=400)
     return Response(_row(User.objects.select_related('membership__plan').get(id=u.id), timezone.localdate()))
+
+
+def reset_two_factor(u, staff):
+    """Turns someone's 2-step verification off. Staff roles set it up again at their next sign-in."""
+    from apps.accounts.models import TwoFactor
+    from apps.accounts.two_factor import is_required
+    if not TwoFactor.objects.filter(user=u).exists():
+        return f'{u.full_name or u.email} doesn’t have 2-step verification on.'
+    TwoFactor.objects.filter(user=u).delete()
+    logger.warning('2FA reset for %s by %s', u.email, staff.email)
+    notify(u, 'system', '2-step verification was reset',
+           'The gym turned off 2-step verification on your account. '
+           + ('You’ll set it up again the next time you sign in.' if is_required(u)
+              else 'Turn it on again from your profile to keep your account safe.')
+           + ' If you didn’t ask for this, contact the front desk.', icon='shield', priority='high',
+           action_label='Security settings', action_path='/dashboard/profile?tab=security')
+    return None
 
 
 @api_view(['POST'])

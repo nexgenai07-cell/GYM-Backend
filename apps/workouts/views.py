@@ -3,6 +3,7 @@ from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
+from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.db.models import Sum, Count, Max, Avg, Q
 from datetime import timedelta
@@ -445,3 +446,34 @@ def _notify_pr(member, exercise, workout_set):
     notify(member, 'achievement', 'New personal record!',
            f'{exercise.name}: {workout_set.weight_kg:g} kg × {workout_set.reps}.', icon='emoji_events',
            action_label='View records', action_path='/dashboard/profile')
+
+
+# ============================================
+# MACHINE VIDEOS (Basic free · Advanced/Premium by plan or purchase)
+# ============================================
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def exercise_videos(request, exercise_id):
+    """
+    GET /api/workouts/exercises/<id>/videos/
+    Every video for the machine with whether the member can watch it. Locked videos come without
+    their link, with the price and the plans that include them.
+    """
+    from . import videos as vids
+    from .models import VideoPurchase
+    ex = get_object_or_404(Exercise, id=exercise_id, is_active=True)
+    level, plan_name = vids.plan_level(request.user)
+    bought = set(VideoPurchase.objects.filter(member=request.user).values_list('video_id', flat=True))
+    included = {t: vids.plans_including(t) for t in ('advanced', 'premium')}
+    rows = []
+    if ex.video_url:      # the machine's own walkthrough link (set on the Machines page) is a free video
+        rows.append({'id': None, 'tier': 'basic', 'tier_label': vids.TIERS['basic'], 'title': 'Machine walkthrough',
+                     'description': '', 'duration_minutes': None, 'price': '0', 'coach': 'Smart Gym',
+                     'locked': False, 'access': 'free', 'video_url': ex.video_url, 'included_in': []})
+    for v in ex.videos.filter(is_active=True).select_related('coach__user').order_by('created_at'):
+        can, why = vids.access(request.user, v, level, bought)
+        rows.append(vids.member_row(v, can, why, included.get(v.tier, [])))
+    rows.sort(key=lambda r: vids.RANK[r['tier']])
+    names = {0: 'Basic videos', 1: 'Basic + Advanced videos', 2: 'All videos'}
+    return Response({'exercise_id': ex.id, 'plan': plan_name, 'plan_level': level,
+                     'plan_includes': names[level], 'videos': rows})

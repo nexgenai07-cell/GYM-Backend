@@ -225,3 +225,54 @@ def machine_categories(request):
         'categories': [{'value': k, 'label': v} for k, v in Exercise.CATEGORY_CHOICES],
         'muscles': [{'value': k, 'label': v} for k, v in Exercise.MUSCLE_CHOICES],
     })
+
+
+# ============================================================
+# MACHINE VIDEOS (coaches add them; the gym can add, edit and hide any)
+# ============================================================
+@api_view(['GET', 'POST'])
+@permission_classes([IsAdminUser])
+def machine_videos(request, exercise_id):
+    """GET /api/admin/machines/<id>/videos/ · POST {tier, title, video_url, duration_minutes, price, coach_id?}"""
+    from apps.catalog.models import TrainerProfile
+    from apps.workouts import videos as vids
+    from apps.workouts.models import ExerciseVideo
+    ex = get_object_or_404(Exercise, id=exercise_id)
+    if request.method == 'GET':
+        qs = vids.with_sales(ExerciseVideo.objects.filter(exercise=ex)).order_by('created_at')
+        return Response([vids.coach_row(v) for v in qs])
+    errors = {}
+    coach = None
+    if request.data.get('coach_id'):
+        coach = TrainerProfile.objects.filter(id=request.data['coach_id']).first()
+        if coach is None:
+            errors['coach_id'] = 'Choose a coach.'
+    v = ExerciseVideo(exercise=ex, coach=coach, tier='basic')
+    vids.apply(v, {'title': '', 'video_url': '', 'tier': 'basic', 'price': 0, **request.data}, errors)
+    if errors:
+        return Response(errors, status=400)
+    v.save()
+    return Response(vids.coach_row(v), status=201)
+
+
+@api_view(['PATCH', 'DELETE'])
+@permission_classes([IsAdminUser])
+def machine_video_detail(request, video_id):
+    """PATCH /api/admin/machine-videos/<id>/ any field · DELETE when nobody bought it (hide it otherwise)."""
+    from apps.workouts import videos as vids
+    from apps.workouts.models import ExerciseVideo
+    v = get_object_or_404(ExerciseVideo.objects.select_related('exercise', 'coach__user'), id=video_id)
+    if request.method == 'DELETE':
+        if v.purchases.exists():
+            return Response({'detail': 'Members have bought this video — hide it instead, so they keep access.'}, status=400)
+        v.delete()
+        return Response(status=204)
+    errors = {}
+    if v.purchases.exists() and 'tier' in request.data and request.data['tier'] != v.tier:
+        errors['tier'] = 'Members bought this video, so its tier can’t change.'
+    if not errors:
+        vids.apply(v, request.data, errors)
+    if errors:
+        return Response(errors, status=400)
+    v.save()
+    return Response(vids.coach_row(v))

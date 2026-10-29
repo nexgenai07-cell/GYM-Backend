@@ -126,7 +126,7 @@ class AdminPlanSerializer(serializers.ModelSerializer):
         model = MembershipPlan
         fields = ['id', 'name', 'display_name', 'display_name_ar', 'description', 'description_ar',
                   'price_monthly', 'price_annual', 'features', 'features_ar', 'session_limit_minutes',
-                  'is_active', 'registrations', 'created_at']
+                  'video_access', 'is_active', 'registrations', 'created_at']
         read_only_fields = ['id', 'registrations', 'created_at']
 
     def validate_name(self, value):

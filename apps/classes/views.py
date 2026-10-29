@@ -1,6 +1,8 @@
 """
 Weekly group classes. A booking is a standing weekly spot in one class (enrolled), or a place
 in its waitlist; when someone leaves, the earliest waitlisted member moves up automatically.
+Paid classes are locked until paid — the whole class or single sessions (apps.classes.passes,
+paid through the payments gateway with purpose "class_pass").
 
 Members:  GET  /api/classes/                 this week's timetable with my booking state
           POST /api/classes/<id>/book/       spot, or waitlist when full
@@ -26,7 +28,8 @@ from apps.admin_api.permissions import IsAdminUser
 from apps.catalog.models import TrainerProfile
 from apps.notifications.service import notify
 
-from .models import ClassEnrollment, GymClass
+from . import passes
+from .models import ClassEnrollment, ClassPass, GymClass
 
 DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
 CATEGORIES = dict(GymClass.CATEGORY_CHOICES)
@@ -51,6 +54,7 @@ def _row(c, mine=None):
     trainer = c.trainer.user.full_name if c.trainer_id and c.trainer.user.full_name else (
         c.trainer.user.email if c.trainer_id else '')
     end_min = c.start_time.hour * 60 + c.start_time.minute + c.duration_minutes
+    offer = passes.full_offer(c)
     row = {
         'id': c.id, 'name': c.name, 'category': c.category, 'category_label': CATEGORIES.get(c.category, c.category),
         'level': c.level, 'level_label': LEVELS.get(c.level, c.level), 'description': c.description,
@@ -61,6 +65,10 @@ def _row(c, mine=None):
         'duration_minutes': c.duration_minutes, 'capacity': c.capacity, 'location': c.location,
         'is_active': c.is_active, 'booked': booked, 'waitlisted': waiting,
         'spots_left': max(c.capacity - booked, 0), 'status': 'full' if booked >= c.capacity else 'open',
+        'is_paid': passes.is_paid(c), 'price_per_session': str(c.price_per_session or 0),
+        'full_price': str(c.full_price) if c.full_price is not None else None,
+        'starts_on': c.starts_on, 'ends_on': c.ends_on,
+        'full_offer': ({**offer, 'price': str(offer['price'])} if offer else None),
     }
     if mine is not None:
         row['my_status'] = mine.get(c.id)        # enrolled | waitlist | None
@@ -89,14 +97,32 @@ def _promote_waitlist(c):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def member_classes(request):
-    """GET /api/classes/ — active classes, Monday → Sunday, with the caller's booking state."""
+    """
+    GET /api/classes/ — active classes, Monday → Sunday, with the caller's booking state. Paid
+    classes also carry what the member paid for (`my_access`), whether they're `locked`, and the
+    upcoming single-session dates with free spots.
+    """
     mine = {}
     for e in ClassEnrollment.objects.filter(member=request.user).exclude(status='cancelled'):
         if e.status in ('enrolled', 'attended', 'waitlist'):
             mine[e.gym_class_id] = 'waitlist' if e.status == 'waitlist' else 'enrolled'
             mine[('at', e.gym_class_id)] = e.enrolled_at
-    classes = _annotated(GymClass.objects.filter(is_active=True)).order_by('day_of_week', 'start_time')
-    return Response({'days': DAYS, 'classes': [_row(c, mine) for c in classes]})
+    today = timezone.localdate()
+    classes = (_annotated(GymClass.objects.filter(is_active=True).exclude(ends_on__lt=today))
+               .order_by('day_of_week', 'start_time'))
+    rows = []
+    for c in classes:
+        row = _row(c, mine)
+        if row['is_paid']:
+            access = passes.member_access(request.user, c, today)
+            row['my_access'] = access
+            row['locked'] = not (access['full'] or access['sessions'] or row['my_status'] == 'enrolled')
+            row['session_dates'] = [{'date': d, 'spots_left': max(c.capacity - passes.booked_on(c, d), 0)}
+                                    for d in passes.bookable_dates(c, today)] if (c.price_per_session or 0) > 0 else []
+        else:
+            row['locked'] = False
+        rows.append(row)
+    return Response({'days': DAYS, 'classes': rows})
 
 
 @api_view(['POST'])
@@ -108,6 +134,13 @@ def book_class(request, class_id):
         return Response({'detail': 'You need an active membership to book classes.'}, status=403)
     with transaction.atomic():
         c = get_object_or_404(GymClass.objects.select_for_update(), id=class_id, is_active=True)
+        if passes.is_paid(c):
+            offer = passes.full_offer(c)
+            return Response({'detail': f'{c.name} is a paid class — pay for the whole class or a single session to join.',
+                             'payment_required': True, 'price_per_session': str(c.price_per_session or 0),
+                             'full_offer': ({**offer, 'price': str(offer['price'])} if offer else None)}, status=402)
+        if passes.has_ended(c):
+            return Response({'detail': 'This class has finished.'}, status=400)
         e = ClassEnrollment.objects.filter(gym_class=c, member=request.user).first()
         if e and e.status in ('enrolled', 'attended', 'waitlist'):
             return Response({'detail': 'You’re already booked into this class.'}, status=400)
@@ -127,8 +160,15 @@ def book_class(request, class_id):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def cancel_class(request, class_id):
-    """POST /api/classes/<id>/cancel/"""
+    """
+    POST /api/classes/<id>/cancel/            — free class: frees the standing spot
+    POST /api/classes/<id>/cancel/ {date}     — paid single session: refunded to locker credit up to
+                                                24 h before it starts
+    A paid whole-class spot is refunded by the front desk (Finance → payments).
+    """
     c = get_object_or_404(GymClass, id=class_id)
+    if passes.is_paid(c):
+        return _cancel_paid(request, c)
     e = ClassEnrollment.objects.filter(gym_class=c, member=request.user, status__in=BOOKED + ['waitlist']).first()
     if e is None:
         return Response({'detail': 'You aren’t booked into this class.'}, status=400)
@@ -138,6 +178,36 @@ def cancel_class(request, class_id):
     if was_booked:
         _promote_waitlist(c)
     return Response({'detail': f'Cancelled — you’re no longer booked into {c.name}.'})
+
+
+REFUND_HOURS = 24
+
+
+def _cancel_paid(request, c):
+    from datetime import datetime, timedelta
+    from django.db.models import F
+    from apps.payments.gateway import record_transaction
+    from apps.payments.models import LockerCredit
+    day = passes.parse_day(request.data.get('date'))
+    if day is None:
+        return Response({'detail': 'Whole-class bookings are refunded by the front desk — ask them to help.'}, status=400)
+    with transaction.atomic():
+        p = ClassPass.objects.select_for_update().filter(gym_class=c, member=request.user, kind='session',
+                                                         session_date=day, is_cancelled=False).first()
+        if p is None:
+            return Response({'detail': 'You don’t have a paid session on that date.'}, status=400)
+        start = timezone.make_aware(datetime.combine(day, c.start_time), timezone.get_current_timezone())
+        if start - timezone.now() < timedelta(hours=REFUND_HOURS):
+            return Response({'detail': f'Sessions can be cancelled up to {REFUND_HOURS} hours before they start.'}, status=400)
+        p.is_cancelled = True
+        p.save(update_fields=['is_cancelled'])
+        credit, _ = LockerCredit.objects.select_for_update().get_or_create(member=request.user)
+        LockerCredit.objects.filter(id=credit.id).update(balance=F('balance') + p.amount)
+        record_transaction(request.user, f'Refund — {c.name} on {day:%d %b}', 'refund', -p.amount,
+                           'Locker credit', f'class-pass:{p.id}')
+    notify(request.user, 'attendance', 'Session cancelled', f'SAR {p.amount} for {c.name} on {day:%a %d %b} is back '
+           'in your locker credit.', icon='event_busy', action_label='View payments', action_path='/dashboard/payments')
+    return Response({'detail': f'Cancelled — SAR {p.amount} is back in your locker credit.'})
 
 
 # ============================================================
@@ -241,6 +311,39 @@ def _apply(c, data, errors):
                 errors[f] = f'Enter a number from {lo} to {hi}.'
     if 'is_active' in data:
         c.is_active = bool(data.get('is_active'))
+    _apply_paid(c, data, errors)
+
+
+def _apply_paid(c, data, errors):
+    """Price per session (0 = free), optional whole-class price, and the dates the class runs."""
+    from decimal import Decimal, InvalidOperation
+    for f in ('price_per_session', 'full_price'):
+        if f in data:
+            raw = data.get(f)
+            if raw in (None, '') and f == 'full_price':
+                c.full_price = None
+                continue
+            try:
+                v = Decimal(str(raw if raw not in (None, '') else 0)).quantize(Decimal('0.01'))
+                if not Decimal('0') <= v <= Decimal('10000'):
+                    raise InvalidOperation
+                setattr(c, f, v)
+            except (InvalidOperation, ValueError):
+                errors[f] = 'Enter a price from 0 to 10,000 SAR.'
+    for f in ('starts_on', 'ends_on'):
+        if f in data:
+            raw = data.get(f)
+            if raw in (None, ''):
+                setattr(c, f, None)
+            else:
+                d = passes.parse_day(raw)
+                if d is None:
+                    errors[f] = 'Use a date.'
+                setattr(c, f, d)
+    if c.starts_on and c.ends_on and c.ends_on < c.starts_on:
+        errors['ends_on'] = 'The last day must be on or after the first day.'
+    if (c.full_price or 0) > 0 and not c.ends_on:
+        errors.setdefault('ends_on', 'Set the class’s last day to sell it as a whole class.')
 
 
 @api_view(['GET', 'POST'])
@@ -272,6 +375,11 @@ def admin_class_detail(request, class_id):
     """PATCH edits (capacity up → waitlist moves in) · DELETE removes it and tells booked members."""
     c = get_object_or_404(GymClass.objects.select_related('trainer__user'), id=class_id)
     if request.method == 'DELETE':
+        if ClassPass.objects.filter(gym_class=c, is_cancelled=False, valid_until__gte=timezone.localdate()).exists():
+            return Response({'detail': 'Members have paid for upcoming sessions of this class — pause it and refund '
+                                       'them first, or let its run finish.'}, status=400)
+        if ClassPass.objects.filter(gym_class=c).exists():
+            return Response({'detail': 'This class has payment history — pause it instead of deleting it.'}, status=400)
         for e in c.enrollments.filter(status__in=BOOKED + ['waitlist']).select_related('member'):
             notify(e.member, 'attendance', 'Class cancelled',
                    f'{c.name} on {DAYS[c.day_of_week]}s at {c.start_time:%H:%M} has been removed from the timetable.',
@@ -304,12 +412,23 @@ def admin_class_detail(request, class_id):
 @permission_classes([IsAdminUser])
 def admin_class_roster(request, class_id):
     c = get_object_or_404(GymClass, id=class_id)
+    return Response(roster(c))
+
+
+def roster(c):
+    """Standing spots + waitlist, and (paid classes) upcoming single-session bookings by date."""
     rows = (c.enrollments.filter(status__in=BOOKED + ['waitlist']).select_related('member')
             .order_by('status', 'enrolled_at'))
-    return Response({'class': _row(c), 'roster': [{
+    singles = (ClassPass.objects.filter(gym_class=c, kind='session', is_cancelled=False,
+                                        session_date__gte=timezone.localdate())
+               .select_related('member').order_by('session_date'))
+    return {'class': _row(c), 'roster': [{
         'id': e.id, 'member_id': e.member_id, 'name': e.member.full_name or e.member.email, 'email': e.member.email,
         'status': 'waitlist' if e.status == 'waitlist' else 'booked', 'since': e.enrolled_at,
-    } for e in rows]})
+    } for e in rows], 'sessions': [{
+        'id': p.id, 'member_id': p.member_id, 'name': p.member.full_name or p.member.email, 'email': p.member.email,
+        'date': p.session_date, 'amount': str(p.amount),
+    } for p in singles]}
 
 
 @api_view(['POST'])

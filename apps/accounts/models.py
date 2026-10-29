@@ -60,3 +60,46 @@ class RateEvent(models.Model):
     class Meta:
         db_table = 'rate_events'
         indexes = [models.Index(fields=['kind', 'key', 'created_at'])]
+
+
+class TwoFactor(models.Model):
+    """
+    A person's second sign-in step: an authenticator app (TOTP, RFC 6238) or a code by email.
+    Required for staff who sign in (admins, managers, coaches); members can switch it on.
+    """
+    METHOD_CHOICES = [('totp', 'Authenticator app'), ('email', 'Email code')]
+
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='two_factor')
+    method = models.CharField(max_length=10, choices=METHOD_CHOICES)
+    secret = models.CharField(max_length=64, blank=True)          # base32 TOTP key (method=totp)
+    enabled = models.BooleanField(default=False)                   # set once the first code is confirmed
+    backup_codes = models.JSONField(default=list, blank=True)      # sha256 hashes of one-time codes
+    last_totp_step = models.BigIntegerField(default=0)             # a TOTP code works once
+    confirmed_at = models.DateTimeField(null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = 'two_factor'
+
+
+class TwoFactorChallenge(models.Model):
+    """
+    A pending second step: after the password is right (login), or while turning 2FA on (setup).
+    The browser holds only the ticket; both ticket and emailed code are stored hashed.
+    """
+    PURPOSE_CHOICES = [('login', 'Sign-in'), ('setup', 'Set up at sign-in'), ('enable', 'Turn on')]
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='two_factor_challenges')
+    purpose = models.CharField(max_length=10, choices=PURPOSE_CHOICES)
+    ticket_hash = models.CharField(max_length=64, unique=True)
+    method = models.CharField(max_length=10, blank=True)
+    code_hash = models.CharField(max_length=64, blank=True)       # emailed code
+    pending_secret = models.CharField(max_length=64, blank=True)  # TOTP key being set up
+    attempts = models.PositiveSmallIntegerField(default=0)
+    sends = models.PositiveSmallIntegerField(default=0)
+    expires_at = models.DateTimeField()
+    used = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'two_factor_challenges'

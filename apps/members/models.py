@@ -27,6 +27,9 @@ class MembershipPlan(models.Model):
     session_limit_minutes = models.PositiveIntegerField(
         null=True, blank=True, help_text='Max minutes per visit. Leave empty for unlimited.',
     )
+    # Machine Guide videos included with the plan: basic (free ones only), advanced, or premium (all).
+    VIDEO_ACCESS_CHOICES = [('basic', 'Basic videos'), ('advanced', 'Basic + Advanced'), ('premium', 'All videos')]
+    video_access = models.CharField(max_length=10, choices=VIDEO_ACCESS_CHOICES, default='basic', db_default='basic')
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
 

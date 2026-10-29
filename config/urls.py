@@ -30,6 +30,7 @@ urlpatterns = [
     # ----- Existing admin dashboard API -----
     # (members, machines, finance, analytics, audit-feed, arena-heatmap, etc.)
     path('api/admin/', include('apps.admin_api.urls')),
+    path('api/coach/', include('apps.coach.urls')),
 
     # ----- Public site (no auth) -----
     path('api/public/', include('apps.public_api.urls')),

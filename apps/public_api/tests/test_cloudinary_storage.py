@@ -10,6 +10,18 @@ from apps.core.storage import CloudinaryMediaStorage
 from apps.members.models import MembershipRegistration as R
 
 from .test_payments import PaymentTestBase
+from .faces import one_face
+
+# Test photos have no real face — stub the detector to find one well-placed face.
+_faces = one_face()
+
+
+def setUpModule():
+    _faces.start()
+
+
+def tearDownModule():
+    _faces.stop()
 
 CLOUD = dict(
     CLOUDINARY_CLOUD_NAME='demo', CLOUDINARY_API_KEY='123', CLOUDINARY_API_SECRET='abc',

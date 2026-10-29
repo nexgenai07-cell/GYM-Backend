@@ -28,6 +28,18 @@ from apps.shop.models import Product, ProductCategory
 from apps.workouts.models import Exercise
 
 from .test_payments import clear_image
+from .faces import one_face
+
+# Test photos have no real face — stub the detector to find one well-placed face.
+_faces = one_face()
+
+
+def setUpModule():
+    _faces.start()
+
+
+def tearDownModule():
+    _faces.stop()
 
 User = get_user_model()
 

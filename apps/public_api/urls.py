@@ -13,6 +13,7 @@ urlpatterns = [
     path('live/',       live.public_live,        name='live'),
 
     # Public register
+    path('photo-check/',                    views.public_photo_check,      name='photo-check'),
     path('register/',                       views.public_register,         name='register'),
     path('register/<int:reg_id>/status/',   views.public_register_status,  name='register-status'),
     path('register/<int:reg_id>/payment/attach/', views.public_payment_attach, name='register-payment-attach'),

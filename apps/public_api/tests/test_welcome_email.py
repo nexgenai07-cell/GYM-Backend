@@ -10,6 +10,18 @@ from apps.members.models import MembershipRegistration as R
 from apps.members.services import approve_registration, generate_temp_password, member_portal_url
 
 from .test_payments import PaymentTestBase, SIGNUP_PASSWORD
+from .faces import one_face
+
+# Test photos have no real face — stub the detector to find one well-placed face.
+_faces = one_face()
+
+
+def setUpModule():
+    _faces.start()
+
+
+def tearDownModule():
+    _faces.stop()
 
 PROD_FRONTEND_URL = 'http://localhost:5173,https://gym-member-and-admin.vercel.app'
 APPROVED_LINE = 'You can now log in with the email and password you created during signup.'

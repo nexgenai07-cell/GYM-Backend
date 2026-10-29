@@ -4998,6 +4998,78 @@
   "ar": "تعذّر التقاط الصورة. حاول مرة أخرى."
  },
  {
+  "key": "cam.checking",
+  "page": "cam",
+  "en": "CHECKING YOUR FACE…",
+  "ar": "جارٍ التحقق من وجهك…"
+ },
+ {
+  "key": "cam.hint.verified",
+  "page": "cam",
+  "en": "✓ Face detected and clear. This photo will be used at the entrance gate.",
+  "ar": "✓ تم التعرّف على الوجه وهو واضح. ستُستخدم هذه الصورة عند بوابة الدخول."
+ },
+ {
+  "key": "cam.err.no_face",
+  "page": "cam",
+  "en": "We can't find a face in this photo. Look straight at the camera with your whole face in view and capture again.",
+  "ar": "لم نتمكن من العثور على وجه في الصورة. انظر مباشرة إلى الكاميرا مع ظهور وجهك بالكامل ثم التقطها مرة أخرى."
+ },
+ {
+  "key": "cam.err.many_faces",
+  "page": "cam",
+  "en": "More than one face is in the photo. Make sure only you are in front of the camera.",
+  "ar": "يوجد أكثر من وجه في الصورة. تأكد أنك وحدك أمام الكاميرا."
+ },
+ {
+  "key": "cam.err.face_small",
+  "page": "cam",
+  "en": "Your face is too far from the camera. Move closer so your face fills the oval.",
+  "ar": "وجهك بعيد جدًا عن الكاميرا. اقترب حتى يملأ وجهك الإطار البيضاوي."
+ },
+ {
+  "key": "cam.err.face_cut",
+  "page": "cam",
+  "en": "Part of your face is outside the photo. Keep your whole face inside the oval.",
+  "ar": "جزء من وجهك خارج الصورة. أبقِ وجهك بالكامل داخل الإطار البيضاوي."
+ },
+ {
+  "key": "cam.err.face_turned",
+  "page": "cam",
+  "en": "Your head is turned. Look straight at the camera and capture again.",
+  "ar": "رأسك مائل إلى الجانب. انظر مباشرة إلى الكاميرا ثم التقطها مرة أخرى."
+ },
+ {
+  "key": "cam.err.face_tilted",
+  "page": "cam",
+  "en": "Your head is tilted. Keep your head straight and capture again.",
+  "ar": "رأسك مائل. أبقِ رأسك مستقيمًا ثم التقطها مرة أخرى."
+ },
+ {
+  "key": "cam.err.face_dark",
+  "page": "cam",
+  "en": "Your face is too dark (the light is behind you). Face a light or a window and capture again.",
+  "ar": "وجهك مظلم جدًا (الضوء خلفك). واجه مصدر ضوء أو نافذة ثم التقطها مرة أخرى."
+ },
+ {
+  "key": "cam.err.face_bright",
+  "page": "cam",
+  "en": "Your face is too bright. Move away from direct light and capture again.",
+  "ar": "وجهك ساطع جدًا. ابتعد عن الضوء المباشر ثم التقطها مرة أخرى."
+ },
+ {
+  "key": "cam.err.face_blurry",
+  "page": "cam",
+  "en": "Your face is blurry. Hold still and capture again.",
+  "ar": "وجهك غير واضح. اثبت في مكانك ثم التقطها مرة أخرى."
+ },
+ {
+  "key": "cam.err.unavailable",
+  "page": "cam",
+  "en": "We can't check photos right now. Please try again in a few minutes.",
+  "ar": "لا يمكننا التحقق من الصور الآن. حاول مرة أخرى بعد بضع دقائق."
+ },
+ {
   "key": "fac.card.book",
   "page": "fac",
   "en": "BOOK · SAR {{price}}/MO",

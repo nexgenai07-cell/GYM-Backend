@@ -11,6 +11,18 @@ from apps.members.models import FacilityAddon, MembershipFacility, MembershipPla
 from apps.members.services import approve_registration
 from apps.public_api.serializers import RegistrationCreateSerializer
 from apps.site_content.models import SiteItem
+from .faces import one_face
+
+# Test photos have no real face — stub the detector to find one well-placed face.
+_faces = one_face()
+
+
+def setUpModule():
+    _faces.start()
+
+
+def tearDownModule():
+    _faces.stop()
 
 def png():
     import io

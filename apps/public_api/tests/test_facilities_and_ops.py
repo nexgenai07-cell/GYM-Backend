@@ -17,6 +17,18 @@ from apps.site_content.models import SiteItem
 
 from .test_member_portal import PortalBase
 from .test_payments import PaymentTestBase
+from .faces import one_face
+
+# Test photos have no real face — stub the detector to find one well-placed face.
+_faces = one_face()
+
+
+def setUpModule():
+    _faces.start()
+
+
+def tearDownModule():
+    _faces.stop()
 
 User = get_user_model()
 

@@ -140,6 +140,43 @@ def public_articles(request):
 # PUBLIC — REGISTRATION
 # ============================================================
 SIGNUPS_PER_IP_HOUR = 10
+PHOTO_CHECKS_PER_IP_HOUR = 60
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+@authentication_classes([])
+@parser_classes([MultiPartParser, FormParser])
+def public_photo_check(request):
+    """
+    POST /api/public/photo-check/   multipart: photo (file)
+    The signup camera asks right after a capture, so the person hears "no face found" at once
+    instead of after filling in the whole form. Registration runs the same check again.
+    200 {"ok": true} · 400 {"photo": [message], "code": "no_face" | "blurry" | …}
+    """
+    from apps.accounts import ratelimit
+    from apps.core.photo_quality import photo_check
+    from .serializers import MAX_PHOTO_BYTES
+
+    ip = ratelimit.client_ip(request)
+    if ratelimit.count('photo_check_ip', ip, timedelta(hours=1)) >= PHOTO_CHECKS_PER_IP_HOUR:
+        return Response({'detail': 'Too many photo checks from this connection. Try again in an hour.'},
+                        status=status.HTTP_429_TOO_MANY_REQUESTS)
+    ratelimit.hit('photo_check_ip', ip)
+    photo = request.FILES.get('photo')
+    if not photo:
+        return Response({'photo': ['Take a photo with the camera.'], 'code': 'missing'},
+                        status=status.HTTP_400_BAD_REQUEST)
+    if photo.size > MAX_PHOTO_BYTES:
+        return Response({'photo': ['Photo must be under 4 MB.'], 'code': 'too_large'},
+                        status=status.HTTP_400_BAD_REQUEST)
+    found = photo_check(photo)
+    if found:
+        code, message = found
+        return Response({'photo': [message], 'code': code},
+                        status=status.HTTP_503_SERVICE_UNAVAILABLE if code == 'unavailable'
+                        else status.HTTP_400_BAD_REQUEST)
+    return Response({'ok': True})
 
 
 @api_view(['POST'])

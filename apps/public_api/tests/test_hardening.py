@@ -3,6 +3,18 @@ from django.contrib.auth import get_user_model
 from rest_framework.test import APITestCase
 
 from apps.public_api import views as public_views
+from .faces import one_face
+
+# Test photos have no real face — stub the detector to find one well-placed face.
+_faces = one_face()
+
+
+def setUpModule():
+    _faces.start()
+
+
+def tearDownModule():
+    _faces.stop()
 
 User = get_user_model()
 

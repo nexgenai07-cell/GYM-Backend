@@ -4,9 +4,10 @@ Admin → Machines & QR. A machine is a workouts.Exercise with a QR tag; members
 """
 import logging
 import secrets
+import re
 from decimal import Decimal, InvalidOperation
 
-from django.db.models import Count, Q
+from django.db.models import Count, ProtectedError, Q
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from rest_framework.decorators import api_view, permission_classes
@@ -55,8 +56,8 @@ def _apply(ex, data, errors):
         name = str(data.get('name') or '').strip()
         if not name:
             errors['name'] = 'Required.'
-        elif len(name) > 100:
-            errors['name'] = 'Keep it under 100 characters.'
+        elif not 3 <= len(name) <= 60:
+            errors['name'] = 'Machine name must be 3–60 characters.'
         elif Exercise.objects.filter(name__iexact=name).exclude(id=ex.id).exists():
             errors['name'] = 'Another machine already has this name.'
         ex.name = name
@@ -74,6 +75,14 @@ def _apply(ex, data, errors):
             if len(v) > n:
                 errors[f] = f'Keep it under {n} characters.'
             setattr(ex, f, v)
+    if 'machine_id' in data:
+        # Floor number / asset ID: 2–4 letters, a dash and 2–3 digits ("ST-07", "CARD-112").
+        v = str(data.get('machine_id') or '').strip().upper()
+        if v and not re.fullmatch(r'[A-Z]{2,4}-\d{2,3}', v):
+            errors['machine_id'] = 'Use 2–4 letters, a dash and 2–3 digits, e.g. ST-07 or CARD-112.'
+        elif v and Exercise.objects.filter(machine_id__iexact=v).exclude(id=ex.id).exists():
+            errors['machine_id'] = f'{v} is already used by another machine.'
+        ex.machine_id = v
     for f in URL_FIELDS:
         if f in data:
             v = str(data.get(f) or '').strip()
@@ -149,11 +158,26 @@ def machines(request):
     return Response(_row(ex), status=201)
 
 
-@api_view(['PATCH'])
+@api_view(['PATCH', 'DELETE'])
 @permission_classes([IsAdminUser])
 def machine_update(request, exercise_id):
-    """PATCH /api/admin/machines/<id>/ — any field; is_active=false takes it offline (scans stop working)."""
+    """
+    PATCH  /api/admin/machines/<id>/ — any field; is_active=false takes it offline (scans stop working).
+    DELETE — only a machine no member has logged a set on (their history would point at it).
+    """
     ex = get_object_or_404(Exercise, id=exercise_id)
+    if request.method == 'DELETE':
+        used = ex.workout_entries.count()
+        if used:
+            return Response({'detail': f'{ex.name} appears in {used} logged workout{"s" if used != 1 else ""}, '
+                                       'so it can’t be deleted — take it offline instead.'}, status=400)
+        try:
+            ex.delete()
+        except ProtectedError:
+            return Response({'detail': f'{ex.name} is part of a workout template, so it can’t be deleted — '
+                                       'take it offline instead.'}, status=400)
+        logger.info('Machine %s (%s) deleted by %s', ex.name, ex.qr_tag_id, request.user.email)
+        return Response(status=204)
     errors = {}
     _apply(ex, request.data, errors)
     if errors:

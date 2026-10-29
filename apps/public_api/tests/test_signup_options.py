@@ -16,8 +16,9 @@ def png():
     import io
 
     from PIL import Image
+    from .test_payments import clear_image
     buf = io.BytesIO()
-    Image.new('RGB', (16, 16), 'red').save(buf, 'PNG')
+    clear_image().save(buf, 'PNG')
     return buf.getvalue()
 
 
@@ -36,7 +37,7 @@ class SignupOptionsTests(APITestCase):
         FacilityAddon.objects.create(item=self.pool, monthly_price=50, is_bookable=True)
 
     def data(self, **extra):
-        return {'iqama_number': '2123456789', 'full_name': 'Noor', 'email': 'noor@t.local', 'phone': '0551234567',
+        return {'iqama_number': '2123456789', 'full_name': 'Noor Saleh', 'email': 'noor@t.local', 'phone': '0551234567',
                 'age': 30, 'gender': 'female', 'plan': self.plan.id, 'duration_months': 6, 'password': 'Strong-pass-1',
                 'photo': SimpleUploadedFile('p.png', png(), content_type='image/png'), **extra}
 

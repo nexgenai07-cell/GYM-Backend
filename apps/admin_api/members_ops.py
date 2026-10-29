@@ -135,10 +135,12 @@ def member_detail(request, user_id):
 @permission_classes([IsAdminUser])
 def update_member(request, user_id):
     """PATCH /api/admin/members/<id>/update/ { first_name, last_name, phone } (+ role: admins only)"""
+    from apps.core.validators import apply_person_fields
     u = get_object_or_404(User, id=user_id)
-    for field in ('first_name', 'last_name', 'phone'):
-        if field in request.data:
-            setattr(u, field, str(request.data[field]).strip()[:150])
+    errors = {}
+    apply_person_fields(u, request.data, errors)
+    if errors:
+        return Response(errors, status=400)
     if 'role' in request.data and request.data['role'] != u.role:
         if request.user.role != 'admin':
             return Response({'detail': 'Only admins can change roles.'}, status=403)

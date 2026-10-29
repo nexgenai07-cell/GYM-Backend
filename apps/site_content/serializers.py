@@ -80,9 +80,35 @@ class ContactCreateSerializer(serializers.ModelSerializer):
 
     def validate_message(self, value):
         value = value.strip()
-        if len(value) < 5:
-            raise serializers.ValidationError('Please write a few words.')
+        if len(value) < 10:
+            raise serializers.ValidationError('Tell us a bit more — at least 10 characters.')
         return value
+
+    def validate_name(self, value):
+        from apps.core.validators import person_name_error
+        value = ' '.join(value.split())
+        msg = person_name_error(value, 'Name', max_length=120)
+        if msg:
+            raise serializers.ValidationError(msg)
+        return value
+
+    def validate_email(self, value):
+        from apps.core.validators import email_error
+        value = value.strip().lower()
+        msg = email_error(value)
+        if msg:
+            raise serializers.ValidationError(msg)
+        return value
+
+    def validate_phone(self, value):
+        from apps.core.phone import MESSAGE, normalize_saudi_mobile
+        value = (value or '').strip()
+        if not value:
+            return ''
+        phone = normalize_saudi_mobile(value)
+        if phone is None:
+            raise serializers.ValidationError(MESSAGE)
+        return phone
 
 
 class ContactMessageSerializer(serializers.ModelSerializer):
@@ -107,7 +133,29 @@ class AdminPlanSerializer(serializers.ModelSerializer):
         value = slugify(value)
         if not value:
             raise serializers.ValidationError('Use letters, numbers and dashes.')
+        qs = MembershipPlan.objects.filter(name__iexact=value)
+        if self.instance:
+            qs = qs.exclude(id=self.instance.id)
+        if qs.exists():
+            raise serializers.ValidationError(f'The code “{value}” is already used by another plan.')
         return value
+
+    def _unique_display(self, value, field, label):
+        from apps.core.validators import duplicate_error
+        value = ' '.join(str(value or '').split())
+        if field == 'display_name' and len(value) < 2:
+            raise serializers.ValidationError('Plan name must be at least 2 characters.')
+        msg = duplicate_error(MembershipPlan.objects.all(), field, value, label,
+                              exclude_id=self.instance.id if self.instance else None)
+        if msg:
+            raise serializers.ValidationError(msg)
+        return value
+
+    def validate_display_name(self, value):
+        return self._unique_display(value, 'display_name', 'A plan named')
+
+    def validate_display_name_ar(self, value):
+        return self._unique_display(value, 'display_name_ar', 'A plan with the Arabic name') if value else value
 
     def _validate_features(self, value):
         value = value or []

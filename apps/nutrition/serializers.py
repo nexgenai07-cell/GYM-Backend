@@ -69,7 +69,7 @@ class NutritionPlanSerializer(serializers.ModelSerializer):
     class Meta:
         model = NutritionPlan
         fields = [
-            'id', 'name', 'goal', 'status',
+            'id', 'name', 'goal', 'status', 'price',
             'target_calories', 'target_protein_g', 'target_carbs_g', 'target_fats_g',
             'target_water_ml',
             'cycle_weeks', 'started_at', 'ends_at',

@@ -142,20 +142,33 @@ def request_plan(request):
             status=status.HTTP_404_NOT_FOUND,
         )
 
-    # Archive any existing active plan
-    NutritionPlan.objects.filter(
-        member=request.user, status='active'
-    ).update(status='archived')
-
     defaults = GOAL_DEFAULTS[goal]
 
-    plan = NutritionPlan.objects.create(
-        member=request.user,
-        nutritionist=nutritionist,
-        goal=goal,
-        status='active',
-        **defaults,
-    )
+    # Same nutritionist, new goal: no new fee — switch the targets and send it back for review.
+    current = NutritionPlan.objects.filter(member=request.user, status='active', nutritionist=nutritionist).first()
+    if current:
+        current.goal = goal
+        current.reviewed_at = None
+        for field, value in defaults.items():
+            setattr(current, field, value)
+        current.save()
+        return Response(NutritionPlanSerializer(current).data)
+
+    # A new nutritionist: the plan waits for the consultation fee (free when the rate is 0).
+    from django.db import transaction as db_transaction
+    from apps.payments.gateway import activate_plan
+    with db_transaction.atomic():
+        NutritionPlan.objects.filter(member=request.user, status='pending_payment').update(status='archived')
+        plan = NutritionPlan.objects.create(
+            member=request.user,
+            nutritionist=nutritionist,
+            goal=goal,
+            status='pending_payment',
+            price=nutritionist.hourly_rate or 0,
+            **defaults,
+        )
+        if plan.price <= 0:
+            activate_plan(plan)
 
     return Response(
         NutritionPlanSerializer(plan).data,

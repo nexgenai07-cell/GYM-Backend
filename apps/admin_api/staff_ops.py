@@ -107,16 +107,40 @@ def _invite(u, staff, reset=False):
     return None
 
 
+def _same_name(fields, exclude_id=None):
+    """Message when another team member already has this first + last name."""
+    first, last = fields.get('first_name'), fields.get('last_name', '')
+    if not first:
+        return None
+    qs = User.objects.filter(role__in=STAFF_ROLES, first_name__iexact=first, last_name__iexact=last or '')
+    if exclude_id:
+        qs = qs.exclude(id=exclude_id)
+    other = qs.first()
+    if other:
+        return f'{other.full_name or first} is already on the team ({other.email}). Use a different name.'
+    return None
+
+
 def _validate(data, errors, creating):
     out = {}
-    for f, n, required in (('first_name', 150, True), ('last_name', 150, False), ('phone', 20, False)):
+    from apps.core.phone import MESSAGE as PHONE_MESSAGE, normalize_saudi_mobile
+    from apps.core.validators import person_name_error
+    for f, label, required in (('first_name', 'First name', True), ('last_name', 'Last name', False)):
         if f in data or creating:
-            v = str(data.get(f) or '').strip()
-            if required and not v:
-                errors[f] = 'Required.'
-            elif len(v) > n:
-                errors[f] = f'Keep it under {n} characters.'
+            v = ' '.join(str(data.get(f) or '').split())
+            msg = person_name_error(v, label, required=required)
+            if msg:
+                errors[f] = msg
             out[f] = v
+    if 'phone' in data or creating:
+        raw = str(data.get('phone') or '').strip()
+        if raw:
+            phone = normalize_saudi_mobile(raw)
+            if phone is None:
+                errors['phone'] = PHONE_MESSAGE
+            out['phone'] = phone or raw
+        else:
+            out['phone'] = ''
     if 'role' in data or creating:
         if data.get('role') not in STAFF_ROLES:
             errors['role'] = 'Choose a role.'
@@ -201,14 +225,29 @@ def staff(request):
             rows = [r for r in rows if r['status'] == st]
         return Response(rows)
 
+    from apps.core.validators import email_error
+    from django.contrib.auth.password_validation import validate_password
+    from django.core.exceptions import ValidationError
     errors = {}
     email = str(request.data.get('email') or '').strip().lower()
-    if '@' not in email:
-        errors['email'] = 'Enter a valid email.'
+    msg = email_error(email)
+    if msg:
+        errors['email'] = msg
     fields = _validate(request.data, errors, creating=True)
     u = User.objects.filter(email__iexact=email).first() if email else None
     if u is not None and u.role in STAFF_ROLES:
         errors['email'] = 'This person is already on the team.'
+    elif u is not None and u.role != 'member':
+        errors['email'] = 'This email already belongs to another account (trainer or nutritionist).'
+    dup = _same_name(fields, exclude_id=u.id if u else None)
+    if dup:
+        errors['first_name'] = dup
+    password = str(request.data.get('password') or '')
+    if password and fields.get('role') in PORTAL_ROLES:
+        try:
+            validate_password(password)
+        except ValidationError as e:
+            errors['password'] = ' '.join(e.messages)
     if errors:
         return Response(errors, status=400)
     msg = _guard(request, u.role if u else None, fields['role'])
@@ -219,7 +258,16 @@ def staff(request):
             u = User(email=email, username=email)
             u.set_unusable_password()
         _save(u, fields)
-    warning = _invite(u, request.user) if u.role in PORTAL_ROLES else None
+    if u.role in PORTAL_ROLES and password:
+        # Starting password set by the admin (works without email); changed at first sign-in.
+        u.set_password(password)
+        u.must_change_password = True
+        u.save(update_fields=['password', 'must_change_password'])
+        warning = None
+    else:
+        warning = _invite(u, request.user) if u.role in PORTAL_ROLES else None
+        if warning:
+            warning += ' Or edit them and set a starting password yourself.'
     logger.info('Staff %s (%s) added by %s', u.email, u.role, request.user.email)
     return Response({**_row(u), 'warning': warning}, status=201)
 
@@ -229,8 +277,24 @@ def staff(request):
 def staff_update(request, user_id):
     """PATCH /api/admin/staff/<user_id>/ — name, phone, role, status, shift, joined_at, notes (department follows the role)."""
     u = get_object_or_404(User.objects.select_related('staff_profile'), id=user_id, role__in=STAFF_ROLES)
+    from django.contrib.auth.password_validation import validate_password
+    from django.core.exceptions import ValidationError
     errors = {}
     fields = _validate(request.data, errors, creating=False)
+    if 'first_name' in fields or 'last_name' in fields:
+        dup = _same_name({'first_name': fields.get('first_name', u.first_name),
+                          'last_name': fields.get('last_name', u.last_name)}, exclude_id=u.id)
+        if dup:
+            errors['first_name'] = dup
+    password = str(request.data.get('password') or '')
+    if password:
+        if fields.get('role', u.role) not in PORTAL_ROLES:
+            errors['password'] = 'Only admins and managers sign in to the console.'
+        else:
+            try:
+                validate_password(password, u)
+            except ValidationError as e:
+                errors['password'] = ' '.join(e.messages)
     if errors:
         return Response(errors, status=400)
     msg = _guard(request, u.role, fields.get('role', u.role))
@@ -245,7 +309,11 @@ def staff_update(request, user_id):
     with transaction.atomic():
         _save(u, fields)
     warning = None
-    if u.role in PORTAL_ROLES and not was_portal and u.is_active:
+    if password:
+        u.set_password(password)                   # starting password; changed at first sign-in
+        u.must_change_password = True
+        u.save(update_fields=['password', 'must_change_password'])
+    elif u.role in PORTAL_ROLES and not was_portal and u.is_active:
         warning = _invite(u, request.user)          # promoted: send sign-in details
     return Response({**_row(u), 'warning': warning})
 

@@ -46,7 +46,8 @@ class AdminPlanTests(ContentTestBase):
         self.client.force_authenticate(None)
         self.assertNotIn(self.basic.pk, [p['id'] for p in self.client.get('/api/public/plans/').data])
 
-    def test_no_delete_and_members_cannot_edit(self):
-        self.assertEqual(self.client.delete(f'{ADMIN}/{self.basic.pk}/').status_code, 405)
+    def test_delete_unused_only_and_members_cannot_edit(self):
+        self.assertEqual(self.client.delete(f'{ADMIN}/{self.basic.pk}/').status_code, 204)   # nobody signed up
+        self.basic = MembershipPlan.objects.create(name='basic', display_name='Basic', price_monthly=35, price_annual=350)
         self.client.force_authenticate(User.objects.create_user(username='m', email='m@t.local', password='x'))
         self.assertEqual(self.client.patch(f'{ADMIN}/{self.basic.pk}/', {'is_active': False}, format='json').status_code, 403)

@@ -21,9 +21,20 @@ SIGNUP_PASSWORD = 'Str0ng-Passw0rd!'
 IQAMA = '2999888777'
 
 
+def clear_image(size=320):
+    """A sharp, evenly lit picture that passes the signup photo check (checkerboard)."""
+    img = Image.new('L', (size, size), 90)
+    px = img.load()
+    for y in range(size):
+        for x in range(size):
+            if (x // 8 + y // 8) % 2:
+                px[x, y] = 170
+    return img.convert('RGB')
+
+
 def photo():
     buf = io.BytesIO()
-    Image.new('RGB', (64, 64), 'gray').save(buf, 'JPEG')
+    clear_image().save(buf, 'JPEG', quality=92)
     return SimpleUploadedFile('live.jpg', buf.getvalue(), content_type='image/jpeg')
 
 

@@ -112,6 +112,27 @@ class ProfileUpdateSerializer(serializers.ModelSerializer):
             'avatar', 'date_of_birth',
         ]
 
+    def validate(self, attrs):
+        from types import SimpleNamespace
+        from apps.core.validators import apply_person_fields
+        errors, probe = {}, SimpleNamespace()
+        apply_person_fields(probe, attrs, errors)
+        if errors:
+            raise serializers.ValidationError(errors)
+        for field in ('first_name', 'last_name', 'phone'):
+            if field in attrs:
+                attrs[field] = getattr(probe, field)
+        dob = attrs.get('date_of_birth')
+        if dob:
+            from datetime import date
+            today = date.today()
+            age = today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
+            if dob > today or age > 100:
+                raise serializers.ValidationError({'date_of_birth': 'Enter a real date of birth.'})
+            if age < 14:
+                raise serializers.ValidationError({'date_of_birth': 'Members must be at least 14 years old.'})
+        return attrs
+
 
 # ============================================
 # PASSWORD CHANGE

@@ -36,7 +36,7 @@ logger = logging.getLogger(__name__)
 
 TOPUP_MIN = Decimal('10.00')
 RENEWAL_MONTHS = (1, 3, 6, 12)
-CREDIT_PURPOSES = ('shop_order', 'trainer_session', 'course', 'renewal', 'facility_addon')
+CREDIT_PURPOSES = ('shop_order', 'trainer_session', 'course', 'renewal', 'facility_addon', 'nutrition_plan')
 
 
 class PaymentError(Exception):
@@ -55,6 +55,7 @@ def create_intent(member, purpose, data):
         'course': _build_course,
         'renewal': _build_renewal,
         'facility_addon': _build_facility,
+        'nutrition_plan': _build_nutrition,
     }
     if purpose not in builders:
         raise PaymentError('Unknown payment purpose.')
@@ -104,6 +105,18 @@ def _build_session(member, data):
     when = timezone.localtime(session.scheduled_at).strftime('%d %b %Y %H:%M')
     return {'amount': session.amount_charged, 'trainer_session': session,
             'description': f'Session with {name} — {when}'}
+
+
+def _build_nutrition(member, data):
+    from apps.nutrition.models import NutritionPlan
+    plan = NutritionPlan.objects.select_related('nutritionist__user').filter(
+        id=data.get('plan_id'), member=member).first()
+    if plan is None:
+        raise PaymentError('Plan request not found.')
+    if plan.status != 'pending_payment':
+        raise PaymentError('This plan is not awaiting payment.')
+    name = plan.nutritionist.user.full_name or 'nutritionist'
+    return {'amount': plan.price, 'nutrition_plan': plan, 'description': f'Nutrition plan with {name}'}
 
 
 def _build_course(member, data):
@@ -272,7 +285,8 @@ def pay_with_credit(intent):
 # 4. FULFIL
 # ============================================================
 TX_TYPE = {'locker_topup': 'topup', 'shop_order': 'retail', 'trainer_session': 'coaching',
-           'course': 'coaching', 'renewal': 'subscription', 'facility_addon': 'subscription'}
+           'course': 'coaching', 'renewal': 'subscription', 'facility_addon': 'subscription',
+           'nutrition_plan': 'coaching'}
 
 
 def _fulfil(intent, method_label):
@@ -284,6 +298,7 @@ def _fulfil(intent, method_label):
         'course': _fulfil_course,
         'renewal': _fulfil_renewal,
         'facility_addon': _fulfil_facility,
+        'nutrition_plan': _fulfil_nutrition,
     }[intent.purpose](intent)
 
     now = timezone.now()
@@ -375,6 +390,28 @@ def _fulfil_session(intent):
            f'Your session with {session.trainer.user.full_name} is confirmed for {when}.', icon='event_available',
            action_label='View trainer', action_path=f'/dashboard/trainers/{session.trainer_id}')
     return True, ''
+
+
+def _fulfil_nutrition(intent):
+    from apps.nutrition.models import NutritionPlan
+    plan = NutritionPlan.objects.select_for_update().select_related('nutritionist__user').filter(
+        id=intent.nutrition_plan_id).first()
+    if plan is None or plan.status != 'pending_payment':
+        return False, 'the plan request is no longer awaiting payment'
+    activate_plan(plan)
+    return True, ''
+
+
+def activate_plan(plan):
+    """Start a requested plan: it replaces the member's current one. Caller holds a transaction."""
+    from apps.nutrition.models import NutritionPlan
+    NutritionPlan.objects.filter(member=plan.member, status='active').exclude(id=plan.id).update(status='archived')
+    plan.status = 'active'
+    plan.save(update_fields=['status', 'updated_at'])
+    name = plan.nutritionist.user.full_name or 'your nutritionist'
+    notify(plan.member, 'nutrition', 'Nutrition plan started',
+           f'Your plan with {name} is active. Starter targets are set; {name} will review and adjust them.',
+           icon='restaurant', action_label='Open my plan', action_path='/dashboard/nutrition-plan')
 
 
 def _fulfil_course(intent):

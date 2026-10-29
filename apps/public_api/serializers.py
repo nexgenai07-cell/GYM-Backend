@@ -94,11 +94,34 @@ class RegistrationCreateSerializer(serializers.ModelSerializer):
         return value
 
     def validate_email(self, value):
-        return value.strip().lower()
+        from apps.accounts.models import User
+        from apps.core.validators import email_error
+        value = value.strip().lower()
+        msg = email_error(value)
+        if msg:
+            raise serializers.ValidationError(msg)
+        # An account that isn't from a pending signup (staff, trainer, existing member) owns this email.
+        if User.objects.filter(email__iexact=value).exists():
+            raise serializers.ValidationError('This email already has a Smart Gym account. Sign in to the member portal instead.')
+        return value
+
+    def validate_full_name(self, value):
+        from apps.core.validators import person_name_error
+        value = ' '.join(value.split())
+        msg = person_name_error(value, 'Full name')
+        if msg:
+            raise serializers.ValidationError(msg)
+        if len(value.split(' ')) < 2:
+            raise serializers.ValidationError('Enter your first and last name.')
+        return value
 
     def validate_photo(self, value):
+        from apps.core.photo_quality import photo_problem
         if value.size > MAX_PHOTO_BYTES:
             raise serializers.ValidationError('Photo must be under 4 MB.')
+        problem = photo_problem(value)
+        if problem:
+            raise serializers.ValidationError(problem)
         return value
 
     def validate(self, attrs):
@@ -113,6 +136,15 @@ class RegistrationCreateSerializer(serializers.ModelSerializer):
         by_iqama = MembershipRegistration.objects.filter(iqama_number=attrs['iqama_number']).first()
         by_email = MembershipRegistration.objects.filter(email__iexact=attrs['email']).first()
         existing = by_iqama or by_email
+        # The same person under a new email: a live signup already uses this full name.
+        same_name = (MembershipRegistration.objects.filter(full_name__iexact=attrs['full_name'])
+                     .exclude(status=MembershipRegistration.STATUS_REJECTED))
+        if existing is not None:
+            same_name = same_name.exclude(id=existing.id)
+        if same_name.exists():
+            raise serializers.ValidationError(
+                {'full_name': 'A member with this name is already registered. If that’s you, sign in to the member '
+                              'portal; otherwise add your middle or family name.'})
         if existing is None:
             return attrs
 

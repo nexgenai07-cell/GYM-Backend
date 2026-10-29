@@ -11,6 +11,7 @@ Admin:    GET/POST   /api/classes/admin/                 all classes / add one
           POST /api/classes/admin/<id>/roster/<enrollment_id>/remove/
           GET  /api/classes/schedule/ · /api/classes/stats/
 """
+import re
 from datetime import time
 
 from django.db import transaction
@@ -150,11 +151,47 @@ def _parse_time(v):
         return None
 
 
+CLASS_NAME_MIN, CLASS_NAME_MAX = 3, 60
+# Rooms: a word and a number/letter — "Studio 2", "Room 101", "Hall B", "Pool 1A".
+ROOM_RE = re.compile(r'[A-Za-z]{3,15} [A-Za-z0-9]{1,4}')
+ROOM_MESSAGE = 'Room must be a word and a number or letter, e.g. “Studio 2”, “Room 101” or “Hall B” (max 20 characters).'
+
+
+def _minutes(t):
+    return t.hour * 60 + t.minute
+
+
+def _conflicts(c, errors):
+    """Same weekday, overlapping times: one coach can't teach two classes, one room can't host two."""
+    if not c.is_active or c.start_time is None or c.day_of_week is None:
+        return
+    start = _minutes(c.start_time)
+    end = start + (c.duration_minutes or 0)
+    others = GymClass.objects.filter(is_active=True, day_of_week=c.day_of_week).select_related('trainer__user')
+    if c.id:
+        others = others.exclude(id=c.id)
+    for o in others:
+        o_start = _minutes(o.start_time)
+        o_end = o_start + (o.duration_minutes or 0)
+        if not (start < o_end and o_start < end):
+            continue
+        when = f'{DAYS[o.day_of_week]} {o.start_time:%H:%M}–{(o_end // 60) % 24:02d}:{o_end % 60:02d}'
+        if c.trainer_id and o.trainer_id == c.trainer_id:
+            errors.setdefault('trainer_id', f'{o.trainer.user.full_name or "This coach"} already teaches “{o.name}” '
+                                            f'on {when}. A coach can’t be in two classes at once.')
+        if c.location and o.location and c.location.casefold() == o.location.casefold():
+            errors.setdefault('location', f'{o.location} is already booked for “{o.name}” on {when}. Pick another room or time.')
+        if c.name.casefold() == o.name.casefold() and o_start == start:
+            errors.setdefault('name', f'“{o.name}” already runs on {when}.')
+
+
 def _apply(c, data, errors):
     if 'name' in data:
-        c.name = str(data.get('name') or '').strip()[:120]
+        c.name = ' '.join(str(data.get('name') or '').split())
         if not c.name:
-            errors['name'] = 'Required.'
+            errors['name'] = 'Class name is required.'
+        elif not CLASS_NAME_MIN <= len(c.name) <= CLASS_NAME_MAX:
+            errors['name'] = f'Class name must be {CLASS_NAME_MIN}–{CLASS_NAME_MAX} characters.'
     if 'category' in data:
         if data.get('category') not in CATEGORIES:
             errors['category'] = 'Choose a category.'
@@ -166,7 +203,11 @@ def _apply(c, data, errors):
     if 'description' in data:
         c.description = str(data.get('description') or '')[:2000]
     if 'location' in data:
-        c.location = str(data.get('location') or '').strip()[:100]
+        c.location = ' '.join(str(data.get('location') or '').split())
+        if c.location and not ROOM_RE.fullmatch(c.location):
+            errors['location'] = ROOM_MESSAGE
+        elif c.location:
+            c.location = c.location[0].upper() + c.location[1:]
     if 'trainer_id' in data:
         tid = data.get('trainer_id')
         if tid in (None, ''):
@@ -217,6 +258,8 @@ def admin_classes(request):
     c = GymClass(category='strength', level='all_levels')
     errors = {}
     _apply(c, {'name': '', 'day_of_week': None, 'start_time': None, **request.data}, errors)
+    if not errors:
+        _conflicts(c, errors)
     if errors:
         return Response(errors, status=400)
     c.save()
@@ -242,6 +285,8 @@ def admin_class_detail(request, class_id):
         booked = c.enrollments.filter(status__in=BOOKED).count()
         if c.capacity < booked:
             errors['capacity'] = f'{booked} members are booked — remove some from the roster first.'
+    if not errors:
+        _conflicts(c, errors)
     if errors:
         return Response(errors, status=400)
     c.save()

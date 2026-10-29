@@ -18,6 +18,7 @@ from rest_framework.response import Response
 
 from apps.accounts.models import User
 from apps.catalog.models import Course, CourseModule, Enrollment, TrainerProfile, TrainerSession
+from apps.core.validators import duplicate_error, email_error
 from apps.site_content.serializers import SiteImageUploadSerializer
 
 from .permissions import IsAdminUser
@@ -113,12 +114,27 @@ def _trainer_counts(ids):
 
 def _apply_trainer(t, u, data, errors):
     """Validates and copies editable fields onto the profile and user (not saved)."""
-    if 'first_name' in data:
-        u.first_name = _text(data, 'first_name', errors, 150, required=True)
-    if 'last_name' in data:
-        u.last_name = _text(data, 'last_name', errors, 150)
+    from apps.core.phone import MESSAGE as PHONE_MESSAGE, normalize_saudi_mobile
+    from apps.core.validators import person_name_error
+    for f, label, required in (('first_name', 'First name', True), ('last_name', 'Last name', False)):
+        if f in data:
+            v = ' '.join(str(data.get(f) or '').split())
+            msg = person_name_error(v, label, required=required)
+            if msg:
+                errors[f] = msg
+            setattr(u, f, v)
+    if ('first_name' in data or 'last_name' in data) and 'first_name' not in errors:
+        same = User.objects.filter(first_name__iexact=u.first_name, last_name__iexact=u.last_name or '',
+                                   role__in=('trainer', 'nutritionist')).exclude(id=u.id).first()
+        if same:
+            errors['first_name'] = (f'{same.full_name or same.first_name} is already listed ({same.email}). '
+                                    'Use a different name.')
     if 'phone' in data:
-        u.phone = _text(data, 'phone', errors, 20)
+        raw = str(data.get('phone') or '').strip()
+        phone = normalize_saudi_mobile(raw) if raw else ''
+        if raw and phone is None:
+            errors['phone'] = PHONE_MESSAGE
+        u.phone = phone or raw
     if 'title' in data:
         t.title = _text(data, 'title', errors, 120, required=True)
     if 'credentials' in data:
@@ -177,9 +193,10 @@ def trainers(request):
 
     data = request.data
     errors = {}
-    email = _text(data, 'email', errors, 254, required=True).lower()
-    if email and '@' not in email:
-        errors['email'] = 'Enter a valid email.'
+    email = str(data.get('email') or '').strip().lower()
+    msg = email_error(email)
+    if msg:
+        errors['email'] = msg
     u = User.objects.filter(email__iexact=email).first() if email else None
     if u is not None and TrainerProfile.objects.filter(user=u).exists():
         errors['email'] = 'This person is already a trainer.'
@@ -200,11 +217,29 @@ def trainers(request):
     return Response(_trainer_row(t, _trainer_counts([t.id])), status=201)
 
 
-@api_view(['PATCH'])
+@api_view(['PATCH', 'DELETE'])
 @permission_classes([IsAdminUser])
 def trainer_update(request, trainer_id):
-    """PATCH /api/admin/trainers/<id>/ — any editable field, incl. is_verified and is_active."""
+    """
+    PATCH  /api/admin/trainers/<id>/ — any editable field, incl. is_verified and is_active.
+    DELETE — removes the trainer profile when nothing refers to it (sessions, courses, classes);
+             otherwise hide them (is_active=false) so members' history stays intact.
+    """
     t = get_object_or_404(TrainerProfile.objects.select_related('user'), id=trainer_id)
+    if request.method == 'DELETE':
+        used = [label for label, n in (('1-on-1 sessions', t.sessions.count()), ('courses', t.courses.count()),
+                                       ('classes', t.classes.count())) if n]
+        if used:
+            return Response({'detail': f'{t.user.full_name} has {", ".join(used)} on record, so they can’t be deleted — '
+                                       'hide them instead.'}, status=400)
+        with transaction.atomic():
+            user = t.user
+            t.delete()
+            if user.role == 'trainer':
+                user.role = 'member'
+                user.save(update_fields=['role'])
+        logger.info('Trainer %s deleted by %s', user.email, request.user.email)
+        return Response(status=204)
     errors = {}
     _apply_trainer(t, t.user, request.data, errors)
     if errors:
@@ -273,15 +308,31 @@ def _course_row(c, modules=False):
     return row
 
 
+# The categories a course can have (fixed list, shown as a dropdown in the console).
+COURSE_CATEGORIES = ['Training', 'Strength', 'Hypertrophy', 'Fat Loss', 'Endurance', 'Mobility',
+                     'Combat', 'Recovery', 'Nutrition', 'Biometrics']
+
+
 def _apply_course(c, data, errors):
     if 'title' in data:
-        c.title = _text(data, 'title', errors, 200, required=True)
+        c.title = ' '.join(_text(data, 'title', errors, 120, required=True).split())
+        if 'title' not in errors:
+            if len(c.title) < 3:
+                errors['title'] = 'Course title must be at least 3 characters.'
+            else:
+                dup = duplicate_error(Course.objects.all(), 'title', c.title, 'A course called', exclude_id=c.id)
+                if dup:
+                    errors['title'] = dup
     if 'subtitle' in data:
         c.subtitle = _text(data, 'subtitle', errors, 200)
     if 'description' in data:
         c.description = _text(data, 'description', errors, 8000, required=True)
     if 'category' in data:
-        c.category = _text(data, 'category', errors, 60, required=True)
+        v = str(data.get('category') or '').strip()
+        match = next((k for k in COURSE_CATEGORIES if k.casefold() == v.casefold()), None)
+        if match is None:
+            errors['category'] = 'Choose a category from the list.'
+        c.category = match or v[:60]
     if 'level' in data:
         if data.get('level') not in LEVELS:
             errors['level'] = 'Choose a level.'
@@ -452,4 +503,5 @@ def course_stats(request):
         'total': sum(by.values()), 'published': by.get('published', 0), 'draft': by.get('draft', 0),
         'archived': by.get('archived', 0), 'featured': Course.objects.filter(is_featured=True, status='published').count(),
         'enrollments': Enrollment.objects.count(), 'course_revenue': _f(paid),
+        'categories': COURSE_CATEGORIES,
     })

@@ -274,6 +274,23 @@ def admin_collections(request):
     return Response([{'name': name, **schema, 'count': counts.get(name, 0)} for name, schema in COLLECTIONS.items()])
 
 
+def _duplicate_title(name, data, exclude_pk=None):
+    """{'title': msg} when another item of this list already has the same English or Arabic title."""
+    from apps.core.validators import norm
+    title = data.get('title')
+    if not isinstance(title, dict):
+        return None
+    mine = {lang: norm(title.get(lang)) for lang in ('en', 'ar') if norm(title.get(lang))}
+    for other in SiteItem.objects.filter(collection=name).exclude(pk=exclude_pk):
+        theirs = other.data.get('title') if isinstance(other.data.get('title'), dict) else {}
+        for lang, value in mine.items():
+            if norm(theirs.get(lang)) == value:
+                label = 'English' if lang == 'en' else 'Arabic'
+                return {'title': f'“{theirs.get(lang)}” is already in this list ({label} title). '
+                                 'Use a different title or edit the existing one.'}
+    return None
+
+
 @api_view(['GET', 'POST'])
 @permission_classes([IsAdminUser])
 def admin_collection_items(request, name):
@@ -289,6 +306,9 @@ def admin_collection_items(request, name):
         data = clean_data(name, request.data.get('data', {}))
     except CollectionError as exc:
         return Response({'data': exc.errors}, status=status.HTTP_400_BAD_REQUEST)
+    dup = _duplicate_title(name, data)
+    if dup:
+        return Response({'data': dup}, status=status.HTTP_400_BAD_REQUEST)
     last = SiteItem.objects.filter(collection=name).aggregate(m=Max('order'))['m'] or 0
     item = SiteItem(collection=name, data=data, order=last + 1, updated_by=request.user,
                     is_active=_as_bool(request.data.get('is_active', True)))
@@ -319,6 +339,9 @@ def admin_collection_item(request, name, pk):
             item.data = clean_data(name, request.data['data'], partial=True, existing=item.data)
         except CollectionError as exc:
             return Response({'data': exc.errors}, status=status.HTTP_400_BAD_REQUEST)
+        dup = _duplicate_title(name, item.data, exclude_pk=item.pk)
+        if dup:
+            return Response({'data': dup}, status=status.HTTP_400_BAD_REQUEST)
     if 'is_active' in request.data:
         item.is_active = _as_bool(request.data['is_active'])
     if 'slug' in request.data and schema['has_slug']:
@@ -407,15 +430,25 @@ def admin_plans(request):
     return Response(ser.data, status=status.HTTP_201_CREATED)
 
 
-@api_view(['PATCH'])
+@api_view(['PATCH', 'DELETE'])
 @permission_classes([IsAdminUser])
 def admin_plan(request, pk):
     """
-    PATCH /api/admin/site-content/plans/<id>/
-    No delete: signups and memberships point at plans; set is_active=false to
-    take a plan off the site instead. Price changes apply to new signups only.
+    PATCH  /api/admin/site-content/plans/<id>/  (price changes apply to new signups only)
+    DELETE — only a plan nobody has signed up for or holds; otherwise hide it (is_active=false).
     """
     plan = get_object_or_404(MembershipPlan, pk=pk)
+    if request.method == 'DELETE':
+        members = plan.memberships.count()
+        signups = plan.registrations.count()
+        if members or signups:
+            parts = [f'{members} member{"s" if members != 1 else ""}' if members else '',
+                     f'{signups} signup{"s" if signups != 1 else ""}' if signups else '']
+            return Response({'detail': f'“{plan.display_name}” is used by {" and ".join(p for p in parts if p)}, '
+                                       'so it can’t be deleted — hide it from the website instead.'},
+                            status=status.HTTP_400_BAD_REQUEST)
+        plan.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
     ser = AdminPlanSerializer(plan, data=request.data, partial=True)
     ser.is_valid(raise_exception=True)
     ser.save()

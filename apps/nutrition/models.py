@@ -49,6 +49,7 @@ class NutritionistProfile(models.Model):
 class NutritionPlan(models.Model):
     """A personalized nutrition plan assigned by a nutritionist."""
     STATUS_CHOICES = [
+        ('pending_payment', 'Awaiting payment'),   # requested, consultation fee not paid yet
         ('active', 'Active'),
         ('paused', 'Paused'),
         ('completed', 'Completed'),
@@ -90,6 +91,8 @@ class NutritionPlan(models.Model):
 
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='active')
     notes = models.TextField(blank=True)
+    # Consultation fee: the nutritionist's rate when the plan was requested; paid before it starts.
+    price = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     # Set when staff review the starter targets a member requested (null = still the template).
     reviewed_at = models.DateTimeField(null=True, blank=True)
 

@@ -45,6 +45,7 @@ urlpatterns = [
     path('nutrition/plans/', nutrition_ops.plans, name='nutrition-plans'),
     path('nutrition/plans/<int:plan_id>/', nutrition_ops.plan_update, name='nutrition-plan'),
     path('nutrition/members/<int:member_id>/scans/', nutrition_ops.member_scans, name='member-scans'),
+    path('nutrition/members/<int:member_id>/meals/', nutrition_ops.member_meals, name='member-meals'),
 
     # Shop catalogue
     path('shop/products/', shop_ops.products, name='shop-products'),

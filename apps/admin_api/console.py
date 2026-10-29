@@ -128,7 +128,7 @@ def _activity_counters():
         'trainers': lambda t: Enrollment.objects.filter(enrolled_at__gt=t).count(),
         'trainer-hours': lambda t: TrainerSession.objects.filter(created_at__gt=t).exclude(status='pending_payment').count(),
         'classes': lambda t: ClassEnrollment.objects.filter(enrolled_at__gt=t).exclude(status='cancelled').count(),
-        'nutrition': lambda t: NutritionPlan.objects.filter(created_at__gt=t).count(),
+        'nutrition': lambda t: NutritionPlan.objects.filter(created_at__gt=t).exclude(status='pending_payment').count(),
         'finance': lambda t: Transaction.objects.filter(created_at__gt=t).count(),
         'facilities': lambda t: MembershipFacility.objects.filter(created_at__gt=t).count(),
         'site-inbox': lambda t: ContactMessage.objects.filter(created_at__gt=t).count(),

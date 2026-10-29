@@ -13,8 +13,9 @@ from rest_framework.parsers import FormParser, MultiPartParser
 from rest_framework.response import Response
 
 from apps.accounts.models import User
+from apps.core.validators import email_error
 from apps.notifications.service import notify
-from apps.nutrition.models import DexaScan, NutritionistProfile, NutritionPlan
+from apps.nutrition.models import DexaScan, MealLog, NutritionistProfile, NutritionPlan, WaterIntake
 
 from .catalog_ops import _apply_trainer, _save_image
 from .permissions import IsAdminUser
@@ -50,7 +51,7 @@ def _nutritionist_row(n):
 def nutritionists(request):
     """GET /api/admin/nutrition/nutritionists/?search= · POST {email, first_name, last_name, title, …}"""
     if request.method == 'GET':
-        qs = NutritionistProfile.objects.select_related('user').order_by('-user__is_active', 'user__first_name')
+        qs = NutritionistProfile.objects.select_related('user').order_by('-rating', 'user__first_name')
         q = (request.query_params.get('search') or '').strip()
         if q:
             qs = qs.filter(Q(user__first_name__icontains=q) | Q(user__last_name__icontains=q)
@@ -58,8 +59,9 @@ def nutritionists(request):
         return Response([_nutritionist_row(n) for n in qs])
     errors = {}
     email = str(request.data.get('email') or '').strip().lower()
-    if '@' not in email:
-        errors['email'] = 'Enter a valid email.'
+    msg = email_error(email)
+    if msg:
+        errors['email'] = msg
     u = User.objects.filter(email__iexact=email).first() if email else None
     if u is not None and NutritionistProfile.objects.filter(user=u).exists():
         errors['email'] = 'This person is already a nutritionist.'
@@ -80,10 +82,23 @@ def nutritionists(request):
     return Response(_nutritionist_row(n), status=201)
 
 
-@api_view(['PATCH'])
+@api_view(['PATCH', 'DELETE'])
 @permission_classes([IsAdminUser])
 def nutritionist_update(request, nutritionist_id):
+    """PATCH any field · DELETE when they have no plans (hide them otherwise)."""
     n = get_object_or_404(NutritionistProfile.objects.select_related('user'), id=nutritionist_id)
+    if request.method == 'DELETE':
+        plans = n.plans.count()
+        if plans:
+            return Response({'detail': f'{n.user.full_name} has {plans} nutrition plan{"s" if plans != 1 else ""} on '
+                                       'record, so they can’t be deleted — hide them instead.'}, status=400)
+        with transaction.atomic():
+            user = n.user
+            n.delete()
+            if user.role == 'nutritionist':
+                user.role = 'member'
+                user.save(update_fields=['role'])
+        return Response(status=204)
     errors = {}
     _apply_trainer(n, n.user, {k: v for k, v in request.data.items() if k != 'offers_1on1'}, errors)
     if errors:
@@ -117,7 +132,7 @@ def _plan_row(p):
         'name': p.name, 'goal': p.goal, 'goal_label': GOALS.get(p.goal, p.goal), 'status': p.status,
         'target_calories': p.target_calories, 'target_protein_g': p.target_protein_g, 'target_carbs_g': p.target_carbs_g,
         'target_fats_g': p.target_fats_g, 'target_water_ml': p.target_water_ml, 'cycle_weeks': p.cycle_weeks,
-        'notes': p.notes, 'reviewed_at': p.reviewed_at, 'created_at': p.created_at,
+        'notes': p.notes, 'reviewed_at': p.reviewed_at, 'created_at': p.created_at, 'price': _f(p.price),
     }
 
 
@@ -126,6 +141,8 @@ def _plan_row(p):
 def plans(request):
     """GET /api/admin/nutrition/plans/?status=to_review|active|all&q="""
     qs = NutritionPlan.objects.select_related('member', 'nutritionist__user').order_by('reviewed_at', '-created_at')
+    if request.query_params.get('status') != 'pending_payment':
+        qs = qs.exclude(status='pending_payment')   # unpaid requests aren't the nutritionist's work yet
     st = request.query_params.get('status', 'active')
     if st == 'to_review':
         qs = qs.filter(status='active', reviewed_at__isnull=True)
@@ -175,9 +192,41 @@ def plan_update(request, plan_id):
     p.save()
     notify(p.member, 'nutrition', 'Your nutrition plan was reviewed' if first_review else 'Your nutrition plan was updated',
            f'{p.nutritionist.user.full_name or "Your nutritionist"} set your daily targets: {p.target_calories} kcal, '
-           f'{p.target_protein_g} g protein.', icon='restaurant', action_label='Open nutrition',
-           action_path='/dashboard/nutritionists')
+           f'{p.target_protein_g} g protein.', icon='restaurant', action_label='Open my plan',
+           action_path='/dashboard/nutrition-plan')
     return Response(_plan_row(p))
+
+
+# ============================================================
+# MEAL LOG (what the member logged in the portal)
+# ============================================================
+@api_view(['GET'])
+@permission_classes([IsAdminUser])
+def member_meals(request, member_id):
+    """GET /api/admin/nutrition/members/<id>/meals/?days=14 — meals and water per day, newest first."""
+    member = get_object_or_404(User, id=member_id)
+    try:
+        days = min(max(int(request.query_params.get('days', 14)), 1), 90)
+    except ValueError:
+        days = 14
+    since = timezone.localdate() - timezone.timedelta(days=days - 1)
+    water = {w.date: w.amount_ml for w in WaterIntake.objects.filter(member=member, date__gte=since)}
+    out = {}
+    for m in MealLog.objects.filter(member=member, logged_date__gte=since).order_by('-logged_at'):
+        day = out.setdefault(m.logged_date, {'date': m.logged_date, 'meals': [], 'calories': 0, 'protein_g': 0.0,
+                                             'carbs_g': 0.0, 'fats_g': 0.0})
+        day['meals'].append({'id': m.id, 'meal_type': m.meal_type, 'meal_label': m.get_meal_type_display(),
+                             'description': m.description, 'calories': m.calories, 'protein_g': _f(m.protein_g),
+                             'carbs_g': _f(m.carbs_g), 'fats_g': _f(m.fats_g), 'logged_at': m.logged_at})
+        day['calories'] += m.calories
+        for k in ('protein_g', 'carbs_g', 'fats_g'):
+            day[k] = round(day[k] + float(getattr(m, k) or 0), 1)
+    for d, ml in water.items():
+        out.setdefault(d, {'date': d, 'meals': [], 'calories': 0, 'protein_g': 0.0, 'carbs_g': 0.0, 'fats_g': 0.0})
+    rows = sorted(out.values(), key=lambda r: r['date'], reverse=True)
+    for r in rows:
+        r['water_ml'] = water.get(r['date'], 0)
+    return Response(rows)
 
 
 # ============================================================

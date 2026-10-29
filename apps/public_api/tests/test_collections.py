@@ -68,6 +68,9 @@ class AdminCollectionTests(ContentTestBase):
     def test_article_gets_a_unique_slug(self):
         body = {'data': {'title': {'en': 'Deload Weeks', 'ar': ''}, 'category': 'training', 'published': '2026-11-01'}}
         a = self.client.post(f'{ADMIN}/articles/items/', body, format='json').data
+        dup = self.client.post(f'{ADMIN}/articles/items/', body, format='json')        # same title: refused
+        self.assertIn('already in this list', dup.data['data']['title'])
+        body['data']['title']['en'] = 'Deload weeks!'                                   # different title, same slug
         b = self.client.post(f'{ADMIN}/articles/items/', body, format='json').data
         self.assertEqual((a['slug'], b['slug']), ('deload-weeks', 'deload-weeks-2'))
 

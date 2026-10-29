@@ -25,6 +25,48 @@ from .serializers import (
 # ============================================
 # EXERCISES (public catalog)
 # ============================================
+
+# Limits for a logged set (shown to the member when they type something out of range).
+MAX_WEIGHT_KG = 500
+MAX_REPS = 100
+
+
+def clean_set(data):
+    """(values, errors) for weight_kg / reps / rpe typed in the portal."""
+    from decimal import Decimal, InvalidOperation
+    errors, values = {}, {}
+    raw_w = data.get('weight_kg', 0)
+    try:
+        w = Decimal(str(raw_w if raw_w not in (None, '') else 0))
+        if not w.is_finite() or w < 0 or w > MAX_WEIGHT_KG:
+            raise InvalidOperation
+        if w != w.quantize(Decimal('0.01')):
+            errors['weight_kg'] = 'Use at most 2 decimals (e.g. 22.5).'
+        values['weight_kg'] = w.quantize(Decimal('0.01'))
+    except (InvalidOperation, ValueError, TypeError):
+        errors['weight_kg'] = f'Enter a weight between 0 and {MAX_WEIGHT_KG} kg.'
+    raw_r = data.get('reps')
+    try:
+        r = Decimal(str(raw_r))
+        if not r.is_finite() or r != r.to_integral_value() or not 1 <= r <= MAX_REPS:
+            raise InvalidOperation
+        values['reps'] = int(r)
+    except (InvalidOperation, ValueError, TypeError):
+        errors['reps'] = f'Enter whole reps between 1 and {MAX_REPS}.'
+    raw_rpe = data.get('rpe')
+    if raw_rpe not in (None, ''):
+        try:
+            rpe = Decimal(str(raw_rpe))
+            if not rpe.is_finite() or not 1 <= rpe <= 10:
+                raise InvalidOperation
+            values['rpe'] = rpe.quantize(Decimal('0.1'))
+        except (InvalidOperation, ValueError, TypeError):
+            errors['rpe'] = 'RPE must be between 1 and 10.'
+    if errors:
+        errors['detail'] = ' '.join(v for k, v in errors.items())
+    return values, errors
+
+
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def exercises_list(request):
@@ -194,7 +236,10 @@ def log_set(request, workout_exercise_id):
     except WorkoutExercise.DoesNotExist:
         return Response({'detail': 'Workout exercise not found.'}, status=status.HTTP_404_NOT_FOUND)
 
-    serializer = WorkoutSetSerializer(data=request.data)
+    values, errors = clean_set(request.data)
+    if errors:
+        return Response(errors, status=status.HTTP_400_BAD_REQUEST)
+    serializer = WorkoutSetSerializer(data={**dict(request.data.items()), **{k: str(v) for k, v in values.items()}})
     if serializer.is_valid():
         workout_set = serializer.save(workout_exercise=we)
 
@@ -321,6 +366,10 @@ def quick_log_set(request, exercise_id):
     except Exercise.DoesNotExist:
         return Response({'detail': 'Exercise not found.'}, status=status.HTTP_404_NOT_FOUND)
 
+    values, errors = clean_set(request.data)
+    if errors:
+        return Response(errors, status=status.HTTP_400_BAD_REQUEST)
+
     workout = Workout.objects.filter(
         member=request.user,
         status='in_progress',
@@ -344,11 +393,11 @@ def quick_log_set(request, exercise_id):
     workout_set = WorkoutSet.objects.create(
         workout_exercise=we,
         set_number=set_count + 1,
-        reps=request.data.get('reps', 8),
-        weight_kg=request.data.get('weight_kg', 0),
-        mean_velocity=request.data.get('mean_velocity'),
-        peak_velocity=request.data.get('peak_velocity'),
-        rpe=request.data.get('rpe'),
+        reps=values['reps'],
+        weight_kg=values['weight_kg'],
+        mean_velocity=request.data.get('mean_velocity') or None,
+        peak_velocity=request.data.get('peak_velocity') or None,
+        rpe=values.get('rpe'),
         is_warmup=request.data.get('is_warmup', False),
     )
 

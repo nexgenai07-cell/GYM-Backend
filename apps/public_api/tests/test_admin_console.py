@@ -277,10 +277,27 @@ class StaffTests(ConsoleBase):
         r = self.add(shift_start='06:00', shift_end='14:00')
         self.assertEqual((r.status_code, r.data['can_sign_in'], r.data['shift_display']), (201, False, '06:00 - 14:00'))
         self.assertEqual(len(mail.outbox), 0)
-        r = self.add(email='boss@t.local', role='manager')
+        r = self.add(email='boss@t.local', first_name='Huda', role='manager')
         self.assertEqual((r.status_code, r.data['can_sign_in']), (201, True))
         self.assertIn('/admin/login', mail.outbox[0].body)
         self.assertTrue(User.objects.get(email='boss@t.local').must_change_password)
+
+    def test_duplicate_name_and_bad_email_are_refused(self):
+        self.assertEqual(self.add().status_code, 201)
+        r = self.add(email='other@t.local')                       # same name "Lina"
+        self.assertEqual(r.status_code, 400)
+        self.assertIn('already on the team', r.data['first_name'])
+        r = self.add(email='bad@@mail', first_name='Sami')
+        self.assertIn('valid email', r.data['email'])
+        r = self.add(email='p@t.local', first_name='Sami', phone='05abc')
+        self.assertIn('Saudi mobile', r.data['phone'])
+
+    def test_admin_can_set_a_starting_password(self):
+        r = self.add(email='boss2@t.local', first_name='Omar', role='admin', password='Start-Pass-123')
+        self.assertEqual(r.status_code, 201)
+        u = User.objects.get(email='boss2@t.local')
+        self.assertTrue(u.check_password('Start-Pass-123') and u.must_change_password)
+        self.assertEqual(len(mail.outbox), 0)
 
     def test_managers_cannot_create_or_edit_admins(self):
         self.client.force_authenticate(self.manager)
@@ -426,7 +443,7 @@ class ShopCatalogueTests(ConsoleBase):
         self.assertEqual(cat['key'], 'protein')
         r = self.client.post('/api/admin/shop/products/', {'name': 'Whey 1kg', 'category_id': cat['id'], 'price': '149',
                                                            'stock_quantity': 3}, format='json')
-        self.assertEqual((r.status_code, r.data['sku'], r.data['is_low_stock']), (201, 'WHEY-1KG', True))
+        self.assertEqual((r.status_code, r.data['sku'], r.data['is_low_stock']), (201, 'PRO-0001', True))   # SKU: category prefix + number
         pid = r.data['id']
         self.assertEqual(self.client.patch(f'/api/admin/shop/products/{pid}/', {'original_price': '100'},
                                            format='json').status_code, 400)          # "was" price must be higher

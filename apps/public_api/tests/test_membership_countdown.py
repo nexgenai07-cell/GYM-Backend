@@ -83,7 +83,7 @@ class CountdownStartsAtApprovalTests(PaymentTestBase):
     def test_admin_registrations_show_the_countdown_for_approved_only(self):
         approved_id = self.registered_and_paid()
         approve_registration(self.reg(approved_id))
-        pending_id = self.register(iqama_number='2888777666', email='other@example.com').data['id']
+        pending_id = self.register(iqama_number='2888777666', email='other@example.com', full_name='Other Person').data['id']
         self.staff_client()
         rows = {r['id']: r for r in self.client.get('/api/admin/registrations-api/registrations/').data['results']}
         self.assertEqual(rows[approved_id]['membership']['time_remaining']['months'], 3)
@@ -96,7 +96,7 @@ class CountdownStartsAtApprovalTests(PaymentTestBase):
         # 2 = the count + one select that joins plan, approver, user and membership
         with self.assertNumQueries(2):
             self.client.get('/api/admin/registrations-api/registrations/')
-        second = self.register(iqama_number='2777666555', email='b@example.com').data['id']
+        second = self.register(iqama_number='2777666555', email='b@example.com', full_name='Second Person').data['id']
         self.pay('pay_b', second, 23700)
         self.verify('pay_b')
         approve_registration(self.reg(second))

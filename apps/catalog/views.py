@@ -6,7 +6,7 @@ from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from datetime import timedelta
 from django.db import transaction as db_transaction
-from django.db.models import F
+from django.db.models import Avg, Count, F, Q
 
 from .models import (
     TrainerProfile, TrainerAvailability,
@@ -58,7 +58,29 @@ def trainer_detail(request, trainer_id):
     # Include their courses
     courses = trainer.courses.filter(status='published')
     data['courses'] = CourseListSerializer(courses, many=True, context={'request': request}).data
+    data['reviews'] = TrainerReviewSerializer(trainer.reviews.select_related('member')[:20], many=True).data
+    if request.user.is_authenticated:
+        mine = trainer.reviews.filter(member=request.user).first()
+        data['my_review'] = TrainerReviewSerializer(mine).data if mine else None
+        data['can_review'], data['review_hint'] = _can_review(request.user, trainer)
     return Response(data)
+
+
+def _can_review(member, trainer):
+    """(allowed, reason) — members review coaches they've trained with (session or course)."""
+    trained = TrainerSession.objects.filter(member=member, trainer=trainer).filter(
+        Q(status='completed') | Q(status='scheduled', scheduled_at__lte=timezone.now())).exists()
+    enrolled = Enrollment.objects.filter(member=member, course__trainer=trainer).exists()
+    if trained or enrolled:
+        return True, ''
+    return False, 'You can review this coach after a session with them or after joining one of their courses.'
+
+
+def _refresh_trainer_rating(trainer):
+    agg = trainer.reviews.aggregate(avg=Avg('rating'), n=Count('id'))
+    trainer.rating = round(agg['avg'] or 0, 2)
+    trainer.total_reviews = agg['n']
+    trainer.save(update_fields=['rating', 'total_reviews'])
 
 
 # ============================================
@@ -164,16 +186,29 @@ def my_enrollments(request):
     return Response(EnrollmentSerializer(enrollment).data, status=status.HTTP_201_CREATED)
 
 
-@api_view(['POST'])
+@api_view(['POST', 'DELETE'])
 @permission_classes([IsAuthenticated])
 def complete_module(request, enrollment_id, module_id):
     """
-    POST /api/catalog/enrollments/<enrollment_id>/modules/<module_id>/complete/
+    POST   /api/catalog/enrollments/<enrollment_id>/modules/<module_id>/complete/  → mark the day done
+    DELETE (same URL)                                                            → undo (marked by mistake)
+    A day that is locked until the previous one can only be completed in order.
     """
     enrollment = get_object_or_404(Enrollment, id=enrollment_id, member=request.user)
     module = get_object_or_404(CourseModule, id=module_id, course=enrollment.course)
 
-    enrollment.completed_modules.add(module)
+    if request.method == 'DELETE':
+        enrollment.completed_modules.remove(module)
+    else:
+        if enrollment.completed_modules.filter(id=module.id).exists():
+            return Response({'detail': 'This day is already marked as done.'}, status=status.HTTP_400_BAD_REQUEST)
+        if module.is_locked_until_prev:
+            done = set(enrollment.completed_modules.values_list('id', flat=True))
+            earlier = enrollment.course.modules.filter(order__lt=module.order).exclude(id__in=done).order_by('order').first()
+            if earlier:
+                return Response({'detail': f'Finish “{earlier.title}” first — days unlock in order.'},
+                                status=status.HTTP_400_BAD_REQUEST)
+        enrollment.completed_modules.add(module)
 
     total = enrollment.course.modules.count()
     completed = enrollment.completed_modules.count()
@@ -182,6 +217,9 @@ def complete_module(request, enrollment_id, module_id):
     if enrollment.progress_percent == 100:
         enrollment.status = 'completed'
         enrollment.completed_at = timezone.now()
+    elif enrollment.status == 'completed':
+        enrollment.status = 'active'
+        enrollment.completed_at = None
 
     enrollment.save()
 
@@ -250,8 +288,18 @@ def cancel_session(request, session_id):
             session.status = 'cancelled'
             session.save(update_fields=['status'])
             return Response(TrainerSessionSerializer(session).data)
+        refused = {
+            'completed': 'This session is already completed and cannot be cancelled.',
+            'no_show': 'This session was marked as a no-show and cannot be cancelled.',
+            'cancelled': 'This session is already cancelled.',
+        }
+        if session.status in refused:
+            return Response({'detail': refused[session.status]}, status=status.HTTP_400_BAD_REQUEST)
         if session.status != 'scheduled':
             return Response({'detail': 'Only upcoming sessions can be cancelled.'}, status=status.HTTP_400_BAD_REQUEST)
+        if session.scheduled_at <= timezone.now():
+            return Response({'detail': 'This session has already started and cannot be cancelled.'},
+                            status=status.HTTP_400_BAD_REQUEST)
         if session.scheduled_at - timezone.now() < timedelta(hours=REFUND_HOURS):
             return Response(
                 {'detail': f'Sessions can be cancelled up to {REFUND_HOURS} hours before the start.'},
@@ -338,26 +386,31 @@ def review_course(request, course_id):
 def review_trainer(request, trainer_id):
     """
     POST /api/catalog/trainers/<id>/review/
+    Body: { "rating": 1-5, "comment": "..." } — sending again updates your review.
     """
     trainer = get_object_or_404(TrainerProfile, id=trainer_id)
+    allowed, why = _can_review(request.user, trainer)
+    if not allowed:
+        return Response({'detail': why}, status=status.HTTP_403_FORBIDDEN)
 
-    if TrainerReview.objects.filter(trainer=trainer, member=request.user).exists():
-        return Response(
-            {'detail': 'You already reviewed this trainer.'},
-            status=status.HTTP_400_BAD_REQUEST,
-        )
+    errors = {}
+    try:
+        rating = int(str(request.data.get('rating', '')).strip())
+        if not 1 <= rating <= 5:
+            raise ValueError
+    except (TypeError, ValueError):
+        errors['rating'] = 'Choose a rating from 1 to 5 stars.'
+    comment = ' '.join(str(request.data.get('comment') or '').split())
+    if len(comment) > 1000:
+        errors['comment'] = 'Keep your review under 1000 characters.'
+    if errors:
+        return Response(errors, status=status.HTTP_400_BAD_REQUEST)
 
-    serializer = TrainerReviewSerializer(data=request.data)
-    if serializer.is_valid():
-        serializer.save(trainer=trainer, member=request.user)
-
-        reviews = trainer.reviews.all()
-        trainer.rating = round(sum(r.rating for r in reviews) / reviews.count(), 2)
-        trainer.total_reviews = reviews.count()
-        trainer.save()
-
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    review, created = TrainerReview.objects.update_or_create(
+        trainer=trainer, member=request.user, defaults={'rating': rating, 'comment': comment})
+    _refresh_trainer_rating(trainer)
+    return Response(TrainerReviewSerializer(review).data,
+                    status=status.HTTP_201_CREATED if created else status.HTTP_200_OK)
 
     # ============================================
 # COURSE PLAYER

@@ -14,6 +14,7 @@ from rest_framework.decorators import api_view, parser_classes, permission_class
 from rest_framework.parsers import FormParser, JSONParser, MultiPartParser
 from rest_framework.response import Response
 
+from apps.core.validators import duplicate_error
 from apps.shop.models import Order, OrderItem, Product, ProductCategory, PromoCode
 
 from .catalog_ops import _save_image
@@ -67,22 +68,45 @@ def _product_row(p):
     }
 
 
+SKU_RE = re.compile(r'[A-Z]{3}-\d{4}')
+SKU_MESSAGE = 'SKU must be 3 letters, a dash and 4 digits, e.g. SUP-0001.'
+
+
+def next_sku(category):
+    """First free SKU for a category: its first 3 letters + a running number (SUP-0001)."""
+    prefix = (re.sub(r'[^A-Za-z]', '', getattr(category, 'key', '') or getattr(category, 'name', '')).upper() + 'XXX')[:3]
+    taken = set(Product.objects.filter(sku__startswith=f'{prefix}-').values_list('sku', flat=True))
+    n = 1
+    while f'{prefix}-{n:04d}' in taken:
+        n += 1
+    return f'{prefix}-{n:04d}'
+
+
 def _apply_product(p, data, errors):
     for f, n, req in (('name', 200, True), ('description', 4000, False), ('price_note', 100, False),
                       ('badge_top', 60, False), ('badge_secondary', 60, False), ('stock_label', 60, False)):
         if f in data:
             v = str(data.get(f) or '').strip()
+            if f == 'name':
+                v = ' '.join(v.split())
             if req and not v:
                 errors[f] = 'Required.'
             elif len(v) > n:
                 errors[f] = f'Keep it under {n} characters.'
+            elif f == 'name' and len(v) < 3:
+                errors[f] = 'Product name must be at least 3 characters.'
             setattr(p, f, v)
+    if 'name' in data and 'name' not in errors:
+        dup = duplicate_error(Product.objects.all(), 'name', p.name, 'A product named', exclude_id=p.id)
+        if dup:
+            errors['name'] = dup
     if 'sku' in data:
-        sku = re.sub(r'[^A-Za-z0-9\-_]', '', str(data.get('sku') or '').strip().upper())[:50]
-        if not sku:
-            errors['sku'] = 'Letters, numbers and dashes only.'
-        elif Product.objects.filter(sku__iexact=sku).exclude(id=p.id).exists():
-            errors['sku'] = 'Another product already uses this SKU.'
+        sku = str(data.get('sku') or '').strip().upper()
+        if sku != (p.sku or '').upper() or not p.id:      # old SKUs keep working until they're changed
+            if not SKU_RE.fullmatch(sku):
+                errors['sku'] = SKU_MESSAGE
+            elif Product.objects.filter(sku__iexact=sku).exclude(id=p.id).exists():
+                errors['sku'] = f'SKU {sku} is already used by another product.'
         p.sku = sku
     if 'category_id' in data:
         c = ProductCategory.objects.filter(id=data.get('category_id')).first()
@@ -140,11 +164,7 @@ def products(request):
     errors = {}
     data = {'name': '', 'price': None, 'category_id': None, **request.data}
     if not data.get('sku'):
-        data['sku'] = slugify(data.get('name') or '').upper()[:40] or 'ITEM'
-        base, n = data['sku'], 1
-        while Product.objects.filter(sku__iexact=data['sku']).exists():
-            n += 1
-            data['sku'] = f'{base}-{n}'
+        data['sku'] = next_sku(ProductCategory.objects.filter(id=data.get('category_id')).first())
     _apply_product(p, data, errors)
     if errors:
         return Response(errors, status=400)
@@ -216,9 +236,14 @@ def _cat_row(c):
 def categories(request):
     if request.method == 'GET':
         return Response([_cat_row(c) for c in ProductCategory.objects.order_by('display_order', 'name')])
-    name = str(request.data.get('name') or '').strip()[:60]
+    name = ' '.join(str(request.data.get('name') or '').split())
     if not name:
-        return Response({'name': 'Required.'}, status=400)
+        return Response({'name': 'Category name is required.'}, status=400)
+    if len(name) > 60:
+        return Response({'name': 'Category name must be 60 characters or fewer.'}, status=400)
+    dup = duplicate_error(ProductCategory.objects.all(), 'name', name, 'A category named')
+    if dup:
+        return Response({'name': dup}, status=400)
     key = slugify(name)[:40] or 'category'
     base, n = key, 1
     while ProductCategory.objects.filter(key=key).exists():
@@ -243,9 +268,12 @@ def category_detail(request, category_id):
         return Response(status=204)
     for f, n in (('name', 60), ('icon', 40), ('description', 200)):
         if f in request.data:
-            setattr(c, f, str(request.data.get(f) or '').strip()[:n])
+            setattr(c, f, ' '.join(str(request.data.get(f) or '').split())[:n])
     if not c.name:
-        return Response({'name': 'Required.'}, status=400)
+        return Response({'name': 'Category name is required.'}, status=400)
+    dup = duplicate_error(ProductCategory.objects.all(), 'name', c.name, 'A category named', exclude_id=c.id)
+    if dup:
+        return Response({'name': dup}, status=400)
     if 'display_order' in request.data:
         try:
             c.display_order = int(request.data['display_order'])

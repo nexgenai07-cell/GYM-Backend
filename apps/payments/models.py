@@ -182,6 +182,7 @@ class PaymentIntent(models.Model):
         ('course', 'Course'),
         ('renewal', 'Membership renewal'),
         ('facility_addon', 'Facility add-on'),
+        ('nutrition_plan', 'Nutrition plan'),
     ]
     STATUS_CHOICES = [
         ('pending', 'Pending'),
@@ -212,6 +213,8 @@ class PaymentIntent(models.Model):
     months = models.PositiveIntegerField(null=True, blank=True)            # renewal / add-on length
     facility_item = models.ForeignKey('site_content.SiteItem', on_delete=models.SET_NULL, null=True, blank=True,
                                       related_name='+')
+    nutrition_plan = models.ForeignKey('nutrition.NutritionPlan', on_delete=models.SET_NULL, null=True, blank=True,
+                                       related_name='payment_intents')
 
     # Moyasar
     attempt_token = models.CharField(max_length=64)                        # echoed in the payment metadata

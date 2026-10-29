@@ -132,6 +132,54 @@
   "ar": "علاج التعافي"
  },
  {
+  "key": "svc.new",
+  "page": "svc",
+  "en": "NEW",
+  "ar": "جديد"
+ },
+ {
+  "key": "svc.oneOnOne",
+  "page": "svc",
+  "en": "1-ON-1 COACHING",
+  "ar": "تدريب فردي"
+ },
+ {
+  "key": "svc.session",
+  "page": "svc",
+  "en": "session",
+  "ar": "جلسة"
+ },
+ {
+  "key": "svc.min",
+  "page": "svc",
+  "en": "MIN",
+  "ar": "دقيقة"
+ },
+ {
+  "key": "svc.joinToBook",
+  "page": "svc",
+  "en": "JOIN TO BOOK",
+  "ar": "انضم للحجز"
+ },
+ {
+  "key": "svc.nutritionPlan",
+  "page": "svc",
+  "en": "NUTRITION PLAN",
+  "ar": "خطة تغذية"
+ },
+ {
+  "key": "svc.consultation",
+  "page": "svc",
+  "en": "consultation",
+  "ar": "استشارة"
+ },
+ {
+  "key": "svc.planDuration",
+  "page": "svc",
+  "en": "DAILY TARGETS + REVIEWS",
+  "ar": "أهداف يومية + مراجعات"
+ },
+ {
   "key": "svc.search.placeholder",
   "page": "svc",
   "en": "Query biometric protocols…",
@@ -140,26 +188,26 @@
  {
   "key": "svc.metric.accuracy",
   "page": "svc",
-  "en": "TELEMETRY ACCURACY",
-  "ar": "دقة القياس"
+  "en": "COACHES",
+  "ar": "المدربون"
  },
  {
   "key": "svc.metric.sync",
   "page": "svc",
-  "en": "COACH SYNC WINDOW",
-  "ar": "نافذة مزامنة المدرب"
+  "en": "CLASSES / WEEK",
+  "ar": "حصص أسبوعيًا"
  },
  {
   "key": "svc.metric.cryo",
   "page": "svc",
-  "en": "CRYO POD FLOOR",
-  "ar": "أرضية كبسولة التبريد"
+  "en": "MEMBER RATING",
+  "ar": "تقييم الأعضاء"
  },
  {
   "key": "svc.metric.feedback",
   "page": "svc",
-  "en": "BIOMETRIC FEEDBACK",
-  "ar": "التغذية الحيوية الراجعة"
+  "en": "MACHINES WITH QR GUIDES",
+  "ar": "أجهزة بأدلة QR"
  },
  {
   "key": "svc.belt.biometrics",
@@ -626,20 +674,20 @@
  {
   "key": "svc.tel.lactate",
   "page": "svc",
-  "en": "Lactate Clearance Baseline",
-  "ar": "خط أساس تصفية اللاكتات"
+  "en": "In the club now",
+  "ar": "في النادي الآن"
  },
  {
   "key": "svc.tel.maxO2",
   "page": "svc",
-  "en": "Max Oxygen Uptake",
-  "ar": "أقصى استهلاك للأوكسجين"
+  "en": "Check-ins today",
+  "ar": "تسجيلات الدخول اليوم"
  },
  {
   "key": "svc.tel.chamber",
   "page": "svc",
-  "en": "Hydrotherapy Chamber",
-  "ar": "غرفة العلاج المائي"
+  "en": "Classes today",
+  "ar": "حصص اليوم"
  },
  {
   "key": "svc.tel.ready",
@@ -1196,26 +1244,26 @@
  {
   "key": "home.stat3.v",
   "page": "home",
-  "en": "840W",
-  "ar": "840و"
+  "en": "—",
+  "ar": "—"
  },
  {
   "key": "home.stat3.l",
   "page": "home",
-  "en": "MEAN PEAK",
-  "ar": "متوسط الذروة"
+  "en": "CLASSES / WEEK",
+  "ar": "حصص أسبوعيًا"
  },
  {
   "key": "home.stat4.v",
   "page": "home",
-  "en": "94.2%",
-  "ar": "94.2%"
+  "en": "—",
+  "ar": "—"
  },
  {
   "key": "home.stat4.l",
   "page": "home",
-  "en": "RECOVERY OPTIMAL",
-  "ar": "تعافي مثالي"
+  "en": "MEMBER RATING",
+  "ar": "تقييم الأعضاء"
  },
  {
   "key": "home.belt.strength",
@@ -1382,14 +1430,14 @@
  {
   "key": "home.floor.tile1.note",
   "page": "home",
-  "en": "Peak window 5–8 PM · all 12 platforms running",
-  "ar": "نافذة الذروة 5–8 م · جميع المنصات الـ12 تعمل"
+  "en": "Members checked in right now",
+  "ar": "أعضاء سجّلوا دخولهم الآن"
  },
  {
   "key": "home.floor.tile2.lab",
   "page": "home",
-  "en": "VOLUME MOVED TODAY",
-  "ar": "الحجم المنقول اليوم"
+  "en": "VOLUME LIFTED TODAY",
+  "ar": "الأوزان المرفوعة اليوم"
  },
  {
   "key": "home.floor.tile2.unit",
@@ -1406,14 +1454,14 @@
  {
   "key": "home.floor.tile2.note",
   "page": "home",
-  "en": "Squat · bench · dead · carries · sleds",
-  "ar": "سكوات · بنش · ديدليفت · حَمْل · زحافات"
+  "en": "Every set members log in the app today",
+  "ar": "كل مجموعة يسجّلها الأعضاء في التطبيق اليوم"
  },
  {
   "key": "home.floor.tile3.lab",
   "page": "home",
-  "en": "SESSIONS COACHED",
-  "ar": "جلسات مُدرّبة"
+  "en": "COACHED SESSIONS",
+  "ar": "جلسات مع مدرب"
  },
  {
   "key": "home.floor.tile3.unit",
@@ -1430,32 +1478,32 @@
  {
   "key": "home.floor.tile3.note",
   "page": "home",
-  "en": "Form-first programming · all sectors",
-  "ar": "برمجة تبدأ بالشكل · جميع القطاعات"
+  "en": "1-on-1 sessions and class places this week",
+  "ar": "جلسات فردية وأماكن في الحصص هذا الأسبوع"
  },
  {
   "key": "home.floor.tile4.lab",
   "page": "home",
-  "en": "RACK WAIT TIME",
-  "ar": "وقت انتظار الرف"
+  "en": "MACHINES TRACKED",
+  "ar": "أجهزة متتبَّعة"
  },
  {
   "key": "home.floor.tile4.unit",
   "page": "home",
-  "en": "MIN",
-  "ar": "دقيقة"
+  "en": "QR GUIDES",
+  "ar": "أدلة QR"
  },
  {
   "key": "home.floor.tile4.badge",
   "page": "home",
-  "en": "ALWAYS",
-  "ar": "دائمًا"
+  "en": "LIVE",
+  "ar": "مباشر"
  },
  {
   "key": "home.floor.tile4.note",
   "page": "home",
-  "en": "34 stations · zero-queue guarantee",
-  "ar": "34 محطة · ضمان عدم الطوابير"
+  "en": "Scan any machine for its setup guide",
+  "ar": "امسح أي جهاز لرؤية دليل استخدامه"
  },
  {
   "key": "home.feed.p1",
@@ -1468,6 +1516,24 @@
   "page": "home",
   "en": "IN USE",
   "ar": "مستخدمة"
+ },
+ {
+  "key": "home.feed.full",
+  "page": "home",
+  "en": "FULL",
+  "ar": "مكتمل"
+ },
+ {
+  "key": "home.feed.spots",
+  "page": "home",
+  "en": "SPOTS",
+  "ar": "أماكن"
+ },
+ {
+  "key": "home.feed.none",
+  "page": "home",
+  "en": "NO CLASSES LEFT TODAY · SEE THE TIMETABLE",
+  "ar": "لا حصص متبقية اليوم · راجع الجدول"
  },
  {
   "key": "home.feed.r4",
@@ -1568,8 +1634,8 @@
  {
   "key": "home.why.c1.l",
   "page": "home",
-  "en": "renew after year one",
-  "ar": "يجددون بعد السنة الأولى"
+  "en": "members still active",
+  "ar": "من الأعضاء ما زالوا نشطين"
  },
  {
   "key": "home.why.c2.v",
@@ -2184,6 +2250,12 @@
   "ar": "أزال سمارت جيم كل التخمين من مرحلة ما قبل الموسم. تغذية سرعة البار وحدها رفعت الكلين والنطر بـ *17.5 كغ*."
  },
  {
+  "key": "home.pf.empty",
+  "page": "home",
+  "en": "No member reviews yet — they appear here as members rate their coaches and courses.",
+  "ar": "لا توجد تقييمات بعد — تظهر هنا عندما يقيّم الأعضاء مدربيهم ودوراتهم."
+ },
+ {
   "key": "home.pf.author",
   "page": "home",
   "en": "ELENA ROSTOVA",
@@ -2198,26 +2270,26 @@
  {
   "key": "home.pf.s1.t",
   "page": "home",
-  "en": "TARGET RETENTION",
-  "ar": "الاحتفاظ المستهدف"
+  "en": "MEMBERS STILL ACTIVE",
+  "ar": "أعضاء ما زالوا نشطين"
  },
  {
   "key": "home.pf.s1.d",
   "page": "home",
-  "en": "Members hit baseline conditioning targets within 90 days.",
-  "ar": "الأعضاء يحققون أهداف التكييف الأساسية خلال 90 يومًا."
+  "en": "Of everyone who has joined, the share still training with us.",
+  "ar": "نسبة من انضموا وما زالوا يتدربون معنا."
  },
  {
   "key": "home.pf.s2.t",
   "page": "home",
-  "en": "DATA POINTS / MONTH",
-  "ar": "نقاط بيانات شهريًا"
+  "en": "SETS LOGGED / 30 DAYS",
+  "ar": "مجموعات مسجّلة / 30 يومًا"
  },
  {
   "key": "home.pf.s2.d",
   "page": "home",
-  "en": "Logged across smart barbells and sprint treadmills.",
-  "ar": "مسجّلة من البارات الذكية ومشايات السبرنت."
+  "en": "Every set members logged in the app in the last 30 days.",
+  "ar": "كل مجموعة سجّلها الأعضاء في التطبيق خلال آخر 30 يومًا."
  },
  {
   "key": "home.pf.s3.t",
@@ -2234,14 +2306,14 @@
  {
   "key": "home.pf.s4.t",
   "page": "home",
-  "en": "GATE SYNC",
-  "ar": "مزامنة البوابة"
+  "en": "CHECK-INS TODAY",
+  "ar": "تسجيلات الدخول اليوم"
  },
  {
   "key": "home.pf.s4.d",
   "page": "home",
-  "en": "Touchless entry via facial verification.",
-  "ar": "دخول بدون لمس عبر التحقق من الوجه."
+  "en": "Touchless entry with face verification at the gate.",
+  "ar": "دخول بدون لمس مع التحقق من الوجه عند البوابة."
  },
  {
   "key": "home.cta.eyebrow",
@@ -2588,26 +2660,26 @@
  {
   "key": "en.err.name",
   "page": "en",
-  "en": "MIN 2 CHARACTERS",
-  "ar": "حرفان على الأقل"
+  "en": "Enter your first and last name (letters only).",
+  "ar": "أدخل اسمك الأول واسم العائلة (حروف فقط)."
  },
  {
   "key": "en.err.email",
   "page": "en",
-  "en": "INVALID EMAIL",
-  "ar": "بريد غير صالح"
+  "en": "Enter a valid email address, e.g. name@example.com.",
+  "ar": "أدخل بريدًا إلكترونيًا صحيحًا، مثل name@example.com."
  },
  {
   "key": "en.err.phone",
   "page": "en",
-  "en": "SAUDI MOBILE ONLY — 9 digits starting with 5",
-  "ar": "رقم جوال سعودي فقط — 9 أرقام تبدأ بـ 5"
+  "en": "Enter a Saudi mobile number: 9 digits starting with 5.",
+  "ar": "أدخل رقم جوال سعودي: 9 أرقام تبدأ بـ 5."
  },
  {
   "key": "en.err.agree",
   "page": "en",
-  "en": "REQUIRED TO ACTIVATE PASS",
-  "ar": "مطلوب لتفعيل التصريح"
+  "en": "Tick this box to accept the terms — it’s required to activate your pass.",
+  "ar": "ضع علامة للموافقة على الشروط — هذا مطلوب لتفعيل تصريحك."
  },
  {
   "key": "en.sum.order",
@@ -4280,26 +4352,38 @@
  {
   "key": "en.err.iqama",
   "page": "en",
-  "en": "ENTER IQAMA #",
-  "ar": "أدخل رقم الإقامة"
+  "en": "Enter your 10-digit Iqama number (it starts with 2).",
+  "ar": "أدخل رقم الإقامة المكوّن من 10 أرقام (يبدأ بـ 2)."
  },
  {
   "key": "en.err.age",
   "page": "en",
-  "en": "VALID AGE (12–100)",
-  "ar": "عمر صالح (12–100)"
+  "en": "Enter your age as a number from 12 to 100.",
+  "ar": "أدخل عمرك رقمًا من 12 إلى 100."
  },
  {
   "key": "en.err.password",
   "page": "en",
-  "en": "MIN 8 CHARACTERS",
-  "ar": "8 أحرف على الأقل"
+  "en": "Use at least 8 characters, and not only numbers.",
+  "ar": "استخدم 8 أحرف على الأقل، وليس أرقامًا فقط."
  },
  {
   "key": "en.err.password2",
   "page": "en",
-  "en": "PASSWORDS DO NOT MATCH",
-  "ar": "كلمتا المرور غير متطابقتين"
+  "en": "The passwords don’t match — type the same password again.",
+  "ar": "كلمتا المرور غير متطابقتين — اكتب كلمة المرور نفسها مرة أخرى."
+ },
+ {
+  "key": "en.err.fix",
+  "page": "en",
+  "en": "Some details need fixing — check the messages under the fields marked in red.",
+  "ar": "بعض البيانات تحتاج إلى تصحيح — راجع الرسائل أسفل الحقول المميزة بالأحمر."
+ },
+ {
+  "key": "en.err.network",
+  "page": "en",
+  "en": "We couldn’t reach Smart Gym. Check your connection and try again.",
+  "ar": "تعذّر الاتصال بسمارت جيم. تحقق من اتصالك وحاول مرة أخرى."
  },
  {
   "key": "en.ok.backHome",
@@ -4376,8 +4460,8 @@
  {
   "key": "home.floor.tile4.v",
   "page": "home",
-  "en": "0",
-  "ar": "0"
+  "en": "—",
+  "ar": "—"
  },
  {
   "key": "home.pf.s1.v",
@@ -4400,8 +4484,8 @@
  {
   "key": "home.pf.s4.v",
   "page": "home",
-  "en": "0.02s",
-  "ar": "0.02s"
+  "en": "—",
+  "ar": "—"
  },
  {
   "key": "home.fc.cta",

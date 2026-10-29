@@ -1,5 +1,5 @@
 from django.urls import path
-from . import views
+from . import live, views
 
 app_name = 'public_api'
 
@@ -10,6 +10,7 @@ urlpatterns = [
     path('facilities/', views.public_facilities, name='facilities'),
     path('trainers/',   views.public_trainers,   name='trainers'),
     path('articles/',   views.public_articles,   name='articles'),
+    path('live/',       live.public_live,        name='live'),
 
     # Public register
     path('register/',                       views.public_register,         name='register'),
